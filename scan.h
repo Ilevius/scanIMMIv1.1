@@ -1,0 +1,117 @@
+#include <vector>
+#include "movable.h"
+#include "signal/Oscilloscope/SignalDeviceOscilloscope.h"
+#include "math.h"
+#include "files.h"
+#include "signal_processing.h"
+#include "settings.h"
+//#pragma once
+namespace scan {
+
+	class Scan {
+	public:
+		// Виртуальный деструктор. Вроде бы нужен для корректного удаления дочерних классов
+		virtual ~Scan() = default;
+		// Конструктор. При создании А-скана, например, стол, вообще говоря не нужен, а вот без осциллографа никак
+		Scan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
+			: oscill_(std::move(oscill)) {  // перемещаем ownership
+			if (!oscill_) throw std::invalid_argument("Oscill не может быть nullptr");
+		}
+		// Сеттер: принимает shared_ptr// по хорошему надо просто написать еще один конструктор, с аргументом
+		void setStage(std::shared_ptr<movable::MovableDeviceStage> stage) {
+			stage_ = std::move(stage);
+		}
+		virtual void setBasePoints() = 0;
+		virtual void setPoints() = 0;
+		std::vector<std::vector<double>> getBasePoints() { return basePoints; };
+		virtual void start() = 0;
+		virtual void cancel() = 0;
+		virtual void interrupt() = 0;
+		std::vector<double> getMeasure();					//	Получение осредненного сигнала с осциллографа
+		std::shared_ptr<movable::MovableDeviceStage> stage_;
+		std::shared_ptr<signal::SignalDeviceOscilloscope> oscill_;
+		std::vector<std::vector<double>> basePoints;		//				Базовые точки, например стартовая и финишная для В-скана
+		std::vector<std::vector<double>> points;			//				Цепочка точек замера, даже в случае С-скана их последовательность	
+	};
+
+
+	class MeasureVoltage : public Scan {
+	public:
+		MeasureVoltage(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
+			: Scan(oscill) {
+		}
+		void setBasePoints() override {};
+		void setPoints() override {};
+		void start() override;
+		void cancel() override {};
+		void interrupt() override {};
+		void getGeneratorSignal(std::vector<double> &signal) {
+			signal = MeasuredSignal;
+		}
+	private:
+		std::vector<double> MeasuredSignal;
+	};
+
+	//		~~~~~~~~~~~~~~~~			А-СКАН				~~~~~~~~~~~~~~~~~~~~~~
+	//	класс замера в одной точке сигнал с виборометра или микрофона, но стол должен быть зафиксирован
+	class Ascan : public Scan {
+	public:
+		// поскольку конструктор базового класса требует аргумент, передать нужно явно
+		Ascan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
+			: Scan(oscill) {
+		}
+		void setBasePoints() override;
+		void setPoints() override;
+		// Здесь добавить цикл по всем точкам
+		void start() override;	
+		void cancel() override {};
+		void interrupt() override {};
+	};
+
+	class Bscan : public Scan {
+	public:
+		// поскольку конструктор базового класса требует аргумент, передать нужно явно
+		Bscan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
+			: Scan(oscill) { 
+		}
+		void setBasePoints() override;
+		void setPoints() override;
+		void start() override;
+		void cancel() override {};
+		void interrupt() override {};
+		double DIST_STEP = 0;
+	};
+
+	class Cscan : public Scan {
+	public:
+		// поскольку конструктор базового класса требует аргумент, передать нужно явно
+		Cscan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
+			: Scan(oscill) {
+		}
+		void setBasePoints() override;
+		void setPoints() override;
+		void start() override;
+		void cancel() override {};
+		void interrupt() override {};
+	private:
+		std::vector<std::vector<double>> TransforMatrix;
+	};
+
+	//	Скан внутри выпуклого четырехугольника в N рандомных точках было бы здорово сделать до понедельника. 
+	class Rscan : public Scan {
+	public:
+		// поскольку конструктор базового класса требует аргумент, передать нужно явно
+		Rscan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
+			: Scan(oscill) {
+		}
+		//1 Выбор 4 базовых точек
+		void setBasePoints() override;
+		//2 Получение точек 
+		void setPoints() override;
+		void start() override;
+		void cancel() override {};
+		void interrupt() override {};
+	};
+
+	/*добавить при сохранении скана в матфайл писать там дату и время создания в названии или в самом файле*/
+}

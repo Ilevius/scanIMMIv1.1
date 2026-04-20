@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Исходные файлы">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков\signal">
+      <UniqueIdentifier>{294fd323-a40b-47bd-9111-3a382ebf603f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\signal\oscilloscope">
+      <UniqueIdentifier>{a073872f-1fce-4b48-a292-2c439f79a271}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\signal">
+      <UniqueIdentifier>{b6a1d5c0-4567-41ac-90be-cd81ef7358fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\signal\oscilloscope">
+      <UniqueIdentifier>{2284a229-8284-4920-9314-c5005ac7fa1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\signal\oscilloscope\OWON 6102A">
+      <UniqueIdentifier>{20f28ecd-49ca-4690-8198-2c87b700384e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\signal\oscilloscope\OWON 6102A">
+      <UniqueIdentifier>{3ceb37e5-0be7-4a9b-b062-5e213b175ad3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\signal\oscilloscope\PicoScope 5000 series">
+      <UniqueIdentifier>{4bbd7e49-ab6c-441d-b644-0f5f43d6a471}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\signal\oscilloscope\PicoScope 5000 series">
+      <UniqueIdentifier>{225d028b-74f6-4c6b-a223-726cab1d54a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\signal\oscilloscope\Simulator">
+      <UniqueIdentifier>{895e5a3c-6ee4-4e68-bd8d-a4951818a76a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\signal\oscilloscope\Simulator">
+      <UniqueIdentifier>{9956bb64-dacc-44bf-a153-9415684c0109}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\signal\Camera">
+      <UniqueIdentifier>{100f1b0a-7709-4ef9-933e-84f5530c6f61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\signal\Camera">
+      <UniqueIdentifier>{c47139ee-23f4-460e-b868-41f0e3c053fc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="application.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="files.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="math.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="movable.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="scan.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="settings.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="signal_processing.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="signal\Oscilloscope\SignalDeviceOscilloscope.cpp">
+      <Filter>Исходные файлы\signal\oscilloscope</Filter>
+    </ClCompile>
+    <ClCompile Include="signal\Oscilloscope\Simulator\Simulator.cpp">
+      <Filter>Исходные файлы\signal\oscilloscope\Simulator</Filter>
+    </ClCompile>
+    <ClCompile Include="signal\Oscilloscope\PicoScope 5000 series\SignalDeviceOscilloscopePicoScope5000s.cpp">
+      <Filter>Исходные файлы\signal\oscilloscope\PicoScope 5000 series</Filter>
+    </ClCompile>
+    <ClCompile Include="signal\Oscilloscope\OWON 6102A\SignalDeviceOscilloscopeOWON6102A.cpp">
+      <Filter>Исходные файлы\signal\oscilloscope\OWON 6102A</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="application.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="files.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="math.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="movable.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="scan.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="settings.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="signal_processing.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="signal\signal.h">
+      <Filter>Файлы заголовков\signal</Filter>
+    </ClInclude>
+    <ClInclude Include="signal\Oscilloscope\SignalDeviceOscilloscope.h">
+      <Filter>Файлы заголовков\signal\oscilloscope</Filter>
+    </ClInclude>
+    <ClInclude Include="signal\Camera\SignalDeviceCamera.h">
+      <Filter>Файлы заголовков\signal\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="signal\Oscilloscope\Simulator\Simulator.h">
+      <Filter>Файлы заголовков\signal\oscilloscope\Simulator</Filter>
+    </ClInclude>
+    <ClInclude Include="signal\Oscilloscope\PicoScope 5000 series\SignalDeviceOscilloscopePicoScope5000s.h">
+      <Filter>Файлы заголовков\signal\oscilloscope\PicoScope 5000 series</Filter>
+    </ClInclude>
+    <ClInclude Include="signal\Oscilloscope\OWON 6102A\SignalDeviceOscilloscopeOWON6102A.h">
+      <Filter>Файлы заголовков\signal\oscilloscope\OWON 6102A</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="settings.json" />
+  </ItemGroup>
+</Project>

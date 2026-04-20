@@ -1,0 +1,39 @@
+{
+  "COMMON": {
+    "WORK_FOLDER": "D:\\KubGU\\IMMI\\experiments\\ScanIMMI\\ScanIMMIv1.1\\tests\\"
+  },
+  "TABLE": {
+    "IP_ADRESS": "10.0.0.100",
+    "SIMULATOR": true,
+    "X_MIN": -145,
+    "Y_MIN": -145,
+    "X_MAX": 145,
+    "Y_MAX": 145
+  },
+  "SCAN": {
+    "LENGTH": 90.0,
+    "NPOINTS": 100,
+    "AVE_NUM": 1
+  },
+  "CSCAN": {
+    "x0": 0,
+    "y0": 0,
+    "Ly": 90.0,
+    "Lx": 90.0,
+    "Nx": 10,
+    "Ny": 10
+  },
+  "OSCILLOSCOPE": {
+    "SIMULATOR": true,
+    "HOR_SCALE_ms": 0.1,
+    "DATA_COUP": "AC",
+    "TRIG_MODE": "EDGE",
+    "TRIG_COUP": "DC",
+    "TRIG_EDGE_LEVEL": "3",
+    "DATA_CH_SCALE_V": 0.1,
+    "DEPMEM": 1000000,
+    "WANTED_TICKS": 30000,
+    "EMPTY_TICKS":  1000,
+    "BURST_PERIOD": "3"
+  }
+}
