@@ -99,6 +99,37 @@
 
 
 
+	void files::createCscanPointsMat(
+		const std::vector<std::vector<double>>& basePoints,                  // координаты X (Nx элементов)  
+		const std::vector<std::vector<double>>& scanPoints,                  // координаты X (Nx элементов)  
+		const std::vector<double>& time_,                   // время (Nt элементов)
+		const double time_step_,
+		const std::string& filename) {
+
+		MATFile* matfp = matOpen(filename.c_str(), "w");
+		if (!matfp) {
+			throw "Can't create mat file!";
+		}
+		
+		
+		// 1. coord_ (1 x Nx)
+		matrixToMatFile(basePoints, "basePoints", matfp);
+
+		// 2. coord_ (1 x Nx)
+		matrixToMatFile(scanPoints, "scanPoints", matfp);
+
+		// 3. time_ (1 x Nt)
+		vectorToMatFile(time_, "time_", matfp);
+
+		// 4. добавляем time_step_
+		numToMatFile(time_step_, "time_step_", matfp);
+
+		matClose(matfp);
+	}
+
+
+
+
 	void files::numToMatFile(const double &v, std::string name, MATFile* matfp) {
 		mxArray* mx_v = mxCreateDoubleScalar(v);
 		matPutVariable(matfp, name.c_str(), mx_v);

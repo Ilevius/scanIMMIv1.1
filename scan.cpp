@@ -158,11 +158,16 @@ namespace scan {
 			// Замер в текущей точки для тестов
 			std::vector<double> SignalAtPoint;
 			std::vector<double> origin = basePoints[0];
+			std::string CscanPointsFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Cscan\\CscanPoints.mat";
+			files::createCscanPointsMat(basePoints, points, times, timebase_s, CscanPointsFileName);
+
+			std::cout << endl << "Сохранение mat-файла c точками С-скана прошло успешно!" << endl;
 
 			// Включаем моторы для старта сканирования
 			stage_->enableMotors();
 			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
 			for (size_t i = 0; i < points.size(); ++i) {
+				std::string CscanOnePointFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Cscan\\" + to_string(i) + ".txt";
 				std::vector<double> newPoint;
 				newPoint = math::matVecMult(points[i], TransforMatrix);
 				newPoint = math::vectorAdd(newPoint, origin);
@@ -174,12 +179,13 @@ namespace scan {
 				SignalAtPoint = getMeasure();
 
 				CscanData.push_back(SignalAtPoint);
-				
-				std::cout << " Точка "<< i << " из " << points.size()  << "Сохранение mat файла С - скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
+				files::saveSignalToTxt(SignalAtPoint, timebase_s, CscanOnePointFileName);
+				std::cout << " Точка "<< i << " из " << points.size()  << "Сохранение точки С - скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
 			}
 
-			std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Cscan.mat";
-			files::createCscanMat(CscanData, basePoints, points, table_points, times, timebase_s, filename);
+			std::string CscanMatFileName = SETTINGS.getCommon_settings().getWorkFolder() + "Cscan.mat";
+			files::createCscanMat(CscanData, basePoints, points, table_points, times, timebase_s, CscanMatFileName);
+			std::cout << endl << "Сохранение mat-файла С-скана прошло успешно!" << endl;
 
 			stage_->disableMotors();
 		}
@@ -236,7 +242,7 @@ namespace scan {
 					Sleep(100);
 				}
 				SignalAtPoint = getMeasure();
-				dists.push_back(i);
+				dists.push_back(double(i));
 				RscanData.push_back(SignalAtPoint);
 				std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Rscan.mat";
 				files::createBscanMat(RscanData, dists, times, 1, timebase_s, filename);

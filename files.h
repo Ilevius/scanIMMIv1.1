@@ -22,6 +22,16 @@ namespace files {
 		const double time_step_,
 		const std::string& filename);
 
+
+
+	void createCscanPointsMat(
+		const std::vector<std::vector<double>>& basePoints,                  // координаты X (Nx элементов)  
+		const std::vector<std::vector<double>>& scanPoints,                  // координаты X (Nx элементов)  
+		const std::vector<double>& time_,                   // время (Nt элементов)
+		const double time_step_,
+		const std::string& filename);
+
+
 	void numToMatFile(const double &v, std::string name, MATFile* matfp);
 
 	void vectorToMatFile(const std::vector<double>& v, std::string name, MATFile* matfp);
