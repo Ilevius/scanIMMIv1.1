@@ -59,7 +59,7 @@ void signal::SignalDeviceOscilloscopePicoScope5000s::disconnect() {
 void signal::SignalDeviceOscilloscopePicoScope5000s::setup() {
 	PICO_STATUS SETUP_STATUS;
 	auto& SETTINGS = Config::instance();
-	uint32_t timebase_code = 4;  // 16 нс между отсчетами
+	uint32_t timebase_code = 7;  // 128 нс между отсчетами
 	uint32_t wanted_ticks;
 	int32_t max_samples;
 	uint32_t segmIndex = 0;

@@ -36,6 +36,8 @@ namespace scan {
 		setBasePoints();
 		points = basePoints;
 	}
+
+
 	void Ascan::start() {
 		std::vector<double> SignalAtPoint;
 		auto& SETTINGS = Config::instance();
@@ -113,7 +115,6 @@ namespace scan {
 		else throw "There is no points to scan at!";
 	};
 
-
 	void Cscan::setBasePoints() {
 		basePoints.clear();
 		basePoints.push_back(stage_->getManualPoint("Setting of the plate coord system ORIGIN!\n"));
@@ -173,10 +174,13 @@ namespace scan {
 				SignalAtPoint = getMeasure();
 
 				CscanData.push_back(SignalAtPoint);
-				std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Cscan.mat";
-				files::createCscanMat(CscanData, basePoints, points, table_points, times, timebase_s, filename);
-				std::cout << "  Сохранение mat файла С-скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
+				
+				std::cout << " Точка "<< i << " из " << points.size()  << "Сохранение mat файла С - скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
 			}
+
+			std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Cscan.mat";
+			files::createCscanMat(CscanData, basePoints, points, table_points, times, timebase_s, filename);
+
 			stage_->disableMotors();
 		}
 		else throw "There is no points to scan at!";
