@@ -59,7 +59,7 @@ void signal::SignalDeviceOscilloscopePicoScope5000s::disconnect() {
 void signal::SignalDeviceOscilloscopePicoScope5000s::setup() {
 	PICO_STATUS SETUP_STATUS;
 	auto& SETTINGS = Config::instance();
-	uint32_t timebase_code = 7;  // 128 нс между отсчетами
+	uint32_t timebase_code = 11;  // 128 нс между отсчетами
 	uint32_t wanted_ticks;
 	int32_t max_samples;
 	uint32_t segmIndex = 0;
@@ -114,7 +114,7 @@ std::vector<uint16_t> signal::SignalDeviceOscilloscopePicoScope5000s::getRaw16Bi
 	PICO_STATUS	PicoStatus;
 	int32_t preTicks = int32_t(EMPTY_TICKS);
 	int32_t postTicks = int32_t(TICKS - EMPTY_TICKS);
-	uint32_t timebase = 4;
+	uint32_t timebase = 11;
 	int32_t timeIndisposedMsl;
 	uint32_t segmentIndex = 0;
 	void *pParameter;

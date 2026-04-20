@@ -180,7 +180,7 @@ namespace scan {
 
 				CscanData.push_back(SignalAtPoint);
 				files::saveSignalToTxt(SignalAtPoint, timebase_s, CscanOnePointFileName);
-				std::cout << " Точка "<< i << " из " << points.size()  << "Сохранение точки С - скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
+				std::cout << " Сохранение точки "<< i << " из " << points.size()  << "  С - скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
 			}
 
 			std::string CscanMatFileName = SETTINGS.getCommon_settings().getWorkFolder() + "Cscan.mat";
