@@ -3,5 +3,21 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Project Path="C:/Program Files/Obsidian/Obsidian.exe">
+    <BuildType Project="Release" />
+    <Platform Project="x64" />
+    <Properties Name="DebuggerProjectSystem">
+      <Property Name="AttachLaunchAction" Value="No" />
+      <Property Name="Environment" Value="По умолчанию" />
+      <Property Name="Executable" Value="C:\Program Files\Obsidian\Obsidian.exe" />
+      <Property Name="IORedirection" Value="Auto" />
+      <Property Name="LaunchingEngine" Value="00000000-0000-0000-0000-000000000000" />
+      <Property Name="LaunchSQLEngine" Value="No" />
+      <Property Name="PortSupplier" Value="00000000-0000-0000-0000-000000000000" />
+      <Property Name="RemoteMachine" Value="ILEVIUSNOTEBOOK" />
+      <Property Name="StartingDirectory" Value="C:\Program Files\Obsidian" />
+      <Property Name="UseLegacyDebugEngines" Value="No" />
+    </Properties>
+  </Project>
   <Project Path="main.vcxproj" Id="3133ec55-f350-4165-9659-e43ad284e8fe" />
 </Solution>

@@ -165,6 +165,7 @@
     <ClInclude Include="signal\Oscilloscope\Simulator\Simulator.h" />
     <ClInclude Include="signal\signal.h" />
     <ClInclude Include="signal_processing.h" />
+    <ClInclude Include="specimen\specimen.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="settings.json" />
