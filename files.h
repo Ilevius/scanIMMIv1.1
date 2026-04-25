@@ -13,6 +13,7 @@ namespace files {
 		const std::vector<double>& time_,                   // время (Nt элементов)
 		const double dist_step_,							// длинна вектора между каждой парой последовательных точек
 		const double time_step_,
+		const std::vector<std::vector<double>>& points,
 		const std::string& filename);
 
 

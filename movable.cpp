@@ -6,15 +6,34 @@ using namespace std;
 
 
 std::vector<std::vector<double>>  movable::MovableDevice::getSpecTransMatInverse() {
-	Eigen::MatrixXd A(specimenTransMatrix.size(), specimenTransMatrix[0].size());
-	for (int i = 0; i < specimenTransMatrix.size(); i++) A.row(i) = Eigen::Map<const Eigen::RowVectorXd>(specimenTransMatrix[i].data(), specimenTransMatrix[i].size());
-	A = A.inverse();
+	size_t n = specimenTransMatrix.size();
+	if (n < 1 || n != specimenTransMatrix[0].size()) {
+		throw "Incorrect specimenTransMatrix";
+	}
+	else {
+		Eigen::MatrixXd A(n, n);
+		std::vector<std::vector<double>> inv_vec(n, std::vector<double>(n));
+		for (int i = 0; i < n; i++) {			
+			for (int j = 0; j < n; j++) {
+				A(i, j) = specimenTransMatrix[i][j];
+			}	
+		}
+		A = A.inverse();
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				inv_vec[i][j] = A(i, j);
+			}
+		}
+		return inv_vec;
+	}
+}
 
-	std::vector<std::vector<double>> inv_vec(A.rows());
-	for (int i = 0; i < A.rows(); i++)
-		inv_vec[i].assign(A.row(i).data(), A.row(i).data() + A.cols());
-
-	return inv_vec;
+std::vector<double> movable::MovableDevice::toPlateCoords(std::vector<double> v) {
+	std::vector<std::vector<double>> SpTransMatInv = getSpecTransMatInverse();
+	std::vector<std::vector<double>> PlateBasePoints = getSpecimenBasePoints();
+	v = math::vectorSubstraction(v, PlateBasePoints[0]);
+	v = math::matVecMult(v, SpTransMatInv);
+	return v;
 }
 
 void movable::MovableDeviceStageStanda8MTL300XY::connect() {

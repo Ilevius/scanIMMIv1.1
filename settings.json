@@ -12,7 +12,7 @@
   },
   "SCAN": {
     "LENGTH": 90.0,
-    "NPOINTS": 100,
+    "NPOINTS": 10,
     "AVE_NUM": 100
   },
   "CSCAN": {

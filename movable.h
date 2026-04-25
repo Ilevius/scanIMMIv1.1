@@ -26,6 +26,7 @@ namespace movable {
 		std::vector<std::vector<double>> getSpecTransMatInverse();
 		void setSpecimenTransMatrix(std::vector<std::vector<double>> &v) { specimenTransMatrix = v; };
 		std::vector<std::vector<double>> getSpecimenBasePoints() { return specimenBasePoints; };
+		std::vector<double> toPlateCoords(std::vector<double> v);
 		void setSpecimenBasePoints(std::vector<std::vector<double>> &v) { specimenBasePoints = v; };
 
 	private:

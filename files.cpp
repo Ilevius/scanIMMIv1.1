@@ -37,6 +37,7 @@
 		const std::vector<double>& time_,
 		const double dist_step_,
 		const double time_step_,
+		const std::vector<std::vector<double>>& points,
 		const std::string& filename) {
 	
 		MATFile* matfp = matOpen(filename.c_str(), "w");
@@ -63,6 +64,8 @@
 
 		// 6. добавляем time_step_
 		numToMatFile(time_step_, "time_step_", matfp);
+
+		matrixToMatFile(points, "points", matfp);
 	
 		matClose(matfp);
 	}

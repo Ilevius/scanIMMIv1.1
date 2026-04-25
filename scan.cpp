@@ -27,15 +27,8 @@ namespace scan {
 
 	void Ascan::manualSetBasePoints(){
 		basePoints.clear();
-		std::vector<std::vector<double>> SpTransMatInv = stage_->getSpecTransMatInverse();
-		std::vector<std::vector<double>> PlateBasePoints = stage_->getSpecimenBasePoints();
-
 		std::vector<double> basePoint = stage_->getManualPoint("Setting of the A-scan point!\n");
-		basePoint = math::vectorSubstraction(basePoint, PlateBasePoints[0]);
-
-
-		basePoint = math::matVecMult(basePoint, SpTransMatInv);
-		basePoints.push_back(basePoint);
+		basePoints.push_back(stage_->toPlateCoords(basePoint));
 	}
 	void Ascan::setPoints() {
 		points.clear();
@@ -71,11 +64,9 @@ namespace scan {
 	void Bscan::manualSetBasePoints() {
 		basePoints.clear();
 		std::vector<double> basePoint = stage_->getManualPoint("Переместите стол руками в НАЧАЛЬНУЮ точку В-скана и нажмите enter!\n");
-		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
-		basePoints.push_back(basePoint);
+		basePoints.push_back(stage_->toPlateCoords(basePoint));
 		basePoint = stage_->getManualPoint("Переместите стол руками в КОНЕЧНУЮ точку В-скана и нажмите enter!\n");
-		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
-		basePoints.push_back(basePoint);
+		basePoints.push_back(stage_->toPlateCoords(basePoint));
 	};
 	void Bscan::setPoints(){
 		auto& SETTINGS = Config::instance();
@@ -127,7 +118,7 @@ namespace scan {
 				BscanData.push_back(SignalAtPoint);
 				std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Bscan.mat";
 				std::string testFilename = SETTINGS.getCommon_settings().getWorkFolder() + "px" + std::to_string(i) + "py0.txt";
-				files::createBscanMat(BscanData, dists, times, DIST_STEP, timebase_s, filename);
+				files::createBscanMat(BscanData, dists, times, DIST_STEP, timebase_s, points, filename);
 				//files::saveSignalToTxt(SignalAtPoint, oscill_->get_timebase_ns()*1e-9, testFilename);
 				std::cout << "  Сохранение файла успешно выполнено" << std::endl << std::endl; //File saved succesfully!
 			}
@@ -268,7 +259,7 @@ namespace scan {
 				dists.push_back(double(i));
 				RscanData.push_back(SignalAtPoint);
 				std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Rscan.mat";
-				files::createBscanMat(RscanData, dists, times, 1, timebase_s, filename);
+				files::createBscanMat(RscanData, dists, times, 1, timebase_s, points, filename);
 				std::cout << "  Сохранение файла успешно выполнено" << std::endl << std::endl; //File saved succesfully!
 			}
 			stage_->disableMotors();
