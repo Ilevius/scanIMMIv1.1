@@ -322,4 +322,25 @@ namespace math {
 			throw "you are trying to add differnt len vectors!";
 		}
 	}
+
+
+	std::vector<double> vectorSubstraction(std::vector<double>& a, std::vector<double>& b) {
+		if (a.size() == b.size()) {
+			std::vector<double> result(a.size(), 0);
+			for (size_t i = 0; i < a.size(); i++) {
+				result[i] = a[i] - b[i];
+			}
+			return result;
+		}
+		else {
+			throw "you are trying to add differnt len vectors!";
+		}
+	}
+
+
+
 };
+
+
+
+

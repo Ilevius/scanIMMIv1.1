@@ -5,6 +5,7 @@
 #include "files.h"
 #include "signal_processing.h"
 #include "settings.h"
+
 //#pragma once
 namespace scan {
 
@@ -28,10 +29,9 @@ namespace scan {
 		}
 
 
-		virtual void setBasePoints() = 0;
+		virtual void manualSetBasePoints() = 0;
 		virtual void setPoints() = 0;
 		std::vector<std::vector<double>> getBasePoints() { return basePoints; };
-		void setPlateCoords();
 		virtual void start() = 0;
 		virtual void cancel() = 0;
 		virtual void interrupt() = 0;
@@ -42,13 +42,14 @@ namespace scan {
 		std::vector<std::vector<double>> points;			//				Цепочка точек замера, даже в случае С-скана их последовательность	
 	};
 
-
+	//		~~~~~~~~~~~~~~~~			Замер напряжения				~~~~~~~~~~~~~~~~~~~~~~
+	//	Просто сохранение напряжения на осциллографе в файл 
 	class MeasureVoltage : public Scan {
 	public:
 		MeasureVoltage(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
 			: Scan(oscill) {
 		}
-		void setBasePoints() override {};
+		void manualSetBasePoints() override {};
 		void setPoints() override {};
 		void start() override;
 		void cancel() override {};
@@ -69,7 +70,7 @@ namespace scan {
 			std::shared_ptr<movable::MovableDeviceStage> stage)
 			: Scan(oscill, stage) {
 		}
-		void setBasePoints() override;
+		void manualSetBasePoints() override;
 		void setPoints() override;
 		// Здесь добавить цикл по всем точкам
 		void start() override;	
@@ -77,6 +78,8 @@ namespace scan {
 		void interrupt() override {};
 	};
 
+	//		~~~~~~~~~~~~~~~~			В-СКАН				~~~~~~~~~~~~~~~~~~~~~~
+	//	Скан на отрезке. 
 	class Bscan : public Scan {
 	public:
 		// поскольку конструктор базового класса требует аргумент, передать нужно явно
@@ -84,7 +87,7 @@ namespace scan {
 			std::shared_ptr<movable::MovableDeviceStage> stage)
 			: Scan(oscill, stage) {
 		}
-		void setBasePoints() override;
+		void manualSetBasePoints() override;
 		void setPoints() override;
 		void start() override;
 		void cancel() override {};
@@ -92,6 +95,8 @@ namespace scan {
 		double DIST_STEP = 0;
 	};
 
+	//		~~~~~~~~~~~~~~~~			С-СКАН				~~~~~~~~~~~~~~~~~~~~~~
+	//	Скан на прямоугольной сетке точек. 
 	class Cscan : public Scan {
 	public:
 		// поскольку конструктор базового класса требует аргумент, передать нужно явно
@@ -99,13 +104,14 @@ namespace scan {
 			std::shared_ptr<movable::MovableDeviceStage> stage)
 			: Scan(oscill, stage) {
 		}
-		void setBasePoints() override;
+		void manualSetBasePoints() override;
 		void setPoints() override;
 		void start() override;
 		void cancel() override {};
 		void interrupt() override {};
 	};
 
+	//		~~~~~~~~~~~~~~~~			R-СКАН				~~~~~~~~~~~~~~~~~~~~~~
 	//	Скан внутри выпуклого четырехугольника в N рандомных точках было бы здорово сделать до понедельника. 
 	class Rscan : public Scan {
 	public:
@@ -115,7 +121,7 @@ namespace scan {
 			: Scan(oscill, stage) {
 		}
 		//1 Выбор 4 базовых точек
-		void setBasePoints() override;
+		void manualSetBasePoints() override;
 		//2 Получение точек 
 		void setPoints() override;
 		void start() override;

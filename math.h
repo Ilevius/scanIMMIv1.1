@@ -59,5 +59,6 @@ namespace math {
 
 
 	std::vector<double> vectorAdd(std::vector<double> &a, std::vector<double> &b);
+	std::vector<double> vectorSubstraction(std::vector<double> &a, std::vector<double> &b);
 
 };

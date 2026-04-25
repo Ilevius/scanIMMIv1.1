@@ -23,6 +23,7 @@ namespace movable {
 		virtual void setup() = 0;
 		virtual bool is_connected() = 0;
 		std::vector<std::vector<double>> getSpecimenTransMatrix() { return specimenTransMatrix; };
+		std::vector<std::vector<double>> getSpecTransMatInverse();
 		void setSpecimenTransMatrix(std::vector<std::vector<double>> &v) { specimenTransMatrix = v; };
 		std::vector<std::vector<double>> getSpecimenBasePoints() { return specimenBasePoints; };
 		void setSpecimenBasePoints(std::vector<std::vector<double>> &v) { specimenBasePoints = v; };

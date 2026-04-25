@@ -122,9 +122,8 @@ void Ascan(State AppState) {
 	while (true) {
 		cout << "" << endl; // Choose an option and input its number
 		cout << "0: Выйти из меню А-сканирования" << endl;
-		cout << "1: Настроить систему координат пластины" << endl;
-		cout << "2: Настроить точку для сканирования" << endl;
-		cout << "3: Начать сканирование" << endl;
+		cout << "1: Указать точку сканирования вручную" << endl;
+		cout << "2: Начать сканирование" << endl;
 		std::cout << "-> ";
 
 		if (!(std::cin >> option)) {
@@ -139,12 +138,10 @@ void Ascan(State AppState) {
 		switch (option) {
 		case 0: return;
 		case 1:
-			//CURR_ASCAN.setPlateCoords();
+			CURR_ASCAN.manualSetBasePoints();
 			break;
 		case 2:
 			CURR_ASCAN.setPoints();
-			break;
-		case 3:
 			CURR_ASCAN.start();
 			break;
 		}
@@ -158,9 +155,8 @@ void Bscan(State AppState) {
 	while (true) {
 		cout << "" << endl; // Choose an option and input its number
 		cout << "0: Выйти из меню В-сканирования" << endl;
-		cout << "1: Настроить систему координат пластины" << endl;
-		cout << "2: Ввести базовые точки скана" << endl;
-		cout << "3: Начать В-сканирование" << endl;
+		cout << "1: Указать начальную и конечную точки скана вручную" << endl;
+		cout << "2: Начать В-сканирование" << endl;
 		std::cout << "-> ";
 
 		if (!(std::cin >> option)) {//ОБЯЗАТЕЛЬНО ОБРАБОТАТЬ ВВОД нечисловых символов (буквы и т.п.) ЗАЦИКЛИВАЕТСЯ!!!
@@ -174,13 +170,10 @@ void Bscan(State AppState) {
 		switch (option) {
 		case 0: return;
 		case 1:
-			//CURR_BSCAN.setPlateCoords();
+			CURR_BSCAN.manualSetBasePoints();
 			break;
 		case 2:
-			CURR_BSCAN.setBasePoints();
 			CURR_BSCAN.setPoints();
-			break;
-		case 3:
 			CURR_BSCAN.start();
 			break;
 		}
@@ -194,9 +187,7 @@ void Cscan(State AppState) {
 	while (true) {
 		cout << "" << endl; // Choose an option and input its number
 		cout << "0: Покинуть меню С-сканирования" << endl;
-		cout << "1: Настроить систему координат пластины" << endl;
-		cout << "2: Ввести координаты базовых точек скана" << endl;
-		cout << "3: Начать С-сканирование" << endl;
+		cout << "1: Начать С-сканирование" << endl;
 		std::cout << "-> ";
 
 		if (!(std::cin >> option)) {//ОБЯЗАТЕЛЬНО ОБРАБОТАТЬ ВВОД нечисловых символов (буквы и т.п.) ЗАЦИКЛИВАЕТСЯ!!!
@@ -210,12 +201,7 @@ void Cscan(State AppState) {
 		switch (option) {
 		case 0: return;
 		case 1:
-			//CURR_CSCAN.setPlateCoords();
-			break;
-		case 2:
 			CURR_CSCAN.setPoints();
-			break;
-		case 3:
 			CURR_CSCAN.start();
 			break;
 		}
@@ -229,9 +215,8 @@ void Rscan(State AppState) {
 	while (true) {
 		cout << "" << endl; // Choose an option and input its number
 		cout << "0: Покинуть меню R-сканирования" << endl;
-		cout << "1: Настроить систему координат пластины" << endl;
-		cout << "2: Ввести координаты базовых точек скана" << endl;
-		cout << "3: Start Rscan" << endl;
+		cout << "1: Ввести координаты базовых точек скана" << endl;
+		cout << "2: Start Rscan" << endl;
 		std::cout << "-> ";
 
 		if (!(std::cin >> option)) {
@@ -246,9 +231,10 @@ void Rscan(State AppState) {
 		switch (option) {
 		case 0: return;
 		case 1:
-			CURR_RSCAN.setPoints();
+			CURR_RSCAN.manualSetBasePoints();
 			break;
 		case 2:
+			CURR_RSCAN.setPoints();
 			CURR_RSCAN.start();
 			break;
 		}

@@ -18,7 +18,18 @@
 		file.close();
 	}
 
-
+	void files::saveAscanToMat(std::vector<double>& point, std::vector<double>& data, double timebase_s, const std::string& filename) {
+		MATFile* matfp = matOpen(filename.c_str(), "w");
+		if (!matfp) {
+			throw "Can't create mat file!";
+		}
+		if (!point.size() || !data.size() || !timebase_s) {
+			throw "Data are incorrect";
+		}
+		vectorToMatFile(point, "point", matfp);
+		vectorToMatFile(data, "data", matfp);
+		numToMatFile(timebase_s, "timebase_s", matfp);
+	}
 
 	void files:: createBscanMat(
 		const std::vector<std::vector<double>>& data,

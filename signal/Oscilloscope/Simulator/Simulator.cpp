@@ -22,6 +22,7 @@ namespace signal {
 		std::cout << "Запущена настрокйка SIMULATORowon" << std::endl; // OWON6102A setup has been started
 		auto& SETTINGS = Config::instance();
 		auto& osc_sets = SETTINGS.getOscill_settings();
+		set_timebase_ns(128);
 	}
 
 	

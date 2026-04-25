@@ -1,8 +1,6 @@
 #include "scan.h"
 
-
 namespace scan {
-
 	std::vector<double> Scan::getMeasure() {
 		std::cout << " Началось осреднение сигналов с осцилографа" << std::endl; // Saving average signal from oscill to file has been started!
 		auto& SETTINGS = Config::instance();
@@ -27,14 +25,27 @@ namespace scan {
 		std::cout << "  Сохранение файла успешно выполнено" << std::endl << std::endl; //File saved succesfully!
 	};
 
-	void Ascan::setBasePoints(){
+	void Ascan::manualSetBasePoints(){
 		basePoints.clear();
-		basePoints.push_back(stage_->getManualPoint("Setting of the A-scan point!\n"));
+		std::vector<std::vector<double>> SpTransMatInv = stage_->getSpecTransMatInverse();
+		std::vector<std::vector<double>> PlateBasePoints = stage_->getSpecimenBasePoints();
+
+		std::vector<double> basePoint = stage_->getManualPoint("Setting of the A-scan point!\n");
+		basePoint = math::vectorSubstraction(basePoint, PlateBasePoints[0]);
+
+
+		basePoint = math::matVecMult(basePoint, SpTransMatInv);
+		basePoints.push_back(basePoint);
 	}
 	void Ascan::setPoints() {
 		points.clear();
-		setBasePoints();
-		points = basePoints;
+		if (basePoints.size()) {
+			points = basePoints;
+		}
+		else {
+			throw "Координаты не введены вручную, а чтение из настроек еще не прописано!";
+		}
+		
 	}
 	void Ascan::start() {
 		std::vector<double> SignalAtPoint;
@@ -52,30 +63,27 @@ namespace scan {
 		SignalAtPoint = getMeasure();
 		stage_->disableMotors();
 		std::string fullFileName = SETTINGS.getCommon_settings().getWorkFolder() + fileName;
-		files::saveSignalToTxt(SignalAtPoint, oscill_->get_timebase_ns()*1e-9, fullFileName);
+		//files::saveSignalToTxt(SignalAtPoint, oscill_->get_timebase_ns()*1e-9, fullFileName);
+		files::saveAscanToMat(points[0], SignalAtPoint, oscill_->get_timebase_ns() * 1e-9, fullFileName);
 		std::cout << "  Сохранение файла успешно выполнено" << std::endl << std::endl; //File saved succesfully!
 	}
 
-	void Bscan::setBasePoints() {
+	void Bscan::manualSetBasePoints() {
 		basePoints.clear();
-		double x_, y_;
-		std::cout  << "Введите координаты точки СТАРТА В-скана в системе координат пластины" << std::endl;
-		std::cout << "Enter X coordinate: ";
-		std::cin >> x_;
-		std::cout << "Enter Y coordinate: ";
-		std::cin >> y_;
-		basePoints.push_back({ x_,y_ });
-
-		std::cout  << "Введите координаты точки ФИНИША В-скана в системе координат пластины" << std::endl;
-		std::cout << "Enter X coordinate: ";
-		std::cin >> x_;
-		std::cout << "Enter Y coordinate: ";
-		std::cin >> y_;
-		basePoints.push_back({ x_,y_ });
+		std::vector<double> basePoint = stage_->getManualPoint("Переместите стол руками в НАЧАЛЬНУЮ точку В-скана и нажмите enter!\n");
+		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
+		basePoints.push_back(basePoint);
+		basePoint = stage_->getManualPoint("Переместите стол руками в КОНЕЧНУЮ точку В-скана и нажмите enter!\n");
+		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
+		basePoints.push_back(basePoint);
 	};
-
 	void Bscan::setPoints(){
 		auto& SETTINGS = Config::instance();
+
+		if (!basePoints.size()) {
+			// здесь старт и финиш считываются из настроек
+		}
+
 		auto pair = math::getInterpolatedPoints(basePoints[0], basePoints[1], SETTINGS.getScan_settings().getNpoints());
 		points.clear();
 		points = pair.first;
@@ -128,17 +136,13 @@ namespace scan {
 		else throw "There is no points to scan at!";
 	};
 
-	void Cscan::setBasePoints() {
-		basePoints.clear();
-		basePoints.push_back(stage_->getManualPoint("Setting of the plate coord system ORIGIN!\n"));
-		basePoints.push_back(stage_->getManualPoint("Setting of the plate coord system X AXIS POINT!\n"));
-		basePoints.push_back(stage_->getManualPoint("Setting of the plate coord system Y AXIS POINT!\n"));
+	void Cscan::manualSetBasePoints() {
+		// нет большого смысла в задании точек С-скана вручную
 	};
 	void Cscan::setPoints() {
 		double x0, y0, xl, yl;
 		size_t Nx, Ny;
 		points.clear();
-		setBasePoints();
 		auto& SETTINGS = Config::instance();
 		x0 = SETTINGS.getCscan_settings().getX0();
 		y0 = SETTINGS.getCscan_settings().getY0();
@@ -146,6 +150,10 @@ namespace scan {
 		Ny = SETTINGS.getCscan_settings().getNy();
 		xl = SETTINGS.getCscan_settings().getXl();
 		yl = SETTINGS.getCscan_settings().getYl();
+		basePoints.clear();
+		basePoints.push_back({ x0, y0 });
+		basePoints.push_back({ x0+xl, y0 });
+		basePoints.push_back({ x0, y0+yl });
 		points = math::rectSnake(x0, y0, xl, yl, Nx, Ny);
 	}
 	void Cscan::start() {
@@ -202,23 +210,28 @@ namespace scan {
 		else throw "There is no points to scan at!";
 	};
 
-
-	//1 Выбор 4 базовых точек
-	void Rscan::setBasePoints() {
+	void Rscan::manualSetBasePoints() {
 		basePoints.clear();
-		basePoints.push_back(stage_->getManualPoint("Setting of the 1-st point!\n"));
-		basePoints.push_back(stage_->getManualPoint("Setting of the 2-nd point!\n"));
-		basePoints.push_back(stage_->getManualPoint("Setting of the 3-rd point!\n"));
-		basePoints.push_back(stage_->getManualPoint("Setting of the 4-th point!\n"));
+
+		std::vector<double> basePoint = stage_->getManualPoint("Переместите стол руками в ПЕРВУЮ точку R-скана и нажмите enter!\n");
+		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
+		basePoints.push_back(basePoint);
+		basePoint = stage_->getManualPoint("Переместите стол руками во ВТОРУЮ точку R-скана и нажмите enter!\n");
+		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
+		basePoints.push_back(basePoint);
+		basePoint = stage_->getManualPoint("Переместите стол руками в ТРЕТЬЮ точку R-скана и нажмите enter!\n");
+		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
+		basePoints.push_back(basePoint);
+		basePoint = stage_->getManualPoint("Переместите стол руками в ЧЕТВЕРТУЮ точку R-скана и нажмите enter!\n");
+		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
+		basePoints.push_back(basePoint);
+
 	};
-	//2 Получение точек 
 	void Rscan::setPoints() {
 		points.clear();
-		setBasePoints();
 		auto& SETTINGS = Config::instance();
 		points = math::getRandomQuadrogonPoints(basePoints[0], basePoints[1], basePoints[2], basePoints[3], SETTINGS.getScan_settings().getNpoints());
 	}
-
 	void Rscan::start() {
 		if (points.size() > 0) {
 			// Уточняем у осциллографа какой шаг по времени у его отсчетов напряжения

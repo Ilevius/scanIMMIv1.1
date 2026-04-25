@@ -1,7 +1,21 @@
 #include "movable.h"
 #include "settings.h"
 #include <iostream>
+#include "include/Eigen/Eigen"
 using namespace std;
+
+
+std::vector<std::vector<double>>  movable::MovableDevice::getSpecTransMatInverse() {
+	Eigen::MatrixXd A(specimenTransMatrix.size(), specimenTransMatrix[0].size());
+	for (int i = 0; i < specimenTransMatrix.size(); i++) A.row(i) = Eigen::Map<const Eigen::RowVectorXd>(specimenTransMatrix[i].data(), specimenTransMatrix[i].size());
+	A = A.inverse();
+
+	std::vector<std::vector<double>> inv_vec(A.rows());
+	for (int i = 0; i < A.rows(); i++)
+		inv_vec[i].assign(A.row(i).data(), A.row(i).data() + A.cols());
+
+	return inv_vec;
+}
 
 void movable::MovableDeviceStageStanda8MTL300XY::connect() {
 	auto& SETTINGS = Config::instance();
