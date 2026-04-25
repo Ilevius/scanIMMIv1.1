@@ -49,9 +49,6 @@
     <Filter Include="Файлы заголовков\signal\Camera">
       <UniqueIdentifier>{c47139ee-23f4-460e-b868-41f0e3c053fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков\specimen">
-      <UniqueIdentifier>{0e902b68-fd48-403b-8359-f263a0bc4ac6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp">
@@ -130,9 +127,6 @@
     </ClInclude>
     <ClInclude Include="signal\Oscilloscope\OWON 6102A\SignalDeviceOscilloscopeOWON6102A.h">
       <Filter>Файлы заголовков\signal\oscilloscope\OWON 6102A</Filter>
-    </ClInclude>
-    <ClInclude Include="specimen\specimen.h">
-      <Filter>Файлы заголовков\specimen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

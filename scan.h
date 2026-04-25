@@ -17,13 +17,21 @@ namespace scan {
 			: oscill_(std::move(oscill)) {  // перемещаем ownership
 			if (!oscill_) throw std::invalid_argument("Oscill не может быть nullptr");
 		}
-		// Сеттер: принимает shared_ptr// по хорошему надо просто написать еще один конструктор, с аргументом
-		void setStage(std::shared_ptr<movable::MovableDeviceStage> stage) {
-			stage_ = std::move(stage);
+
+		Scan(
+			std::shared_ptr<signal::SignalDeviceOscilloscope> oscill,
+			std::shared_ptr<movable::MovableDeviceStage> stage
+			)
+			: oscill_(std::move(oscill)), stage_(std::move(stage)) {  // перемещаем ownership
+			if (!oscill_) throw std::invalid_argument("Oscill не может быть nullptr");
+			if (!stage_) throw std::invalid_argument("Stage не может быть nullptr");
 		}
+
+
 		virtual void setBasePoints() = 0;
 		virtual void setPoints() = 0;
 		std::vector<std::vector<double>> getBasePoints() { return basePoints; };
+		void setPlateCoords();
 		virtual void start() = 0;
 		virtual void cancel() = 0;
 		virtual void interrupt() = 0;
@@ -57,8 +65,9 @@ namespace scan {
 	class Ascan : public Scan {
 	public:
 		// поскольку конструктор базового класса требует аргумент, передать нужно явно
-		Ascan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
-			: Scan(oscill) {
+		Ascan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill, 
+			std::shared_ptr<movable::MovableDeviceStage> stage)
+			: Scan(oscill, stage) {
 		}
 		void setBasePoints() override;
 		void setPoints() override;
@@ -71,8 +80,9 @@ namespace scan {
 	class Bscan : public Scan {
 	public:
 		// поскольку конструктор базового класса требует аргумент, передать нужно явно
-		Bscan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
-			: Scan(oscill) { 
+		Bscan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill, 
+			std::shared_ptr<movable::MovableDeviceStage> stage)
+			: Scan(oscill, stage) {
 		}
 		void setBasePoints() override;
 		void setPoints() override;
@@ -85,24 +95,24 @@ namespace scan {
 	class Cscan : public Scan {
 	public:
 		// поскольку конструктор базового класса требует аргумент, передать нужно явно
-		Cscan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
-			: Scan(oscill) {
+		Cscan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill,
+			std::shared_ptr<movable::MovableDeviceStage> stage)
+			: Scan(oscill, stage) {
 		}
 		void setBasePoints() override;
 		void setPoints() override;
 		void start() override;
 		void cancel() override {};
 		void interrupt() override {};
-	private:
-		std::vector<std::vector<double>> TransforMatrix;
 	};
 
 	//	Скан внутри выпуклого четырехугольника в N рандомных точках было бы здорово сделать до понедельника. 
 	class Rscan : public Scan {
 	public:
 		// поскольку конструктор базового класса требует аргумент, передать нужно явно
-		Rscan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill)
-			: Scan(oscill) {
+		Rscan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill,
+			std::shared_ptr<movable::MovableDeviceStage> stage)
+			: Scan(oscill, stage) {
 		}
 		//1 Выбор 4 базовых точек
 		void setBasePoints() override;

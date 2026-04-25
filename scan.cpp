@@ -36,8 +36,6 @@ namespace scan {
 		setBasePoints();
 		points = basePoints;
 	}
-
-
 	void Ascan::start() {
 		std::vector<double> SignalAtPoint;
 		auto& SETTINGS = Config::instance();
@@ -60,14 +58,26 @@ namespace scan {
 
 	void Bscan::setBasePoints() {
 		basePoints.clear();
-		basePoints.push_back(stage_->getManualPoint("Setting of the START point!\n"));
-		basePoints.push_back(stage_->getManualPoint("Setting of the FINISH point!\n"));
+		double x_, y_;
+		std::cout  << "Введите координаты точки СТАРТА В-скана в системе координат пластины" << std::endl;
+		std::cout << "Enter X coordinate: ";
+		std::cin >> x_;
+		std::cout << "Enter Y coordinate: ";
+		std::cin >> y_;
+		basePoints.push_back({ x_,y_ });
+
+		std::cout  << "Введите координаты точки ФИНИША В-скана в системе координат пластины" << std::endl;
+		std::cout << "Enter X coordinate: ";
+		std::cin >> x_;
+		std::cout << "Enter Y coordinate: ";
+		std::cin >> y_;
+		basePoints.push_back({ x_,y_ });
 	};
+
 	void Bscan::setPoints(){
-		points.clear();
-		setBasePoints();
 		auto& SETTINGS = Config::instance();
 		auto pair = math::getInterpolatedPoints(basePoints[0], basePoints[1], SETTINGS.getScan_settings().getNpoints());
+		points.clear();
 		points = pair.first;
 		DIST_STEP = pair.second;
 	}
@@ -96,6 +106,9 @@ namespace scan {
 			stage_->enableMotors();
 			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
 			for (size_t i = 0; i < points.size(); ++i) {
+				std::vector<double> newPoint;
+				newPoint = math::matVecMult(points[i], stage_->getSpecimenTransMatrix());
+				newPoint = math::vectorAdd(newPoint, stage_->getSpecimenBasePoints()[0]);
 				dists.push_back(DIST_STEP*i);
 				stage_->moveTo(points[i]);
 				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
@@ -126,8 +139,6 @@ namespace scan {
 		size_t Nx, Ny;
 		points.clear();
 		setBasePoints();
-		// Собираем из координат трех точек пластины матрицу перехода, умножая на которую получим координаты стола
-		TransforMatrix = math::ThreePointsToTransMatrix(basePoints[0], basePoints[1], basePoints[2]);
 		auto& SETTINGS = Config::instance();
 		x0 = SETTINGS.getCscan_settings().getX0();
 		y0 = SETTINGS.getCscan_settings().getY0();
@@ -157,7 +168,6 @@ namespace scan {
 			std::vector<std::vector<double>> CscanData;
 			// Замер в текущей точки для тестов
 			std::vector<double> SignalAtPoint;
-			std::vector<double> origin = basePoints[0];
 			std::string CscanPointsFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Cscan\\CscanPoints.mat";
 			files::createCscanPointsMat(basePoints, points, times, timebase_s, CscanPointsFileName);
 
@@ -169,10 +179,10 @@ namespace scan {
 			for (size_t i = 0; i < points.size(); ++i) {
 				std::string CscanOnePointFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Cscan\\" + to_string(i) + ".txt";
 				std::vector<double> newPoint;
-				newPoint = math::matVecMult(points[i], TransforMatrix);
-				newPoint = math::vectorAdd(newPoint, origin);
+				newPoint = math::matVecMult(points[i], stage_->getSpecimenTransMatrix());
+				newPoint = math::vectorAdd(newPoint, stage_->getSpecimenBasePoints()[0]);
 				table_points.push_back(newPoint);
-				stage_->moveTo(newPoint);
+				stage_->moveTo(points[i]);
 				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
 					Sleep(100);
 				}

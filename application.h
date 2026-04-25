@@ -5,6 +5,7 @@
 
 
 namespace app {
+
 	struct State {
 	public:
 		// Устройства

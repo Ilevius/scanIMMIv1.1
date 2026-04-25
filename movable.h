@@ -6,6 +6,7 @@
 #include <conio.h>
 #include <sstream>
 #include "include/ACSC.h"
+#include"math.h"
 #pragma once
 #pragma comment(lib, "include/ACSCL_x64.LIB")
 
@@ -21,6 +22,14 @@ namespace movable {
 		virtual void disconnect() = 0;
 		virtual void setup() = 0;
 		virtual bool is_connected() = 0;
+		std::vector<std::vector<double>> getSpecimenTransMatrix() { return specimenTransMatrix; };
+		void setSpecimenTransMatrix(std::vector<std::vector<double>> &v) { specimenTransMatrix = v; };
+		std::vector<std::vector<double>> getSpecimenBasePoints() { return specimenBasePoints; };
+		void setSpecimenBasePoints(std::vector<std::vector<double>> &v) { specimenBasePoints = v; };
+
+	private:
+		std::vector<std::vector<double>> specimenTransMatrix = { {1, 0}, {0, 1} };
+		std::vector<std::vector<double>> specimenBasePoints = { {0, 0}, {1, 0}, {0, 1} };
 
 	};
 
@@ -37,6 +46,8 @@ namespace movable {
 		virtual void setHome() = 0;
 
 		virtual std::vector<double> getManualPoint(std::string message) = 0;
+
+		virtual void setupSpecimenCoordSys() = 0;
 
 		virtual void moveTo(std::vector<double> position) = 0;
 
@@ -61,6 +72,7 @@ namespace movable {
 		bool is_moving() override;
 		void disableMotors() override;
 		void enableMotors() override;
+		void setupSpecimenCoordSys() override;
 	private:
 		HANDLE hComm;
 		const double XMIN = -149;
@@ -94,6 +106,7 @@ namespace movable {
 		bool is_moving() override;
 		void disableMotors() override;
 		void enableMotors() override;
+		void setupSpecimenCoordSys() override;
 	private:
 		HANDLE hComm;
 		const double XMIN = -149;

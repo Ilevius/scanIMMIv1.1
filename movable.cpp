@@ -5,50 +5,28 @@ using namespace std;
 
 void movable::MovableDeviceStageStanda8MTL300XY::connect() {
 	auto& SETTINGS = Config::instance();
-	bool SIMULATOR = SETTINGS.getTable_settings().getSimulator();
 	string TABLE_IP = SETTINGS.getTable_settings().getIpAdress();
 
-	if (SIMULATOR)
-	{
-		// Open communication with the simulator
-		printf("Wait for opening of communication with the Standa8MTL300XY simulator...\n");
-		hComm = acsc_OpenCommSimulator();
-		if (hComm == ACSC_INVALID)
-		{
-			connection = false;
-			throw std::exception("Standa8MTL300XY SUMULATOR connection error");
-		}
-		else
-		{
-			connection = true;
-			printf("Communication with the Standa8MTL300XY simulator was established successfully!\n");
-		}
+	// Opening communication with real controller via Ethernet
+	printf("Ожидется открытие соединения с Standa8MTL300XY...\n"); // Wait for opening of communication with Standa8MTL300XY.
+	//10.0.0.100- default IP address of the controller
 
+	char IP_ADRESS[256];
+	strncpy_s(IP_ADRESS, TABLE_IP.c_str(), sizeof(IP_ADRESS) - 1);
+	IP_ADRESS[sizeof(IP_ADRESS) - 1] = '\0';
+
+	hComm = acsc_OpenCommEthernet(IP_ADRESS, ACSC_SOCKET_DGRAM_PORT);
+	if (hComm == ACSC_INVALID)
+	{
+		connection = false;
+		throw std::exception("Standa8MTL300XY connection error");
 	}
 	else
 	{
-		// Opening communication with real controller via Ethernet
-		printf("Ожидется открытие соединения с Standa8MTL300XY...\n"); // Wait for opening of communication with Standa8MTL300XY.
-		//10.0.0.100- default IP address of the controller
-
-		char IP_ADRESS[256];
-		strncpy_s(IP_ADRESS, TABLE_IP.c_str(), sizeof(IP_ADRESS) - 1);
-		IP_ADRESS[sizeof(IP_ADRESS) - 1] = '\0';
-
-		hComm = acsc_OpenCommEthernet(IP_ADRESS, ACSC_SOCKET_DGRAM_PORT);
-		if (hComm == ACSC_INVALID)
-		{
-			connection = false;
-			throw std::exception("Standa8MTL300XY connection error");
-		}
-		else
-		{
-			connection = true;
-			printf(" Соединение С РЕАЛЬНЫМ Standa8MTL300XY успешно выполнено! Будьде осторожны, возможны прыжки и резкое движение!!!\n"); //Communication with the REAL Standa8MTL300XY was established successfully! Be aware of stage jumps and moving!!!
-		}
-
-
+		connection = true;
+		printf(" Соединение С РЕАЛЬНЫМ Standa8MTL300XY успешно выполнено! Будьде осторожны, возможны прыжки и резкое движение!!!\n"); //Communication with the REAL Standa8MTL300XY was established successfully! Be aware of stage jumps and moving!!!
 	}
+
 }
 
 void movable::MovableDeviceStageStanda8MTL300XY::setup() {
@@ -76,6 +54,9 @@ bool movable::MovableDeviceStageStanda8MTL300XY::is_connected() {
 
 void movable::MovableDeviceStageStanda8MTL300XY::moveTo(std::vector<double> position) {
 	if (position.size() == 2) {
+		position = math::matVecMult(position, getSpecimenTransMatrix());
+		position = math::vectorAdd(position, getSpecimenBasePoints()[0]);
+
 		if (XMIN <= position[0] && position[0] <= XMAX && YMIN <= position[1] && position[1] <= YMAX) {
 			if (acsc_ToPoint(hComm, 0, ACSC_AXIS_0, position[0], NULL))
 			{
@@ -239,6 +220,21 @@ bool movable::MovableDeviceStageStanda8MTL300XY::y_is_moving()
 	return State & ACSC_MST_MOVE;
 }
 
+
+void movable::MovableDeviceStageStanda8MTL300XY::setupSpecimenCoordSys() {
+	std::vector<std::vector<double>> basePlatePoints;
+	std::vector<std::vector<double>> transforMatrix;
+
+	basePlatePoints.push_back(getManualPoint("Setting of the plate coord system ORIGIN!\n"));
+	basePlatePoints.push_back(getManualPoint("Setting of the plate coord system X AXIS POINT!\n"));
+	basePlatePoints.push_back(getManualPoint("Setting of the plate coord system Y AXIS POINT!\n"));
+	setSpecimenBasePoints(basePlatePoints);
+	transforMatrix = math::ThreePointsToTransMatrix(basePlatePoints[0], basePlatePoints[1], basePlatePoints[2]);
+	setSpecimenTransMatrix(transforMatrix);
+
+}
+
+
 //												S I M U L A T O R
 
 void movable::MovableDeviceStageSIMULATORstunda::connect() {
@@ -264,6 +260,8 @@ bool movable::MovableDeviceStageSIMULATORstunda::is_connected() {
 
 void movable::MovableDeviceStageSIMULATORstunda::moveTo(std::vector<double> position) {
 	if (position.size() == 2) {
+		position = math::matVecMult(position, getSpecimenTransMatrix());
+		position = math::vectorAdd(position, getSpecimenBasePoints()[0]);
 		if (XMIN <= position[0] && position[0] <= XMAX && YMIN <= position[1] && position[1] <= YMAX) {
 			printf("stunda simulator:	X AXIS   MOTOR  IS  SET TO MOVE TO POSITION %f\r \n", position[0]);
 			printf("stunda simulator:	Y AXIS   MOTOR  IS  SET TO MOVE TO POSITION %f\r \n", position[1]);
@@ -307,5 +305,18 @@ std::vector<double> movable::MovableDeviceStageSIMULATORstunda::getCoordinates()
 }
 
 void movable::MovableDeviceStageSIMULATORstunda::setHome() {
+
+}
+
+void movable::MovableDeviceStageSIMULATORstunda::setupSpecimenCoordSys() {
+	std::vector<std::vector<double>> basePlatePoints;
+	std::vector<std::vector<double>> transforMatrix;
+
+	basePlatePoints.push_back(getManualPoint("Setting of the plate coord system ORIGIN!\n"));
+	basePlatePoints.push_back(getManualPoint("Setting of the plate coord system X AXIS POINT!\n"));
+	basePlatePoints.push_back(getManualPoint("Setting of the plate coord system Y AXIS POINT!\n"));
+	setSpecimenBasePoints(basePlatePoints);
+	transforMatrix = math::ThreePointsToTransMatrix(basePlatePoints[0], basePlatePoints[1], basePlatePoints[2]);
+	setSpecimenTransMatrix(transforMatrix);
 
 }

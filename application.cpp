@@ -36,6 +36,9 @@ void equipMenu(State& AppState) {
 			cout << "3: Отключиться от осциллографа OWON" << endl;
 			cout << "4: Отключиться от осциллографа PicoScope" << endl;
 		}
+		if (AppState.stage) {
+			cout << "5: Настроить систему координат пластины" << endl;
+		}
 		std::cout << "-> ";
 
 		if (!(std::cin >> option)) {
@@ -92,6 +95,14 @@ void equipMenu(State& AppState) {
 			}
 			//
 			break;
+		case 5:
+			try {
+				AppState.stage->setupSpecimenCoordSys();
+			}
+			catch (const char* error_msg) {
+				cout << error_msg;
+				break;
+			}
 
 		}
 
@@ -106,14 +117,14 @@ void MeasureVoltage(State& AppState) {
 
 void Ascan(State AppState) {
 	cout << endl << "Вы находитесь в меню А-сканирования" << endl; // You are in the Bscan menu. 
-	scan::Ascan CURR_ASCAN(AppState.osc);
-	CURR_ASCAN.setStage(AppState.stage);
+	scan::Ascan CURR_ASCAN(AppState.osc, AppState.stage);
 	int option;
 	while (true) {
 		cout << "" << endl; // Choose an option and input its number
 		cout << "0: Выйти из меню А-сканирования" << endl;
-		cout << "1: Настроить точку для сканирования" << endl;
-		cout << "2: Начать сканирование" << endl;
+		cout << "1: Настроить систему координат пластины" << endl;
+		cout << "2: Настроить точку для сканирования" << endl;
+		cout << "3: Начать сканирование" << endl;
 		std::cout << "-> ";
 
 		if (!(std::cin >> option)) {
@@ -128,9 +139,12 @@ void Ascan(State AppState) {
 		switch (option) {
 		case 0: return;
 		case 1:
-			CURR_ASCAN.setPoints();
+			//CURR_ASCAN.setPlateCoords();
 			break;
 		case 2:
+			CURR_ASCAN.setPoints();
+			break;
+		case 3:
 			CURR_ASCAN.start();
 			break;
 		}
@@ -139,14 +153,14 @@ void Ascan(State AppState) {
 
 void Bscan(State AppState) {
 	cout << endl << "Вы находитесь в меню Bscan" << endl; // You are in the Bscan menu. 
-	scan::Bscan CURR_BSCAN(AppState.osc);
-	CURR_BSCAN.setStage(AppState.stage);
+	scan::Bscan CURR_BSCAN(AppState.osc, AppState.stage);
 	int option;
 	while (true) {
 		cout << "" << endl; // Choose an option and input its number
-		cout << "0: Exit Bscan menu" << endl;
-		cout << "1: Setup base points" << endl;
-		cout << "2: Start Bscan" << endl;
+		cout << "0: Выйти из меню В-сканирования" << endl;
+		cout << "1: Настроить систему координат пластины" << endl;
+		cout << "2: Ввести базовые точки скана" << endl;
+		cout << "3: Начать В-сканирование" << endl;
 		std::cout << "-> ";
 
 		if (!(std::cin >> option)) {//ОБЯЗАТЕЛЬНО ОБРАБОТАТЬ ВВОД нечисловых символов (буквы и т.п.) ЗАЦИКЛИВАЕТСЯ!!!
@@ -160,26 +174,29 @@ void Bscan(State AppState) {
 		switch (option) {
 		case 0: return;
 		case 1:
-			CURR_BSCAN.setPoints();
+			//CURR_BSCAN.setPlateCoords();
 			break;
 		case 2:
+			CURR_BSCAN.setBasePoints();
+			CURR_BSCAN.setPoints();
+			break;
+		case 3:
 			CURR_BSCAN.start();
 			break;
 		}
 	}
 }
 
-
 void Cscan(State AppState) {
 	cout << endl << "Вы находитесь в меню Cscan" << endl; // You are in the Bscan menu. 
-	scan::Cscan CURR_CSCAN(AppState.osc);
-	CURR_CSCAN.setStage(AppState.stage);
+	scan::Cscan CURR_CSCAN(AppState.osc, AppState.stage);
 	int option;
 	while (true) {
 		cout << "" << endl; // Choose an option and input its number
-		cout << "0: Exit Cscan menu" << endl;
-		cout << "1: Setup base points" << endl;
-		cout << "2: Start Cscan" << endl;
+		cout << "0: Покинуть меню С-сканирования" << endl;
+		cout << "1: Настроить систему координат пластины" << endl;
+		cout << "2: Ввести координаты базовых точек скана" << endl;
+		cout << "3: Начать С-сканирование" << endl;
 		std::cout << "-> ";
 
 		if (!(std::cin >> option)) {//ОБЯЗАТЕЛЬНО ОБРАБОТАТЬ ВВОД нечисловых символов (буквы и т.п.) ЗАЦИКЛИВАЕТСЯ!!!
@@ -193,9 +210,12 @@ void Cscan(State AppState) {
 		switch (option) {
 		case 0: return;
 		case 1:
-			CURR_CSCAN.setPoints();
+			//CURR_CSCAN.setPlateCoords();
 			break;
 		case 2:
+			CURR_CSCAN.setPoints();
+			break;
+		case 3:
 			CURR_CSCAN.start();
 			break;
 		}
@@ -204,14 +224,14 @@ void Cscan(State AppState) {
 
 void Rscan(State AppState) {
 	cout << endl << "Вы находитесь в меню Rscan (пакет А-сканов в рандомных точках)" << endl; // You are in the Bscan menu. 
-	scan::Rscan CURR_RSCAN(AppState.osc);
-	CURR_RSCAN.setStage(AppState.stage);
+	scan::Rscan CURR_RSCAN(AppState.osc, AppState.stage);
 	int option;
 	while (true) {
 		cout << "" << endl; // Choose an option and input its number
-		cout << "0: Exit Rscan menu" << endl;
-		cout << "1: Setup base points" << endl;
-		cout << "2: Start Rscan" << endl;
+		cout << "0: Покинуть меню R-сканирования" << endl;
+		cout << "1: Настроить систему координат пластины" << endl;
+		cout << "2: Ввести координаты базовых точек скана" << endl;
+		cout << "3: Start Rscan" << endl;
 		std::cout << "-> ";
 
 		if (!(std::cin >> option)) {
