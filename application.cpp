@@ -241,4 +241,32 @@ void Rscan(State AppState) {
 	}
 }
 
+void Oscan(State AppState) {
+	cout << endl << "¬ы находитесь в меню Oscan" << endl; // You are in the Bscan menu. 
+	scan::Oscan CURR_CSCAN(AppState.osc, AppState.stage);
+	int option;
+	while (true) {
+		cout << "" << endl; // Choose an option and input its number
+		cout << "0: ѕокинуть меню O-сканировани€" << endl;
+		cout << "1: Ќачать O-сканирование" << endl;
+		std::cout << "-> ";
+
+		if (!(std::cin >> option)) {//ќЅя«ј“≈Ћ№Ќќ ќЅ–јЅќ“ј“№ ¬¬ќƒ нечисловых символов (буквы и т.п.) «ј÷» Ћ»¬ј≈“—я!!!
+			//ќбработка неверного ввода (буквы и т.п.)
+			//std::cin.clear();
+			//std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			//std::cout << "Invalid input, try again.\n\n";
+			//continue;
+		}
+		std::cin.ignore(1000, '\n');
+		switch (option) {
+		case 0: return;
+		case 1:
+			CURR_CSCAN.setPoints();
+			CURR_CSCAN.start();
+			break;
+		}
+	}
+}
+
 }

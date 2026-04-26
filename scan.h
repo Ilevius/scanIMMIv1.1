@@ -129,5 +129,24 @@ namespace scan {
 		void interrupt() override {};
 	};
 
+
+	class Oscan : public Scan {
+	public:
+		Oscan(std::shared_ptr<signal::SignalDeviceOscilloscope> oscill,
+			std::shared_ptr<movable::MovableDeviceStage> stage)
+			: Scan(oscill, stage) {
+		}
+		void manualSetBasePoints() override {};
+		//2 Получение точек 
+		void setPoints() override;
+		void start() override;
+		void cancel() override {};
+		void interrupt() override {};
+		
+	};
+
+	/* В функции старт у всех сканов почти одно и то же, надо универсифицировать, прописать в родительском 
+	классе и переписать разве что у замера напряжения, при этом функция созранения матфайла будет одна*/
+
 	/*добавить при сохранении скана в матфайл писать там дату и время создания в названии или в самом файле*/
 }

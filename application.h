@@ -26,4 +26,6 @@ namespace app {
 	void Cscan(State AppState);
 
 	void Rscan(State AppState);
+
+	void Oscan(State AppState);
 }

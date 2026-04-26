@@ -1,4 +1,5 @@
 #include "scan.h"
+#include <numbers>
 
 namespace scan {
 	std::vector<double> Scan::getMeasure() {
@@ -203,7 +204,6 @@ namespace scan {
 
 	void Rscan::manualSetBasePoints() {
 		basePoints.clear();
-
 		std::vector<double> basePoint = stage_->getManualPoint("Переместите стол руками в ПЕРВУЮ точку R-скана и нажмите enter!\n");
 		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
 		basePoints.push_back(basePoint);
@@ -216,7 +216,6 @@ namespace scan {
 		basePoint = stage_->getManualPoint("Переместите стол руками в ЧЕТВЕРТУЮ точку R-скана и нажмите enter!\n");
 		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
 		basePoints.push_back(basePoint);
-
 	};
 	void Rscan::setPoints() {
 		points.clear();
@@ -266,4 +265,80 @@ namespace scan {
 		}
 		else throw "There is no points to scan at!";
 	};
+
+	void Oscan::setPoints() {
+		basePoints.push_back({ 0, 0 });
+		size_t Nr, Nphi;
+		double r = 40;
+		double anR, aPhi;
+		std::vector<double> aPoint;
+		Nr = 57; Nphi = 57;
+		points.clear();
+		aPoint = { 0, 0 };
+		points.push_back(aPoint);
+
+		for (size_t i = 1; i < Nr; i++) {
+			anR = i * r / Nr;
+			for (size_t j = 0; j < Nphi; j++) {
+				aPhi = j * 2 * std::numbers::pi / Nphi;
+				aPoint = { anR * cos(aPhi), anR * sin(aPhi) };
+				points.push_back(aPoint);
+			}
+		}
+	}
+	void Oscan::start() {
+		if (points.size() > 0) {
+			std::vector<std::vector<double>> table_points;
+
+			// Уточняем у осциллографа какой шаг по времени у его отсчетов напряжения
+			double timebase_s = oscill_->get_timebase_ns() * 1e-9;
+			// массив отсчетов времени для мат файлов
+			std::vector<double> times;
+			//	заполняем массив отсчетов по времени!
+			auto& SETTINGS = Config::instance();
+			SETTINGS.loadFromFile();
+			times.resize(SETTINGS.getOscill_settings().getWantedTicks(), 0);
+			for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
+				times[j] = timebase_s * j;
+			}
+
+			// Сам скан и шаг по расстоянию
+			std::vector<std::vector<double>> CscanData;
+			// Замер в текущей точки для тестов
+			std::vector<double> SignalAtPoint;
+			std::string CscanPointsFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Oscan\\OscanPoints.mat";
+			files::createCscanPointsMat(basePoints, points, times, timebase_s, CscanPointsFileName);
+
+			std::cout << endl << "Сохранение mat-файла c точками O-скана прошло успешно!" << endl;
+
+			// Включаем моторы для старта сканирования
+			stage_->enableMotors();
+			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
+			for (size_t i = 0; i < points.size(); ++i) {
+				std::string CscanOnePointFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Oscan\\" + to_string(i) + ".txt";
+				std::vector<double> newPoint;
+				newPoint = math::matVecMult(points[i], stage_->getSpecimenTransMatrix());
+				newPoint = math::vectorAdd(newPoint, stage_->getSpecimenBasePoints()[0]);
+				table_points.push_back(newPoint);
+				stage_->moveTo(points[i]);
+				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
+					Sleep(100);
+				}
+				SignalAtPoint = getMeasure();
+
+				CscanData.push_back(SignalAtPoint);
+				files::saveSignalToTxt(SignalAtPoint, timebase_s, CscanOnePointFileName);
+				std::cout << " Сохранение точки " << i << " из " << points.size() << "  O - скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
+			}
+
+			std::string CscanMatFileName = SETTINGS.getCommon_settings().getWorkFolder() + "Oscan.mat";
+			files::createCscanMat(CscanData, basePoints, points, table_points, times, timebase_s, CscanMatFileName);
+			std::cout << endl << "Сохранение mat-файла O-скана прошло успешно!" << endl;
+
+			stage_->disableMotors();
+		}
+		else throw "There is no points to scan at!";
+	};
+
+
 }
