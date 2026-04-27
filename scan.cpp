@@ -269,18 +269,26 @@ namespace scan {
 	void Oscan::setPoints() {
 		basePoints.push_back({ 0, 0 });
 		size_t Nr, Nphi;
-		double r = 40;
+		double r = 60;
+		double r0 = 20;
 		double anR, aPhi;
 		std::vector<double> aPoint;
-		Nr = 57; Nphi = 57;
+		Nr = 135; Nphi = 25;
 		points.clear();
 		aPoint = { 0, 0 };
 		points.push_back(aPoint);
 
+
 		for (size_t i = 1; i < Nr; i++) {
-			anR = i * r / Nr;
-			for (size_t j = 0; j < Nphi; j++) {
-				aPhi = j * 2 * std::numbers::pi / Nphi;
+			anR = r0 + i * r / Nr;
+			for (size_t j = 0; j <= Nphi; j++) {
+				if (i % 2 == 0) {
+					aPhi = (Nphi - j) * 0.5 * std::numbers::pi / Nphi;
+				}
+				else {
+					aPhi = j * 0.5 * std::numbers::pi / Nphi;
+				}
+				
 				aPoint = { anR * cos(aPhi), anR * sin(aPhi) };
 				points.push_back(aPoint);
 			}
