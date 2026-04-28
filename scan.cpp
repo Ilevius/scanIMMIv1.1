@@ -8,7 +8,7 @@ namespace scan {
 		int EMP_TICKS = SETTINGS.getOscill_settings().getEmptyTicks();
 		int TICKS = SETTINGS.getOscill_settings().getWantedTicks();
 		int SLEEP_MS = 1;
-		int AVE_NUM = SETTINGS.getScan_settings().getNave();
+		int AVE_NUM = SETTINGS.getOscill_settings().getAveN();
 		std::vector<double> signal = oscill_->getAveragedVolts(EMP_TICKS, TICKS, SLEEP_MS, AVE_NUM);
 		signalProcessing::centerSignal(signal);
 		return signal;
@@ -37,7 +37,9 @@ namespace scan {
 			points = basePoints;
 		}
 		else {
-			throw "Координаты не введены вручную, а чтение из настроек еще не прописано!";
+			auto& SETTINGS = Config::instance();
+			SETTINGS.loadFromFile();
+			points.push_back({SETTINGS.getAscan_settings().getX(), SETTINGS.getAscan_settings().getY() });
 		}
 		
 	}
@@ -71,12 +73,15 @@ namespace scan {
 	};
 	void Bscan::setPoints(){
 		auto& SETTINGS = Config::instance();
-
+		SETTINGS.loadFromFile();
 		if (!basePoints.size()) {
-			// здесь старт и финиш считываются из настроек
+			auto& SETTINGS = Config::instance();
+			SETTINGS.loadFromFile();
+			basePoints.push_back({ SETTINGS.getBscan_settings().x_start(), SETTINGS.getBscan_settings().y_start() });
+			basePoints.push_back({ SETTINGS.getBscan_settings().x_finish(), SETTINGS.getBscan_settings().y_finish() });
 		}
 
-		auto pair = math::getInterpolatedPoints(basePoints[0], basePoints[1], SETTINGS.getScan_settings().getNpoints());
+		auto pair = math::getInterpolatedPoints(basePoints[0], basePoints[1], SETTINGS.getBscan_settings().points_n());
 		points.clear();
 		points = pair.first;
 		DIST_STEP = pair.second;
@@ -205,22 +210,18 @@ namespace scan {
 	void Rscan::manualSetBasePoints() {
 		basePoints.clear();
 		std::vector<double> basePoint = stage_->getManualPoint("Переместите стол руками в ПЕРВУЮ точку R-скана и нажмите enter!\n");
-		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
-		basePoints.push_back(basePoint);
+		basePoints.push_back(stage_->toPlateCoords(basePoint));
 		basePoint = stage_->getManualPoint("Переместите стол руками во ВТОРУЮ точку R-скана и нажмите enter!\n");
-		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
-		basePoints.push_back(basePoint);
+		basePoints.push_back(stage_->toPlateCoords(basePoint));
 		basePoint = stage_->getManualPoint("Переместите стол руками в ТРЕТЬЮ точку R-скана и нажмите enter!\n");
-		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
-		basePoints.push_back(basePoint);
+		basePoints.push_back(stage_->toPlateCoords(basePoint));
 		basePoint = stage_->getManualPoint("Переместите стол руками в ЧЕТВЕРТУЮ точку R-скана и нажмите enter!\n");
-		basePoint = math::matVecMult(basePoint, stage_->getSpecimenTransMatrix());
-		basePoints.push_back(basePoint);
+		basePoints.push_back(stage_->toPlateCoords(basePoint));
 	};
 	void Rscan::setPoints() {
 		points.clear();
 		auto& SETTINGS = Config::instance();
-		points = math::getRandomQuadrogonPoints(basePoints[0], basePoints[1], basePoints[2], basePoints[3], SETTINGS.getScan_settings().getNpoints());
+		points = math::getRandomQuadrogonPoints(basePoints[0], basePoints[1], basePoints[2], basePoints[3], SETTINGS.getRscan_settings().points_n());
 	}
 	void Rscan::start() {
 		if (points.size() > 0) {
@@ -267,13 +268,18 @@ namespace scan {
 	};
 
 	void Oscan::setPoints() {
+		auto& SETTINGS = Config::instance();
+		SETTINGS.loadFromFile();
 		basePoints.push_back({ 0, 0 });
 		size_t Nr, Nphi;
-		double r = 60;
-		double r0 = 20;
+		double r = SETTINGS.getOscan_settings().r_max();
+		double r0 = SETTINGS.getOscan_settings().r_min();
+		double phi_min = SETTINGS.getOscan_settings().phi_min_deg();
+		double phi_max = SETTINGS.getOscan_settings().phi_max_deg();
 		double anR, aPhi;
 		std::vector<double> aPoint;
-		Nr = 135; Nphi = 25;
+		Nr = SETTINGS.getOscan_settings().r_n();
+		Nphi = SETTINGS.getOscan_settings().phi_n();
 		points.clear();
 		aPoint = { 0, 0 };
 		points.push_back(aPoint);

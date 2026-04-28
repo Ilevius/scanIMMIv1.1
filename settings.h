@@ -49,20 +49,44 @@ private:
 	int  y_max_ = 0;
 };
 
-class Scan_settings {
+class Ascan_settings {
 public:
-	Scan_settings() = default;
-
-	double getLength() const { return length_; }
-	void setLength(double v) { length_ = v; }
-	int getNpoints() const { return NPOINTS_; }
-	void setNpoints(int v) { NPOINTS_ = v; }
-	int getNave() const { return NAVE_; }
-	void setNave(int v) { NAVE_ = v; }
+	Ascan_settings() = default;
+	double getX() const { return x_; }
+	void setX(double v) { x_ = v; }
+	double getY() const { return y_; }
+	void setY(double v) { y_ = v; }
 private:
-	double length_ = 0.0;
-	int NPOINTS_ = 0;
-	int NAVE_ = 50;
+	double x_ = 0.0;
+	double y_ = 0.0;
+};
+
+class Bscan_settings {
+public:
+	Bscan_settings() = default;
+	double x_start() const { return x_start_; }
+	double y_start() const { return y_start_; }
+	double x_finish() const { return x_finish_; }
+	double y_finish() const { return y_finish_; }
+	int16_t points_n() const { return points_n_; }
+
+	// Сеттеры
+	void set_x_start(double value) { x_start_ = value; }
+	void set_y_start(double value) { y_start_ = value; }
+	void set_x_finish(double value) { x_finish_ = value; }
+	void set_y_finish(double value) { y_finish_ = value; }
+
+	void set_points_n(int16_t value) {
+		if (value > 0) {
+			points_n_ = value;
+		}
+	}
+private:
+	double x_start_ = 0.0;
+	double y_start_ = 0.0;
+	double x_finish_ = 50.0;
+	double y_finish_ = 50.0;
+	int16_t points_n_ = 200;
 };
 
 class Cscan_settings {
@@ -89,6 +113,51 @@ public:
 private:
 	double x0_, y0_, xl_, yl_;
 	size_t Nx_, Ny_;
+};
+
+class Rscan_settings {
+public:
+	Rscan_settings() = default;
+	int16_t points_n() const { return points_n_; }
+	void setPoints_n(const int16_t v) { points_n_ = v; }
+private:
+	int16_t points_n_ = 20;
+};
+
+class Oscan_settings {
+public:
+	// Геттеры
+	double r_min() const { return r_min_; }
+	double r_max() const { return r_max_; }
+	double phi_min_deg() const { return phi_min_deg_; }
+	double phi_max_deg() const { return phi_max_deg_; }
+	int16_t r_n() const { return r_n_; }
+	int16_t phi_n() const { return phi_n_; }
+
+	// Сеттеры
+	void set_r_min(double value) { r_min_ = value; }
+	void set_r_max(double value) { r_max_ = value; }
+	void set_phi_min_deg(double value) { phi_min_deg_ = value; }
+	void set_phi_max_deg(double value) { phi_max_deg_ = value; }
+
+	void set_r_n(int16_t value) {
+		if (value > 0) {
+			r_n_ = value;
+		}
+	}
+
+	void set_phi_n(int16_t value) {
+		if (value > 0) {
+			phi_n_ = value;
+		}
+	}
+private:
+	double r_min_ = 20;
+	double r_max_ = 80;
+	double phi_min_deg_ = 0;
+	double phi_max_deg_ = 90;
+	int16_t r_n_ = 87;
+	int16_t phi_n_ = 87;
 };
 
 class Oscill_settings {
@@ -125,6 +194,9 @@ public:
 	const int getWantedTicks() const { return wantedTicks_; }
 	void setWantedTicks(const int v) { wantedTicks_ = v; }
 
+	const int16_t getAveN() const { return average_n_; }
+	void setAveN(const int16_t& v) { average_n_ = v; }
+
 private:
 	bool SIMULATOR_ = true;
 	double horScale_ms_ = 0.2;
@@ -136,6 +208,7 @@ private:
 	int32_t depmem_ = 100000;
 	int wantedTicks_ = 20000;
 	int emptyTicks_ = 3000;
+	int16_t average_n_ = 100;
 };
 
 class Config {
@@ -151,11 +224,20 @@ public:
 	const Table_settings& getTable_settings() const { return Table_settings_; }
 	void setTable_settings(const Table_settings& t) { Table_settings_ = t; }
 
-	const Scan_settings& getScan_settings() const { return Scan_settings_; }
-	void setScan_settings(const Scan_settings& s) { Scan_settings_ = s; }
+	const Ascan_settings& getAscan_settings() const { return Ascan_settings_; }
+	void setAscan_settings(const Ascan_settings& s) { Ascan_settings_ = s; }
+
+	const Bscan_settings& getBscan_settings() const { return Bscan_settings_; }
+	void setBscan_settings(const Bscan_settings& s) { Bscan_settings_ = s; }
 
 	const Cscan_settings& getCscan_settings() const { return Cscan_settings_; }
 	void setCscan_settings(const Cscan_settings& s) { Cscan_settings_ = s; }
+
+	const Rscan_settings& getRscan_settings() const { return Rscan_settings_; }
+	void setRscan_settings(const Rscan_settings& s) { Rscan_settings_ = s; }
+
+	const Oscan_settings& getOscan_settings() const { return Oscan_settings_; }
+	void setOscan_settings(const Oscan_settings& s) { Oscan_settings_ = s; }
 
 	const Oscill_settings& getOscill_settings() const { return Oscill_settings_; }
 	void setOscill_settings(const Oscill_settings& o) { Oscill_settings_ = o; }
@@ -166,9 +248,12 @@ private:
 	Config& operator=(const Config&) = delete;
 
 	Common_settings Common_settings_;
-	Table_settings  Table_settings_;
-	Scan_settings   Scan_settings_;
+	Table_settings Table_settings_;
+	Ascan_settings Ascan_settings_;
+	Bscan_settings Bscan_settings_;
 	Cscan_settings Cscan_settings_;
+	Rscan_settings Rscan_settings_;
+	Oscan_settings Oscan_settings_;
 	Oscill_settings Oscill_settings_;
 };
 
@@ -176,9 +261,6 @@ private:
 // только объявления функций конверсии
 	void to_json(nlohmann::json& j, const Config& c);
 	void from_json(const nlohmann::json& j, Config& c);
-
-	void to_json(nlohmann::json& j, const Scan_settings& s);
-	void from_json(const nlohmann::json& j, Scan_settings& s);
 
 	void to_json(nlohmann::json& j, const Table_settings& t);
 	void from_json(const nlohmann::json& j, Table_settings& t);
@@ -189,5 +271,17 @@ private:
 	void to_json(nlohmann::json& j, const Common_settings& c);
 	void from_json(const nlohmann::json& j, Common_settings& c);
 
+	void to_json(nlohmann::json& j, const Ascan_settings& s);
+	void from_json(const nlohmann::json& j, Ascan_settings& s);
+
+	void to_json(nlohmann::json& j, const Bscan_settings& s);
+	void from_json(const nlohmann::json& j, Bscan_settings& s);
+
 	void to_json(nlohmann::json& j, const Cscan_settings& c);
 	void from_json(const nlohmann::json& j, Cscan_settings& c);
+
+	void to_json(nlohmann::json& j, const Rscan_settings& c);
+	void from_json(const nlohmann::json& j, Rscan_settings& c);
+
+	void to_json(nlohmann::json& j, const Oscan_settings& c);
+	void from_json(const nlohmann::json& j, Oscan_settings& c);

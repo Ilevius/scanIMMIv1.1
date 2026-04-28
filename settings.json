@@ -10,18 +10,35 @@
     "X_MAX": 145,
     "Y_MAX": 145
   },
-  "SCAN": {
-    "LENGTH": 90.0,
-    "NPOINTS": 10,
-    "AVE_NUM": 100
+  "ASCAN": {
+    "X": -1,
+    "Y": 1113
+  },
+  "BSCAN": {
+    "X_START": 90.0,
+    "Y_START": -23,
+    "X_FINISH": 20,
+    "Y_FINISH": 30,
+    "NPOINTS": 10
   },
   "CSCAN": {
     "x0": 0,
     "y0": 0,
     "Ly": 90.0,
     "Lx": 90.0,
-    "Nx": 10,
-    "Ny": 10
+    "Nx": 57,
+    "Ny": 57
+  },
+  "RSCAN": {
+    "NPOINTS": 23
+  },
+  "OSCAN": {
+    "R_MIN": 20,
+    "R_MAX": 80,
+    "PHI_MIN": 0,
+    "PHI_MAX": 90,
+    "R_N": 24,
+    "PHI_N": 135
   },
   "OSCILLOSCOPE": {
     "SIMULATOR": true,
@@ -34,6 +51,7 @@
     "DEPMEM": 1000000,
     "WANTED_TICKS": 3750,
     "EMPTY_TICKS":  125,
-    "BURST_PERIOD": "3"
+    "BURST_PERIOD": "3",
+    "AVERAGE_N": 100 
   }
 }
