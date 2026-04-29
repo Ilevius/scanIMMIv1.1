@@ -146,7 +146,8 @@ void to_json(json& j, const Oscill_settings& o) {
 			"DEPMEM", o.getDepmem(),
 			"WANTED_TICKS", o.getWantedTicks(),
 			"EMPTY_TICKS", o.getEmptyTicks(),
-			"AVERAGE_N", o.getAveN()
+			"AVERAGE_N", o.getAveN(),
+			"TIMEBASE_CODE", o.getTimebaseCode()
 		}
 	};
 }
@@ -163,6 +164,7 @@ void from_json(const json& j, Oscill_settings& o) {
 	o.setWantedTicks(j.at("WANTED_TICKS").get<int>());
 	o.setEmptyTicks(j.at("EMPTY_TICKS").get<int>());
 	o.setAveN(j.at("AVERAGE_N").get<double>());
+	o.setTimebaseCode(j.at("TIMEBASE_CODE").get<int8_t>());
 }
 
 // Config (вложенные классы)

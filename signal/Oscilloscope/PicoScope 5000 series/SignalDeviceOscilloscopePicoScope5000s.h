@@ -12,10 +12,13 @@ namespace signal {
 		double rawTickToVolts(double signal_tick) override;
 		double VoltScale=1;
 		PS5000A_RANGE picoChanRange(double v);
+		void setTimebase_code(const uint32_t& v) { timebase_code = v; }
+		uint32_t getTimebase_code() { return timebase_code; }
 
 	private:
 		int16_t HANDLE = 0;
 		int16_t data_buffer[150000];
 		int32_t data_buffer_len = 150000;	
+		uint32_t timebase_code = 4;
 	};
 }

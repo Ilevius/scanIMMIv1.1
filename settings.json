@@ -15,11 +15,11 @@
     "Y": 1113
   },
   "BSCAN": {
-    "X_START": 90.0,
-    "Y_START": -23,
-    "X_FINISH": 20,
-    "Y_FINISH": 30,
-    "NPOINTS": 10
+    "X_START": 7.0711,
+    "Y_START": 7.0711,
+    "X_FINISH": -7.0711,
+    "Y_FINISH": 21.2133,
+    "NPOINTS": 8
   },
   "CSCAN": {
     "x0": 0,
@@ -30,7 +30,7 @@
     "Ny": 57
   },
   "RSCAN": {
-    "NPOINTS": 23
+    "NPOINTS": 2000
   },
   "OSCAN": {
     "R_MIN": 20,
@@ -52,6 +52,7 @@
     "WANTED_TICKS": 3750,
     "EMPTY_TICKS":  125,
     "BURST_PERIOD": "3",
-    "AVERAGE_N": 100 
+    "AVERAGE_N": 1,
+    "TIMEBASE_CODE": 11
   }
 }

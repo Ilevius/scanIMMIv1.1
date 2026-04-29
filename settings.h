@@ -197,6 +197,9 @@ public:
 	const int16_t getAveN() const { return average_n_; }
 	void setAveN(const int16_t& v) { average_n_ = v; }
 
+	const int8_t getTimebaseCode() const { return timabase_code_; }
+	void setTimebaseCode(const int8_t& v) { timabase_code_ = v; }
+
 private:
 	bool SIMULATOR_ = true;
 	double horScale_ms_ = 0.2;
@@ -209,6 +212,7 @@ private:
 	int wantedTicks_ = 20000;
 	int emptyTicks_ = 3000;
 	int16_t average_n_ = 100;
+	int8_t timabase_code_ = 7;
 };
 
 class Config {

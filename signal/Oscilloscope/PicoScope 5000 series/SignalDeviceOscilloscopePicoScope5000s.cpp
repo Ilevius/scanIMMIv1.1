@@ -59,7 +59,7 @@ void signal::SignalDeviceOscilloscopePicoScope5000s::disconnect() {
 void signal::SignalDeviceOscilloscopePicoScope5000s::setup() {
 	PICO_STATUS SETUP_STATUS;
 	auto& SETTINGS = Config::instance();
-	uint32_t timebase_code = 11;  // 128 нс между отсчетами
+	
 	uint32_t wanted_ticks;
 	int32_t max_samples;
 	uint32_t segmIndex = 0;
@@ -67,6 +67,8 @@ void signal::SignalDeviceOscilloscopePicoScope5000s::setup() {
 
 	VoltScale = SETTINGS.getOscill_settings().getDataChScale_V();
 	wanted_ticks = SETTINGS.getOscill_settings().getWantedTicks();
+	setTimebase_code(SETTINGS.getOscill_settings().getTimebaseCode());
+
 	//														Тут нужно привязать диапазон к значению в настройках
 	// 1. Активируем канал A (DC coupling, 1V диапазон)
 	SETUP_STATUS = ps5000aSetChannel(HANDLE, PS5000A_CHANNEL_A, 1,
@@ -89,7 +91,7 @@ void signal::SignalDeviceOscilloscopePicoScope5000s::setup() {
 	}
 	Sleep(2000);
 	// 4. Выбираем timebase (масштаб времени), ищем подходящий
-	SETUP_STATUS = ps5000aGetTimebase2(HANDLE, timebase_code, wanted_ticks, &sample_interval_ns, &max_samples, segmIndex);
+	SETUP_STATUS = ps5000aGetTimebase2(HANDLE, getTimebase_code(), wanted_ticks, &sample_interval_ns, &max_samples, segmIndex);
 	if (SETUP_STATUS == PICO_OK && wanted_ticks <= max_samples) {
 		set_timebase_ns(sample_interval_ns);
 		std::cout << "Timebase, ns " << sample_interval_ns << std::endl;
@@ -114,7 +116,6 @@ std::vector<uint16_t> signal::SignalDeviceOscilloscopePicoScope5000s::getRaw16Bi
 	PICO_STATUS	PicoStatus;
 	int32_t preTicks = int32_t(EMPTY_TICKS);
 	int32_t postTicks = int32_t(TICKS - EMPTY_TICKS);
-	uint32_t timebase = 11;
 	int32_t timeIndisposedMsl;
 	uint32_t segmentIndex = 0;
 	void *pParameter;
@@ -124,7 +125,7 @@ std::vector<uint16_t> signal::SignalDeviceOscilloscopePicoScope5000s::getRaw16Bi
 	uint32_t noOfSamplesFact = TICKS;
 	int16_t overFlow = 0;
 
-	PicoStatus = ps5000aRunBlock(HANDLE, preTicks, postTicks, timebase, &timeIndisposedMsl, segmentIndex, NULL, &pParameter);
+	PicoStatus = ps5000aRunBlock(HANDLE, preTicks, postTicks, getTimebase_code(), &timeIndisposedMsl, segmentIndex, NULL, &pParameter);
 	do {
 		//Sleep(SLEEP_MS);
 		ps5000aIsReady(HANDLE, &ready);
