@@ -32,7 +32,7 @@ namespace scan {
 		virtual void manualSetBasePoints() = 0;
 		virtual void setPoints() = 0;
 		std::vector<std::vector<double>> getBasePoints() { return basePoints; };
-		virtual void start() = 0;
+		void start();
 		virtual void cancel() = 0;
 		virtual void interrupt() = 0;
 		std::vector<double> getMeasure();					//	Получение осредненного сигнала с осциллографа
@@ -51,7 +51,7 @@ namespace scan {
 		}
 		void manualSetBasePoints() override {};
 		void setPoints() override {};
-		void start() override;
+		void start();
 		void cancel() override {};
 		void interrupt() override {};
 		void getGeneratorSignal(std::vector<double> &signal) {
@@ -73,7 +73,7 @@ namespace scan {
 		void manualSetBasePoints() override;
 		void setPoints() override;
 		// Здесь добавить цикл по всем точкам
-		void start() override;	
+		void start();	
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -89,7 +89,7 @@ namespace scan {
 		}
 		void manualSetBasePoints() override;
 		void setPoints() override;
-		void start() override;
+		void start();
 		void cancel() override {};
 		void interrupt() override {};
 		double DIST_STEP = 0;
@@ -106,7 +106,7 @@ namespace scan {
 		}
 		void manualSetBasePoints() override;
 		void setPoints() override;
-		void start() override;
+		void start();
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -124,7 +124,7 @@ namespace scan {
 		void manualSetBasePoints() override;
 		//2 Получение точек 
 		void setPoints() override;
-		void start() override;
+		void start();
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -139,7 +139,7 @@ namespace scan {
 		void manualSetBasePoints() override {};
 		//2 Получение точек 
 		void setPoints() override;
-		void start() override;
+		void start();
 		void cancel() override {};
 		void interrupt() override {};
 		

@@ -14,6 +14,98 @@ namespace scan {
 		return signal;
 	}
 
+	void Scan::start() {
+		if (points.size() > 0) {
+			// Чтение актуальных настроек
+			auto& SETTINGS = Config::instance();
+			SETTINGS.loadFromFile();
+
+			// Основные пареметры скана
+			std::string filename;
+			double timebase_s = oscill_->get_timebase_ns() * 1e-9;
+			uint16_t Nticks = SETTINGS.getOscill_settings().getWantedTicks();
+			double dist_step;
+			uint16_t aveN = SETTINGS.getOscill_settings().getAveN();
+
+			//  Вычисление шага по расстоянию
+			if (points.size() > 1) {
+				dist_step = math::euclideanDistance(points[0], points[1]);
+			}
+			else {
+				dist_step = 0;
+			}
+
+			// Некоторые векторные величины
+			std::vector<std::vector<double>> ScanData;
+			std::vector<double> dist_ticks;
+			std::vector<double> time_ticks;
+			std::vector<double> SignalAtPoint;
+			
+			// Запрос на ввод имени файла в который будут сохранены данные
+			std::cout << " Введите название файла: ";
+			std::cin >> filename;
+			std::string fullFilename = SETTINGS.getCommon_settings().getWorkFolder() + filename;
+
+			// Заплонение вектора отсчетами времени
+			for (size_t i = 0; i < Nticks; i++) {
+				time_ticks.push_back(i * timebase_s);
+			}
+
+			// Заполнение вектора отсчетами расстояния   (имеет смысл только для В-скана)
+			for (size_t i = 0; i < points.size(); i++) {
+				dist_ticks.push_back(i * dist_step);
+			}
+
+
+			/*
+			здесь надо бы создать если ее нет временную папку на случай сбоя сохранения основного файла
+			*/
+
+			// Файл с основными параметрами замера для временного каталога			
+			//				здесь надо добавить сохранение числа осреднений
+			std::string tempMat = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp\\scanParameters.mat";
+			files::createCscanPointsMat(basePoints, points, time_ticks, timebase_s, tempMat);
+
+			// Включаем моторы для старта сканирования
+			stage_->enableMotors();
+			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
+
+			// Обход базовых точек скана ( в основном у сканов они получаются крайними ) на предмет проверки вылета стола
+			std::cout << std::endl << "Внимание! Автоматический проход столом базовых точек. Проверка доступности точек!!!" << std::endl;
+			// Содержимое цикла обработать на исключения и если вылет вывести причину и вернуть в меню скана
+			for (size_t i = 0; i < basePoints.size(); ++i) {
+				stage_->moveTo(basePoints[i]);
+				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
+					Sleep(100);
+				}
+				Sleep(1000);
+				std::cout << "Базовая точка " << i << " из " << basePoints.size() << " успешно достигнута"  << std::endl;
+			}
+
+			std::cout << std::endl << "Базовые точки пройдены успешно, начинается сканирование!!!" << std::endl;
+
+			for (size_t i = 0; i < points.size(); ++i) {
+				stage_->moveTo(points[i]);
+				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
+					Sleep(100);
+				}
+				Sleep(1000);
+				SignalAtPoint = getMeasure();
+				ScanData.push_back(SignalAtPoint);
+				// сохранение файла ( хотелось бы, чтобы дозаписывался)
+
+				/*сохранение файла с замером в текущей точке во временном каталоге*/
+				std::string aPointInTemp = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp\\" + to_string(i) + ".txt";
+				files::saveSignalToTxt(SignalAtPoint, timebase_s, aPointInTemp);
+
+				// Подтверждение снятия и сохранение точки, сколько еще осталось точек     надо добавить расчет оставшегося времени!!!
+				std::cout << " Сохранение точки " << i << " из " << points.size() << "  скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
+			}
+			stage_->disableMotors();
+		}
+		else throw "There is no points to scan at!";
+	}
+
 	void MeasureVoltage::start(){
 		auto& SETTINGS = Config::instance();
 		SETTINGS.loadFromFile();
@@ -111,9 +203,6 @@ namespace scan {
 			stage_->enableMotors();
 			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
 			for (size_t i = 0; i < points.size(); ++i) {
-				std::vector<double> newPoint;
-				newPoint = math::matVecMult(points[i], stage_->getSpecimenTransMatrix());
-				newPoint = math::vectorAdd(newPoint, stage_->getSpecimenBasePoints()[0]);
 				dists.push_back(DIST_STEP*i);
 				stage_->moveTo(points[i]);
 				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
