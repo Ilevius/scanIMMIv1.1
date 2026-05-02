@@ -163,7 +163,7 @@ void from_json(const json& j, Oscill_settings& o) {
 	o.setDepmem(j.at("DEPMEM").get<int32_t>());
 	o.setWantedTicks(j.at("WANTED_TICKS").get<int>());
 	o.setEmptyTicks(j.at("EMPTY_TICKS").get<int>());
-	o.setAveN(j.at("AVERAGE_N").get<double>());
+	o.setAveN(j.at("AVERAGE_N").get<int>());
 	o.setTimebaseCode(j.at("TIMEBASE_CODE").get<int8_t>());
 }
 

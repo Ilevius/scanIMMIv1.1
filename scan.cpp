@@ -339,18 +339,31 @@ namespace scan {
 			// Включаем моторы для старта сканирования
 			stage_->enableMotors();
 			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
+
+			std::string baseName = SETTINGS.getCommon_settings().getWorkFolder() + "Rscan";
+			std::string tempName = baseName + ".tmp";
+			std::string finalName = baseName + ".mat";
+			std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Rscan.mat";
+
+
 			for (size_t i = 0; i < points.size(); ++i) {
-				stage_->moveTo(points[i]);
-				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
-					Sleep(100);
+				{
+														// Непосредственно сканирование
+					stage_->moveTo(points[i]);
+					while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
+						Sleep(100);
+					}
+					SignalAtPoint = getMeasure();
+					dists.push_back(double(i));
+					RscanData.push_back(SignalAtPoint);
 				}
-				SignalAtPoint = getMeasure();
-				dists.push_back(double(i));
-				RscanData.push_back(SignalAtPoint);
-				std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Rscan.mat";
+
+
 				files::createBscanMat(RscanData, dists, times, 1, timebase_s, points, filename);
 				std::cout << "  Сохранение файла успешно выполнено" << std::endl << std::endl; //File saved succesfully!
 			}
+
+
 			stage_->disableMotors();
 		}
 		else throw "There is no points to scan at!";
