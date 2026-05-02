@@ -1,5 +1,12 @@
 #include "scan.h"
 #include <numbers>
+#include <mutex>
+#include <future>
+#include <memory>
+#include <queue>
+#include <condition_variable>
+#include <atomic>
+#include <thread>
 
 namespace scan {
 	std::vector<double> Scan::getMeasure() {
@@ -330,21 +337,42 @@ namespace scan {
 			std::vector<std::vector<double>> RscanData;
 			std::vector<double> dists;
 
-
-
-
 			// Замер в текущей точки для тестов
 			std::vector<double> SignalAtPoint;
 
 			// Включаем моторы для старта сканирования
 			stage_->enableMotors();
 			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
-
-			std::string baseName = SETTINGS.getCommon_settings().getWorkFolder() + "Rscan";
-			std::string tempName = baseName + ".tmp";
-			std::string finalName = baseName + ".mat";
 			std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Rscan.mat";
 
+			struct SaveData {
+				std::vector<std::vector<double>> RscanData;
+				std::vector<double> dists, times;
+				double timebase_s;
+				std::vector<std::vector<double>> points;
+			};
+
+			std::mutex dataMutex;
+			std::condition_variable saveBufferCV;  
+			std::queue<std::shared_ptr<SaveData>> saveBuffer;
+			std::atomic<bool> savingActive{ true };
+			std::future<void> saverFuture;
+
+			saverFuture = std::async(std::launch::async, [&] {
+				while (savingActive || !saveBuffer.empty()) {
+					std::unique_lock<std::mutex> lock(dataMutex);
+					saveBufferCV.wait(lock, [&] {
+						return !saveBuffer.empty() || !savingActive.load();
+						});
+
+					if (saveBuffer.empty()) continue;
+					auto data = saveBuffer.front();
+					saveBuffer.pop();
+					lock.unlock();
+					Sleep(5000);
+					files::createBscanMat(data->RscanData, data->dists, data->times, 1, data->timebase_s, data->points, filename);
+				}
+				});
 
 			for (size_t i = 0; i < points.size(); ++i) {
 				{
@@ -355,14 +383,35 @@ namespace scan {
 					}
 					SignalAtPoint = getMeasure();
 					dists.push_back(double(i));
+					Sleep(5000);
 					RscanData.push_back(SignalAtPoint);
+				std:cout << endl << "Точка " << to_string(i) << " готова" << endl;
 				}
 
+				auto dataPtr = std::make_shared<SaveData>();
+				dataPtr->RscanData = RscanData;     // копия твоих сигналов
+				dataPtr->dists = dists;             // копия расстояний
+				dataPtr->times = times;             // копия времени
+				dataPtr->timebase_s = timebase_s;   // скаляр
+				dataPtr->points = points;
 
-				files::createBscanMat(RscanData, dists, times, 1, timebase_s, points, filename);
-				std::cout << "  Сохранение файла успешно выполнено" << std::endl << std::endl; //File saved succesfully!
+				{
+					std::lock_guard<std::mutex> lock(dataMutex);
+					saveBuffer.push(dataPtr);
+				}
+				saveBufferCV.notify_one();
 			}
 
+			std::cout << "Замеры завершены. Ждём сохранения...\n";
+
+			savingActive = false;
+			{
+				std::lock_guard<std::mutex> lock(dataMutex);
+				saveBufferCV.notify_all();  // Разбудить Saver на пустой буфер
+			}
+			saverFuture.wait();
+
+			std::cout << "Всё готово! Rscan.mat в папке.\n";
 
 			stage_->disableMotors();
 		}
