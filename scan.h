@@ -30,7 +30,6 @@ namespace scan {
 			if (!stage_) throw std::invalid_argument("Stage не может быть nullptr");
 		}
 
-
 		struct BasicData {
 			std::vector<std::vector<double>> Volt_ticks;
 			std::vector<std::vector<double>> points;

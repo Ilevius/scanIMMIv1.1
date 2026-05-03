@@ -204,7 +204,7 @@ namespace scan {
 		double dist = math::euclideanDistance(data->points[0], data->points[1]);
 		auto& SETTINGS = Config::instance();
 		SETTINGS.loadFromFile();
-		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + data->specimenName + ".mat";
+		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Bscan-" + data->specimenName + ".mat";
 		double timebase_s = oscill_->get_timebase_ns() * 1e-9;
 		for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
 			times.push_back(timebase_s * j);
