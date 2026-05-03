@@ -204,7 +204,7 @@
 	}
 
 
-	bool ensureDirectoryExists(const std::string& path) {
+	bool files::ensureDirectoryExists(const std::string& path) {
 		namespace fs = std::filesystem;
 
 		std::error_code ec;

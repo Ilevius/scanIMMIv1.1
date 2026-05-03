@@ -39,9 +39,9 @@ namespace scan {
 			std::cin >> basicScanDataPtr->specimenName;
 			basicScanDataPtr->points = points;
 		
-			//if (!files::ensureDirectoryExists(SETTINGS.getCommon_settings().getWorkFolder() + "\\temp\\")) {
-			//	std::cout << "Не удалось создать папку\n";
-			//}
+			if (!files::ensureDirectoryExists(SETTINGS.getCommon_settings().getWorkFolder() + "\\temp\\")) {
+				std::cout << "Не удалось создать папку\n";
+			}
 
 			// Файл с основными параметрами замера для временного каталога			
 			//				здесь надо добавить сохранение числа осреднений
@@ -199,51 +199,24 @@ namespace scan {
 		points = pair.first;
 		DIST_STEP = pair.second;
 	}
-	//void Bscan::start() {
-	//	if (points.size() > 0) {
+	void Bscan::saveRawData(std::shared_ptr<BasicData> data){
+		std::vector<double> times, dists;
+		double dist = math::euclideanDistance(data->points[0], data->points[1]);
+		auto& SETTINGS = Config::instance();
+		SETTINGS.loadFromFile();
+		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + data->specimenName + ".mat";
+		double timebase_s = oscill_->get_timebase_ns() * 1e-9;
+		for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
+			times.push_back(timebase_s * j);
+		}
+		for (size_t i = 0;i < data->points.size();i++) {
+			dists.push_back(dist * i);
+		}
+		Sleep(5000);
+		files::createBscanMat(data->Volt_ticks, dists, times, dist, timebase_s, data->points, filename);
+	};
 
-	//		// Уточняем у осциллографа какой шаг по времени у его отсчетов напряжения
-	//		double timebase_s = oscill_->get_timebase_ns()*1e-9;
-	//		// массив отсчетов времени для мат файлов
-	//		std::vector<double> times;
-	//		//	заполняем массив отсчетов по времени!
-	//		auto& SETTINGS = Config::instance();
-	//		SETTINGS.loadFromFile();
-	//		times.resize(SETTINGS.getOscill_settings().getWantedTicks(), 0);
-	//		for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
-	//			times[j] = timebase_s * j;
-	//		}
-
-	//		// Сам скан и шаг по расстоянию
-	//		std::vector<std::vector<double>> BscanData;
-	//		std::vector<double> dists;
-	//		// Замер в текущей точки для тестов
-	//		std::vector<double> SignalAtPoint;
-
-	//		// Включаем моторы для старта сканирования
-	//		stage_->enableMotors();
-	//		Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
-	//		for (size_t i = 0; i < points.size(); ++i) {
-	//			dists.push_back(DIST_STEP*i);
-	//			stage_->moveTo(points[i]);
-	//			while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
-	//				Sleep(100);
-	//			}
-	//			SignalAtPoint = getMeasure();
-	//			Sleep(1000);
-	//			BscanData.push_back(SignalAtPoint);
-	//			std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Bscan.mat";
-	//			std::string testFilename = SETTINGS.getCommon_settings().getWorkFolder() + "px" + std::to_string(i) + "py0.txt";
-	//			files::createBscanMat(BscanData, dists, times, DIST_STEP, timebase_s, points, filename);
-	//			//files::saveSignalToTxt(SignalAtPoint, oscill_->get_timebase_ns()*1e-9, testFilename);
-	//			std::cout << "  Сохранение файла успешно выполнено" << std::endl << std::endl; //File saved succesfully!
-	//		}
-	//		stage_->disableMotors();
-	//	}
-	//	else throw "There is no points to scan at!";
-	//};
-
-
+	
 	void Cscan::manualSetBasePoints() {
 		// нет большого смысла в задании точек С-скана вручную
 	};
