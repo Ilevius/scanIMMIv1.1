@@ -116,7 +116,6 @@
 	void files::createCscanPointsMat(
 		const std::vector<std::vector<double>>& basePoints,                  // координаты X (Nx элементов)  
 		const std::vector<std::vector<double>>& scanPoints,                  // координаты X (Nx элементов)  
-		const std::vector<double>& time_,                   // время (Nt элементов)
 		const double time_step_,
 		const std::string& filename) {
 
@@ -132,10 +131,7 @@
 		// 2. coord_ (1 x Nx)
 		matrixToMatFile(scanPoints, "scanPoints", matfp);
 
-		// 3. time_ (1 x Nt)
-		vectorToMatFile(time_, "time_", matfp);
-
-		// 4. добавляем time_step_
+		// 3. добавляем time_step_
 		numToMatFile(time_step_, "time_step_", matfp);
 
 		matClose(matfp);
@@ -207,4 +203,15 @@
 		mxDestroyArray(mx_v_norm);
 	}
 
+
+	bool ensureDirectoryExists(const std::string& path) {
+		namespace fs = std::filesystem;
+
+		std::error_code ec;
+		if (fs::exists(path, ec)) {
+			return fs::is_directory(path, ec);
+		}
+
+		return fs::create_directories(path, ec);
+	}
 

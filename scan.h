@@ -28,11 +28,18 @@ namespace scan {
 			if (!stage_) throw std::invalid_argument("Stage не может быть nullptr");
 		}
 
+		struct BasicData {
+			std::vector<std::vector<double>> Volt_ticks;
+			std::vector<std::vector<double>> points;
+			std::vector<double> load;
+			std::string specimenName;
+		};
 
 		virtual void manualSetBasePoints() = 0;
 		virtual void setPoints() = 0;
 		std::vector<std::vector<double>> getBasePoints() { return basePoints; };
 		void start();
+		virtual void saveRawData(std::shared_ptr<BasicData> data) = 0;
 		virtual void cancel() = 0;
 		virtual void interrupt() = 0;
 		std::vector<double> getMeasure();					//	Получение осредненного сигнала с осциллографа
@@ -40,6 +47,8 @@ namespace scan {
 		std::shared_ptr<signal::SignalDeviceOscilloscope> oscill_;
 		std::vector<std::vector<double>> basePoints;		//				Базовые точки, например стартовая и финишная для В-скана
 		std::vector<std::vector<double>> points;			//				Цепочка точек замера, даже в случае С-скана их последовательность	
+
+		
 	};
 
 	//		~~~~~~~~~~~~~~~~			Замер напряжения				~~~~~~~~~~~~~~~~~~~~~~
@@ -52,6 +61,7 @@ namespace scan {
 		void manualSetBasePoints() override {};
 		void setPoints() override {};
 		void start();
+		virtual void saveRawData(std::shared_ptr<BasicData> data) override {};
 		void cancel() override {};
 		void interrupt() override {};
 		void getGeneratorSignal(std::vector<double> &signal) {
@@ -73,7 +83,8 @@ namespace scan {
 		void manualSetBasePoints() override;
 		void setPoints() override;
 		// Здесь добавить цикл по всем точкам
-		void start();	
+		void start();
+		virtual void saveRawData(std::shared_ptr<BasicData> data) override {};
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -89,7 +100,23 @@ namespace scan {
 		}
 		void manualSetBasePoints() override;
 		void setPoints() override;
-		void start();
+		/*void start();*/
+		void saveRawData(std::shared_ptr<BasicData> data) override {
+			std::vector<double> times, dists;
+			double dist = math::euclideanDistance(data->points[0], data->points[1]);
+			auto& SETTINGS = Config::instance();
+			SETTINGS.loadFromFile();
+			std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + data->specimenName + ".mat";
+			double timebase_s = oscill_->get_timebase_ns() * 1e-9;
+			for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
+				times.push_back(timebase_s * j);
+			}
+			for (size_t i = 0;i < data->points.size();i++) {
+				dists.push_back(dist*i);
+			}
+			Sleep(5000);
+			files::createBscanMat(data->Volt_ticks, dists, times, DIST_STEP, timebase_s, data->points, filename);
+		};
 		void cancel() override {};
 		void interrupt() override {};
 		double DIST_STEP = 0;
@@ -107,6 +134,7 @@ namespace scan {
 		void manualSetBasePoints() override;
 		void setPoints() override;
 		void start();
+		virtual void saveRawData(std::shared_ptr<BasicData> data) override {};
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -125,6 +153,7 @@ namespace scan {
 		//2 Получение точек 
 		void setPoints() override;
 		void start();
+		virtual void saveRawData(std::shared_ptr<BasicData> data) override {};
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -140,6 +169,7 @@ namespace scan {
 		//2 Получение точек 
 		void setPoints() override;
 		void start();
+		virtual void saveRawData(std::shared_ptr<BasicData> data) override {};
 		void cancel() override {};
 		void interrupt() override {};
 		

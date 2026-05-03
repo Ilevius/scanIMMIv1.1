@@ -26,52 +26,27 @@ namespace scan {
 			// Чтение актуальных настроек
 			auto& SETTINGS = Config::instance();
 			SETTINGS.loadFromFile();
-
-			// Основные пареметры скана
-			std::string filename;
+			// Только базовые пареметры скана
 			double timebase_s = oscill_->get_timebase_ns() * 1e-9;
 			uint16_t Nticks = SETTINGS.getOscill_settings().getWantedTicks();
-			double dist_step;
 			uint16_t aveN = SETTINGS.getOscill_settings().getAveN();
-
-			//  Вычисление шага по расстоянию
-			if (points.size() > 1) {
-				dist_step = math::euclideanDistance(points[0], points[1]);
-			}
-			else {
-				dist_step = 0;
-			}
-
+			auto basicScanDataPtr = std::make_shared<BasicData>();
 			// Некоторые векторные величины
 			std::vector<std::vector<double>> ScanData;
-			std::vector<double> dist_ticks;
-			std::vector<double> time_ticks;
 			std::vector<double> SignalAtPoint;
-			
-			// Запрос на ввод имени файла в который будут сохранены данные
-			std::cout << " Введите название файла: ";
-			std::cin >> filename;
-			std::string fullFilename = SETTINGS.getCommon_settings().getWorkFolder() + filename;
-
-			// Заплонение вектора отсчетами времени
-			for (size_t i = 0; i < Nticks; i++) {
-				time_ticks.push_back(i * timebase_s);
-			}
-
-			// Заполнение вектора отсчетами расстояния   (имеет смысл только для В-скана)
-			for (size_t i = 0; i < points.size(); i++) {
-				dist_ticks.push_back(i * dist_step);
-			}
-
-
-			/*
-			здесь надо бы создать если ее нет временную папку на случай сбоя сохранения основного файла
-			*/
+			// Запрос на ввод имени образца, начало заполнения базовых данных скана
+			std::cout << " Введите имя образца: ";
+			std::cin >> basicScanDataPtr->specimenName;
+			basicScanDataPtr->points = points;
+		
+			//if (!files::ensureDirectoryExists(SETTINGS.getCommon_settings().getWorkFolder() + "\\temp\\")) {
+			//	std::cout << "Не удалось создать папку\n";
+			//}
 
 			// Файл с основными параметрами замера для временного каталога			
 			//				здесь надо добавить сохранение числа осреднений
 			std::string tempMat = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp\\scanParameters.mat";
-			files::createCscanPointsMat(basePoints, points, time_ticks, timebase_s, tempMat);
+			files::createCscanPointsMat(basePoints, points, timebase_s, tempMat);
 
 			// Включаем моторы для старта сканирования
 			stage_->enableMotors();
@@ -88,8 +63,28 @@ namespace scan {
 				Sleep(1000);
 				std::cout << "Базовая точка " << i << " из " << basePoints.size() << " успешно достигнута"  << std::endl;
 			}
-
 			std::cout << std::endl << "Базовые точки пройдены успешно, начинается сканирование!!!" << std::endl;
+
+			std::mutex dataMutex;
+			std::condition_variable saveBufferCV;
+			std::queue<std::shared_ptr<BasicData>> saveBuffer;
+			std::atomic<bool> savingActive{ true };
+			std::future<void> saverFuture;
+
+			saverFuture = std::async(std::launch::async, [&] {
+				while (savingActive || !saveBuffer.empty()) {
+					std::unique_lock<std::mutex> lock(dataMutex);
+					saveBufferCV.wait(lock, [&] {
+						return !saveBuffer.empty() || !savingActive.load();
+						});
+
+					if (saveBuffer.empty()) continue;
+					auto data = saveBuffer.front();
+					saveBuffer.pop();
+					lock.unlock();
+					saveRawData(data);
+				}
+				});
 
 			for (size_t i = 0; i < points.size(); ++i) {
 				stage_->moveTo(points[i]);
@@ -98,16 +93,35 @@ namespace scan {
 				}
 				Sleep(1000);
 				SignalAtPoint = getMeasure();
+				Sleep(5000);
 				ScanData.push_back(SignalAtPoint);
 				// сохранение файла ( хотелось бы, чтобы дозаписывался)
+				basicScanDataPtr->Volt_ticks = ScanData;
+				{
+					std::lock_guard<std::mutex> lock(dataMutex);
+					saveBuffer.push(basicScanDataPtr);
+				}
+				saveBufferCV.notify_one();
 
 				/*сохранение файла с замером в текущей точке во временном каталоге*/
 				std::string aPointInTemp = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp\\" + to_string(i) + ".txt";
 				files::saveSignalToTxt(SignalAtPoint, timebase_s, aPointInTemp);
 
 				// Подтверждение снятия и сохранение точки, сколько еще осталось точек     надо добавить расчет оставшегося времени!!!
-				std::cout << " Сохранение точки " << i << " из " << points.size() << "  скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
+				std::cout << " Сканирование точки " << i+1 << " из " << points.size() << "  успешно выполнено" << std::endl << std::endl; //File saved succesfully!
 			}
+
+			std::cout << "Замеры завершены. Ждём сохранения...\n";
+
+			savingActive = false;
+			{
+				std::lock_guard<std::mutex> lock(dataMutex);
+				saveBufferCV.notify_all();  // Разбудить Saver на пустой буфер
+			}
+			saverFuture.wait();
+
+			std::cout << "Всё готово!\n";
+
 			stage_->disableMotors();
 		}
 		else throw "There is no points to scan at!";
@@ -185,49 +199,50 @@ namespace scan {
 		points = pair.first;
 		DIST_STEP = pair.second;
 	}
-	void Bscan::start() {
-		if (points.size() > 0) {
+	//void Bscan::start() {
+	//	if (points.size() > 0) {
 
-			// Уточняем у осциллографа какой шаг по времени у его отсчетов напряжения
-			double timebase_s = oscill_->get_timebase_ns()*1e-9;
-			// массив отсчетов времени для мат файлов
-			std::vector<double> times;
-			//	заполняем массив отсчетов по времени!
-			auto& SETTINGS = Config::instance();
-			SETTINGS.loadFromFile();
-			times.resize(SETTINGS.getOscill_settings().getWantedTicks(), 0);
-			for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
-				times[j] = timebase_s * j;
-			}
+	//		// Уточняем у осциллографа какой шаг по времени у его отсчетов напряжения
+	//		double timebase_s = oscill_->get_timebase_ns()*1e-9;
+	//		// массив отсчетов времени для мат файлов
+	//		std::vector<double> times;
+	//		//	заполняем массив отсчетов по времени!
+	//		auto& SETTINGS = Config::instance();
+	//		SETTINGS.loadFromFile();
+	//		times.resize(SETTINGS.getOscill_settings().getWantedTicks(), 0);
+	//		for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
+	//			times[j] = timebase_s * j;
+	//		}
 
-			// Сам скан и шаг по расстоянию
-			std::vector<std::vector<double>> BscanData;
-			std::vector<double> dists;
-			// Замер в текущей точки для тестов
-			std::vector<double> SignalAtPoint;
+	//		// Сам скан и шаг по расстоянию
+	//		std::vector<std::vector<double>> BscanData;
+	//		std::vector<double> dists;
+	//		// Замер в текущей точки для тестов
+	//		std::vector<double> SignalAtPoint;
 
-			// Включаем моторы для старта сканирования
-			stage_->enableMotors();
-			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
-			for (size_t i = 0; i < points.size(); ++i) {
-				dists.push_back(DIST_STEP*i);
-				stage_->moveTo(points[i]);
-				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
-					Sleep(100);
-				}
-				SignalAtPoint = getMeasure();
-				Sleep(1000);
-				BscanData.push_back(SignalAtPoint);
-				std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Bscan.mat";
-				std::string testFilename = SETTINGS.getCommon_settings().getWorkFolder() + "px" + std::to_string(i) + "py0.txt";
-				files::createBscanMat(BscanData, dists, times, DIST_STEP, timebase_s, points, filename);
-				//files::saveSignalToTxt(SignalAtPoint, oscill_->get_timebase_ns()*1e-9, testFilename);
-				std::cout << "  Сохранение файла успешно выполнено" << std::endl << std::endl; //File saved succesfully!
-			}
-			stage_->disableMotors();
-		}
-		else throw "There is no points to scan at!";
-	};
+	//		// Включаем моторы для старта сканирования
+	//		stage_->enableMotors();
+	//		Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
+	//		for (size_t i = 0; i < points.size(); ++i) {
+	//			dists.push_back(DIST_STEP*i);
+	//			stage_->moveTo(points[i]);
+	//			while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
+	//				Sleep(100);
+	//			}
+	//			SignalAtPoint = getMeasure();
+	//			Sleep(1000);
+	//			BscanData.push_back(SignalAtPoint);
+	//			std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Bscan.mat";
+	//			std::string testFilename = SETTINGS.getCommon_settings().getWorkFolder() + "px" + std::to_string(i) + "py0.txt";
+	//			files::createBscanMat(BscanData, dists, times, DIST_STEP, timebase_s, points, filename);
+	//			//files::saveSignalToTxt(SignalAtPoint, oscill_->get_timebase_ns()*1e-9, testFilename);
+	//			std::cout << "  Сохранение файла успешно выполнено" << std::endl << std::endl; //File saved succesfully!
+	//		}
+	//		stage_->disableMotors();
+	//	}
+	//	else throw "There is no points to scan at!";
+	//};
+
 
 	void Cscan::manualSetBasePoints() {
 		// нет большого смысла в задании точек С-скана вручную
@@ -270,7 +285,7 @@ namespace scan {
 			// Замер в текущей точки для тестов
 			std::vector<double> SignalAtPoint;
 			std::string CscanPointsFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Cscan\\CscanPoints.mat";
-			files::createCscanPointsMat(basePoints, points, times, timebase_s, CscanPointsFileName);
+			files::createCscanPointsMat(basePoints, points, timebase_s, CscanPointsFileName);
 
 			std::cout << endl << "Сохранение mat-файла c точками С-скана прошло успешно!" << endl;
 
@@ -472,7 +487,7 @@ namespace scan {
 			// Замер в текущей точки для тестов
 			std::vector<double> SignalAtPoint;
 			std::string CscanPointsFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Oscan\\OscanPoints.mat";
-			files::createCscanPointsMat(basePoints, points, times, timebase_s, CscanPointsFileName);
+			files::createCscanPointsMat(basePoints, points, timebase_s, CscanPointsFileName);
 
 			std::cout << endl << "Сохранение mat-файла c точками O-скана прошло успешно!" << endl;
 
