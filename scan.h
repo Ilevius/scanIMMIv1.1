@@ -83,9 +83,7 @@ namespace scan {
 		}
 		void manualSetBasePoints() override;
 		void setPoints() override;
-		// Здесь добавить цикл по всем точкам
-		void start();
-		virtual void saveRawData(std::shared_ptr<BasicData> data) override {};
+		virtual void saveRawData(std::shared_ptr<BasicData> data) override;
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -120,7 +118,7 @@ namespace scan {
 		void manualSetBasePoints() override;
 		void setPoints() override;
 		void start();
-		virtual void saveRawData(std::shared_ptr<BasicData> data) override {};
+		virtual void saveRawData(std::shared_ptr<BasicData> data) override;
 		void cancel() override {};
 		void interrupt() override {};
 	};

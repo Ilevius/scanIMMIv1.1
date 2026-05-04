@@ -20,7 +20,6 @@ namespace scan {
 		signalProcessing::centerSignal(signal);
 		return signal;
 	}
-
 	void Scan::start() {
 		if (points.size() > 0) {
 			// Чтение актуальных настроек
@@ -28,8 +27,6 @@ namespace scan {
 			SETTINGS.loadFromFile();
 			// Только базовые пареметры скана
 			double timebase_s = oscill_->get_timebase_ns() * 1e-9;
-			uint16_t Nticks = SETTINGS.getOscill_settings().getWantedTicks();
-			uint16_t aveN = SETTINGS.getOscill_settings().getAveN();
 			auto basicScanDataPtr = std::make_shared<BasicData>();
 			// Некоторые векторные величины
 			std::vector<std::vector<double>> ScanData;
@@ -39,13 +36,17 @@ namespace scan {
 			std::cin >> basicScanDataPtr->specimenName;
 			basicScanDataPtr->points = points;
 		
-			if (!files::ensureDirectoryExists(SETTINGS.getCommon_settings().getWorkFolder() + "\\temp\\")) {
-				std::cout << "Не удалось создать папку\n";
+			try {
+				files::ensureDirectoryExists(SETTINGS.getCommon_settings().getWorkFolder() + "\\temp-scanIMMI\\");
+			}
+			catch (...) {
+				std::cout << "Не удалось создать временную папку для скана\n";
+				return;
 			}
 
 			// Файл с основными параметрами замера для временного каталога			
 			//				здесь надо добавить сохранение числа осреднений
-			std::string tempMat = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp\\scanParameters.mat";
+			std::string tempMat = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp-scanIMMI\\scanParameters.mat";
 			files::createCscanPointsMat(basePoints, points, timebase_s, tempMat);
 
 			// Включаем моторы для старта сканирования
@@ -56,7 +57,13 @@ namespace scan {
 			std::cout << std::endl << "Внимание! Автоматический проход столом базовых точек. Проверка доступности точек!!!" << std::endl;
 			// Содержимое цикла обработать на исключения и если вылет вывести причину и вернуть в меню скана
 			for (size_t i = 0; i < basePoints.size(); ++i) {
-				stage_->moveTo(basePoints[i]);
+				try {
+					stage_->moveTo(basePoints[i]);
+				}
+				catch(...){
+					std::cout << "Stage cant achieve desired point!!";
+				}
+				
 				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
 					Sleep(100);
 				}
@@ -104,7 +111,7 @@ namespace scan {
 				saveBufferCV.notify_one();
 
 				/*сохранение файла с замером в текущей точке во временном каталоге*/
-				std::string aPointInTemp = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp\\" + to_string(i) + ".txt";
+				std::string aPointInTemp = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp-scanIMMI\\" + to_string(i) + ".txt";
 				files::saveSignalToTxt(SignalAtPoint, timebase_s, aPointInTemp);
 
 				// Подтверждение снятия и сохранение точки, сколько еще осталось точек     надо добавить расчет оставшегося времени!!!
@@ -156,25 +163,16 @@ namespace scan {
 		}
 		
 	}
-	void Ascan::start() {
-		std::vector<double> SignalAtPoint;
+	void Ascan::saveRawData(std::shared_ptr<BasicData> data) {
 		auto& SETTINGS = Config::instance();
 		SETTINGS.loadFromFile();
-		std::string fileName;
-		std::cout << " Введите название файла: ";
-		std::cin >> fileName;
-		stage_->enableMotors();
-		Sleep(1000);							// МОТОРЫ ДОЛЖНЫ УСПЕТЬ ВКЛЧИТЬСЯ ИНАЧЕ ПРОГА ВЫЛЕТАЕТ!!
-		stage_->moveTo(points[0]);
-		while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
-			Sleep(100);
+		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Ascan-" + data->specimenName + ".mat";
+		try {
+			files::saveAscanToMat(points[0], data->Volt_ticks[0], oscill_->get_timebase_ns() * 1e-9, filename);
 		}
-		SignalAtPoint = getMeasure();
-		stage_->disableMotors();
-		std::string fullFileName = SETTINGS.getCommon_settings().getWorkFolder() + fileName;
-		//files::saveSignalToTxt(SignalAtPoint, oscill_->get_timebase_ns()*1e-9, fullFileName);
-		files::saveAscanToMat(points[0], SignalAtPoint, oscill_->get_timebase_ns() * 1e-9, fullFileName);
-		std::cout << "  Сохранение файла успешно выполнено" << std::endl << std::endl; //File saved succesfully!
+		catch (...) {
+			std::cout << "Cant save .mat file!" << endl;
+		}
 	}
 
 	void Bscan::manualSetBasePoints() {
@@ -213,7 +211,13 @@ namespace scan {
 			dists.push_back(dist * i);
 		}
 		Sleep(5000);
-		files::createBscanMat(data->Volt_ticks, dists, times, dist, timebase_s, data->points, filename);
+		try {
+			files::createBscanMat(data->Volt_ticks, dists, times, dist, timebase_s, data->points, filename);
+		}
+		catch(...){
+			std::cout << "Cant save .mat file!" << endl;
+		}
+		
 	};
 
 	
@@ -236,6 +240,17 @@ namespace scan {
 		basePoints.push_back({ x0+xl, y0 });
 		basePoints.push_back({ x0, y0+yl });
 		points = math::rectSnake(x0, y0, xl, yl, Nx, Ny);
+	}
+	void Cscan::saveRawData(std::shared_ptr<BasicData> data) {
+		std::vector<double> times;
+		auto& SETTINGS = Config::instance();
+		SETTINGS.loadFromFile();
+		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Cscan-" + data->specimenName + ".mat";
+		double timebase_s = oscill_->get_timebase_ns() * 1e-9;
+		for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
+			times.push_back(timebase_s * j);
+		}
+		files::createCscanMat(data->Volt_ticks, basePoints, data->points, times, timebase_s, filename);
 	}
 	void Cscan::start() {
 		if (points.size() > 0) {
@@ -283,7 +298,7 @@ namespace scan {
 			}
 
 			std::string CscanMatFileName = SETTINGS.getCommon_settings().getWorkFolder() + "Cscan.mat";
-			files::createCscanMat(CscanData, basePoints, points, table_points, times, timebase_s, CscanMatFileName);
+			files::createCscanMat(CscanData, basePoints, points, times, timebase_s, CscanMatFileName);
 			std::cout << endl << "Сохранение mat-файла С-скана прошло успешно!" << endl;
 
 			stage_->disableMotors();
@@ -485,7 +500,7 @@ namespace scan {
 			}
 
 			std::string CscanMatFileName = SETTINGS.getCommon_settings().getWorkFolder() + "Oscan.mat";
-			files::createCscanMat(CscanData, basePoints, points, table_points, times, timebase_s, CscanMatFileName);
+			files::createCscanMat(CscanData, basePoints, points, times, timebase_s, CscanMatFileName);
 			std::cout << endl << "Сохранение mat-файла O-скана прошло успешно!" << endl;
 
 			stage_->disableMotors();

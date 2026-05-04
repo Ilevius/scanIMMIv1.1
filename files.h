@@ -21,7 +21,6 @@ namespace files {
 	void createCscanMat(const std::vector<std::vector<double>>& data,      // Nx x Nt (Nx строк замеров)
 		const std::vector<std::vector<double>>& basePoints,                  // координаты X (Nx элементов)  
 		const std::vector<std::vector<double>>& scanPoints,                  // координаты X (Nx элементов)  
-		const std::vector<std::vector<double>>& table_points,                  // координаты X (Nx элементов)  
 		const std::vector<double>& time_,                   // время (Nt элементов)
 		const double time_step_,
 		const std::string& filename);

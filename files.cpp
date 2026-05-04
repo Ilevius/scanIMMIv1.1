@@ -74,7 +74,6 @@
 	void files::createCscanMat(const std::vector<std::vector<double>>& data,      // Nx x Nt (Nx строк замеров)
 		const std::vector<std::vector<double>>& basePoints,                  // координаты X (Nx элементов)  
 		const std::vector<std::vector<double>>& scanPoints,                  // координаты X (Nx элементов)  
-		const std::vector<std::vector<double>>& table_points,                  // координаты X (Nx элементов)  
 		const std::vector<double>& time_,                   // время (Nt элементов)
 		const double time_step_,
 		const std::string& filename) {
@@ -98,14 +97,11 @@
 		// 4. coord_ (1 x Nx)
 		matrixToMatFile(scanPoints, "scanPoints", matfp);
 
-		// 5. coord_ (1 x Nx)
-		matrixToMatFile(table_points, "table_points", matfp);
-
-		// 6. time_ (1 x Nt)
+		// 5. time_ (1 x Nt)
 		vectorToMatFile(time_, "time_", matfp);
 
 
-		// 7. добавляем time_step_
+		// 6. добавляем time_step_
 		numToMatFile(time_step_, "time_step_", matfp);
 
 		matClose(matfp);
@@ -212,6 +208,7 @@
 			return fs::is_directory(path, ec);
 		}
 
-		return fs::create_directories(path, ec);
+		fs::create_directories(path, ec);
+		return bool(ec);
 	}
 
