@@ -33,6 +33,13 @@ namespace files {
 		const double time_step_,
 		const std::string& filename);
 
+	void RscanToMat(
+		const std::vector<std::vector<double>>& scanPoints,
+		const std::vector<std::vector<double>>& Volt_ticks,
+		const double& average_n,
+		const std::string& filename
+	);
+
 
 	void numToMatFile(const double &v, std::string name, MATFile* matfp);
 

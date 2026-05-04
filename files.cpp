@@ -134,6 +134,28 @@
 	}
 
 
+	void files::RscanToMat(
+		const std::vector<std::vector<double>>& scanPoints,
+		const std::vector<std::vector<double>>& Volt_ticks,
+		const double& average_n,
+		const std::string& filename
+	) {
+		MATFile* matfp = matOpen(filename.c_str(), "w");
+		if (!matfp) {
+			throw "Can't create mat file!";
+		}
+
+		// 1. coord_ (1 x Nx)
+		matrixToMatFile(scanPoints, "points", matfp);
+
+		// 2. coord_ (1 x Nx)
+		matrixToMatFile(Volt_ticks, "data", matfp);
+
+		// 3. добавляем time_step_
+		numToMatFile(average_n, "average_n", matfp);
+
+		matClose(matfp);
+	}
 
 
 	void files::numToMatFile(const double &v, std::string name, MATFile* matfp) {

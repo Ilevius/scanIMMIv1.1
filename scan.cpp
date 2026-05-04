@@ -50,8 +50,13 @@ namespace scan {
 			files::createCscanPointsMat(basePoints, points, timebase_s, tempMat);
 
 			// Включаем моторы для старта сканирования
-			stage_->enableMotors();
-			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
+			try {
+				stage_->enableMotors();
+			}
+			catch (...) {
+				std::cout << "Error!!! Cant switch on stage motors!!!" << std::endl;
+			}
+			Sleep(500); //				Нужно добавить проверку, что моторы успели включиться!!!
 
 			// Обход базовых точек скана ( в основном у сканов они получаются крайними ) на предмет проверки вылета стола
 			std::cout << std::endl << "Внимание! Автоматический проход столом базовых точек. Проверка доступности точек!!!" << std::endl;
@@ -67,7 +72,7 @@ namespace scan {
 				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
 					Sleep(100);
 				}
-				Sleep(1000);
+				Sleep(500);
 				std::cout << "Базовая точка " << i << " из " << basePoints.size() << " успешно достигнута"  << std::endl;
 			}
 			std::cout << std::endl << "Базовые точки пройдены успешно, начинается сканирование!!!" << std::endl;
@@ -94,15 +99,19 @@ namespace scan {
 				});
 
 			for (size_t i = 0; i < points.size(); ++i) {
-				stage_->moveTo(points[i]);
+				try {
+					stage_->moveTo(points[i]);
+				}
+				catch (...) {
+					std::cout << "Stage cant achieve desired point!!";
+				}
 				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
 					Sleep(100);
 				}
-				Sleep(1000);
+				Sleep(500);
 				SignalAtPoint = getMeasure();
-				Sleep(5000);
 				ScanData.push_back(SignalAtPoint);
-				// сохранение файла ( хотелось бы, чтобы дозаписывался)
+
 				basicScanDataPtr->Volt_ticks = ScanData;
 				{
 					std::lock_guard<std::mutex> lock(dataMutex);
@@ -210,7 +219,6 @@ namespace scan {
 		for (size_t i = 0;i < data->points.size();i++) {
 			dists.push_back(dist * i);
 		}
-		Sleep(5000);
 		try {
 			files::createBscanMat(data->Volt_ticks, dists, times, dist, timebase_s, data->points, filename);
 		}
@@ -237,8 +245,15 @@ namespace scan {
 		basePoints.clear();
 		basePoints.push_back({ x0, y0 });
 		basePoints.push_back({ x0+xl, y0 });
+		basePoints.push_back({ x0+xl, y0+yl });
 		basePoints.push_back({ x0, y0+yl });
-		points = math::rectSnake(x0, y0, xl, yl, Nx, Ny);
+		try {
+			points = math::rectSnake(x0, y0, xl, yl, Nx, Ny);
+		}
+		catch (...) {
+			std::cout << "Cant generate C-scan points!!!! Error!!!";
+		}
+		
 	}
 	void Cscan::saveRawData(std::shared_ptr<BasicData> data) {
 		std::vector<double> times;
@@ -249,7 +264,13 @@ namespace scan {
 		for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
 			times.push_back(timebase_s * j);
 		}
-		files::createCscanMat(data->Volt_ticks, basePoints, data->points, times, timebase_s, filename);
+		try {
+			files::createCscanMat(data->Volt_ticks, basePoints, data->points, times, timebase_s, filename);
+		}
+		catch (...) {
+			std::cout << "Cant save .mat file!" << endl;
+		}
+		
 	}
 	
 	void Rscan::manualSetBasePoints() {
@@ -268,104 +289,20 @@ namespace scan {
 		auto& SETTINGS = Config::instance();
 		points = math::getRandomQuadrogonPoints(basePoints[0], basePoints[1], basePoints[2], basePoints[3], SETTINGS.getRscan_settings().points_n());
 	}
-	void Rscan::start() {
-		if (points.size() > 0) {
-			// Уточняем у осциллографа какой шаг по времени у его отсчетов напряжения
-			double timebase_s = oscill_->get_timebase_ns()*1e-9;
-			// массив отсчетов времени для мат файлов
-			std::vector<double> times;
-			//	заполняем массив отсчетов по времени!
-			auto& SETTINGS = Config::instance();
-			SETTINGS.loadFromFile();
-			times.resize(SETTINGS.getOscill_settings().getWantedTicks(), 0);
-			for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
-				times[j] = timebase_s * j;
-			}
-
-			// Сам скан и шаг по расстоянию
-			std::vector<std::vector<double>> RscanData;
-			std::vector<double> dists;
-
-			// Замер в текущей точки для тестов
-			std::vector<double> SignalAtPoint;
-
-			// Включаем моторы для старта сканирования
-			stage_->enableMotors();
-			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
-			std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Rscan.mat";
-
-			struct SaveData {
-				std::vector<std::vector<double>> RscanData;
-				std::vector<double> dists, times;
-				double timebase_s;
-				std::vector<std::vector<double>> points;
-			};
-
-			std::mutex dataMutex;
-			std::condition_variable saveBufferCV;  
-			std::queue<std::shared_ptr<SaveData>> saveBuffer;
-			std::atomic<bool> savingActive{ true };
-			std::future<void> saverFuture;
-
-			saverFuture = std::async(std::launch::async, [&] {
-				while (savingActive || !saveBuffer.empty()) {
-					std::unique_lock<std::mutex> lock(dataMutex);
-					saveBufferCV.wait(lock, [&] {
-						return !saveBuffer.empty() || !savingActive.load();
-						});
-
-					if (saveBuffer.empty()) continue;
-					auto data = saveBuffer.front();
-					saveBuffer.pop();
-					lock.unlock();
-					Sleep(5000);
-					files::createBscanMat(data->RscanData, data->dists, data->times, 1, data->timebase_s, data->points, filename);
-				}
-				});
-
-			for (size_t i = 0; i < points.size(); ++i) {
-				{
-														// Непосредственно сканирование
-					stage_->moveTo(points[i]);
-					while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
-						Sleep(100);
-					}
-					SignalAtPoint = getMeasure();
-					dists.push_back(double(i));
-					Sleep(5000);
-					RscanData.push_back(SignalAtPoint);
-				std:cout << endl << "Точка " << to_string(i) << " готова" << endl;
-				}
-
-				auto dataPtr = std::make_shared<SaveData>();
-				dataPtr->RscanData = RscanData;     // копия твоих сигналов
-				dataPtr->dists = dists;             // копия расстояний
-				dataPtr->times = times;             // копия времени
-				dataPtr->timebase_s = timebase_s;   // скаляр
-				dataPtr->points = points;
-
-				{
-					std::lock_guard<std::mutex> lock(dataMutex);
-					saveBuffer.push(dataPtr);
-				}
-				saveBufferCV.notify_one();
-			}
-
-			std::cout << "Замеры завершены. Ждём сохранения...\n";
-
-			savingActive = false;
-			{
-				std::lock_guard<std::mutex> lock(dataMutex);
-				saveBufferCV.notify_all();  // Разбудить Saver на пустой буфер
-			}
-			saverFuture.wait();
-
-			std::cout << "Всё готово! Rscan.mat в папке.\n";
-
-			stage_->disableMotors();
+	void Rscan::saveRawData(std::shared_ptr<BasicData> data) {
+		auto& SETTINGS = Config::instance();
+		SETTINGS.loadFromFile();
+		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Rscan-" + data->specimenName + ".mat";
+		double timebase_s = oscill_->get_timebase_ns() * 1e-9;
+		std::vector<double> times;
+		
+		try {
+			files::RscanToMat(data->points, data->Volt_ticks, SETTINGS.getOscill_settings().getAveN(), filename);
 		}
-		else throw "There is no points to scan at!";
-	};
+		catch (...) {
+			std::cout << "Cant save .mat file!" << endl;
+		}
+	}
 
 	void Oscan::setPoints() {
 		auto& SETTINGS = Config::instance();
@@ -400,59 +337,20 @@ namespace scan {
 			}
 		}
 	}
-	void Oscan::start() {
-		if (points.size() > 0) {
-			std::vector<std::vector<double>> table_points;
+	void Oscan::saveRawData(std::shared_ptr<BasicData> data) {
+		auto& SETTINGS = Config::instance();
+		SETTINGS.loadFromFile();
+		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Oscan-" + data->specimenName + ".mat";
+		double timebase_s = oscill_->get_timebase_ns() * 1e-9;
+		std::vector<double> times;
 
-			// Уточняем у осциллографа какой шаг по времени у его отсчетов напряжения
-			double timebase_s = oscill_->get_timebase_ns() * 1e-9;
-			// массив отсчетов времени для мат файлов
-			std::vector<double> times;
-			//	заполняем массив отсчетов по времени!
-			auto& SETTINGS = Config::instance();
-			SETTINGS.loadFromFile();
-			times.resize(SETTINGS.getOscill_settings().getWantedTicks(), 0);
-			for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
-				times[j] = timebase_s * j;
-			}
-
-			// Сам скан и шаг по расстоянию
-			std::vector<std::vector<double>> CscanData;
-			// Замер в текущей точки для тестов
-			std::vector<double> SignalAtPoint;
-			std::string CscanPointsFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Oscan\\OscanPoints.mat";
-			files::createCscanPointsMat(basePoints, points, timebase_s, CscanPointsFileName);
-
-			std::cout << endl << "Сохранение mat-файла c точками O-скана прошло успешно!" << endl;
-
-			// Включаем моторы для старта сканирования
-			stage_->enableMotors();
-			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
-			for (size_t i = 0; i < points.size(); ++i) {
-				std::string CscanOnePointFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Oscan\\" + to_string(i) + ".txt";
-				std::vector<double> newPoint;
-				newPoint = math::matVecMult(points[i], stage_->getSpecimenTransMatrix());
-				newPoint = math::vectorAdd(newPoint, stage_->getSpecimenBasePoints()[0]);
-				table_points.push_back(newPoint);
-				stage_->moveTo(points[i]);
-				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
-					Sleep(100);
-				}
-				SignalAtPoint = getMeasure();
-
-				CscanData.push_back(SignalAtPoint);
-				files::saveSignalToTxt(SignalAtPoint, timebase_s, CscanOnePointFileName);
-				std::cout << " Сохранение точки " << i << " из " << points.size() << "  O - скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
-			}
-
-			std::string CscanMatFileName = SETTINGS.getCommon_settings().getWorkFolder() + "Oscan.mat";
-			files::createCscanMat(CscanData, basePoints, points, times, timebase_s, CscanMatFileName);
-			std::cout << endl << "Сохранение mat-файла O-скана прошло успешно!" << endl;
-
-			stage_->disableMotors();
+		try {
+			files::RscanToMat(data->points, data->Volt_ticks, SETTINGS.getOscill_settings().getAveN(), filename);
 		}
-		else throw "There is no points to scan at!";
-	};
+		catch (...) {
+			std::cout << "Cant save .mat file!" << endl;
+		}
+	}
 
 
 }

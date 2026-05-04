@@ -134,8 +134,7 @@ namespace scan {
 		void manualSetBasePoints() override;
 		//2 Получение точек 
 		void setPoints() override;
-		void start();
-		virtual void saveRawData(std::shared_ptr<BasicData> data) override {};
+		virtual void saveRawData(std::shared_ptr<BasicData> data) override;
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -150,8 +149,7 @@ namespace scan {
 		void manualSetBasePoints() override {};
 		//2 Получение точек 
 		void setPoints() override;
-		void start();
-		virtual void saveRawData(std::shared_ptr<BasicData> data) override {};
+		virtual void saveRawData(std::shared_ptr<BasicData> data) override;
 		void cancel() override {};
 		void interrupt() override {};
 		
