@@ -31,7 +31,7 @@ namespace signal {
 	}
 
 	std::vector<uint16_t> SignalDeviceOscilloscopeSIMULATORowon::getRaw16BitSignal(const uint16_t& SLEEP_MS, const uint16_t& EMPTY_TICKS, const uint32_t& TICKS) {
-		std::vector<uint16_t> result(TICKS, 1);
+		std::vector<uint16_t> result(TICKS, 5);
 		
 		Sleep(SLEEP_MS);		// Типа ожидание триггера
 		return result;

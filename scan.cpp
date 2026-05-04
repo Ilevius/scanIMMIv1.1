@@ -219,7 +219,6 @@ namespace scan {
 		}
 		
 	};
-
 	
 	void Cscan::manualSetBasePoints() {
 		// нет большого смысла в задании точек С-скана вручную
@@ -252,60 +251,7 @@ namespace scan {
 		}
 		files::createCscanMat(data->Volt_ticks, basePoints, data->points, times, timebase_s, filename);
 	}
-	void Cscan::start() {
-		if (points.size() > 0) {
-			std::vector<std::vector<double>> table_points;
-
-			// Уточняем у осциллографа какой шаг по времени у его отсчетов напряжения
-			double timebase_s = oscill_->get_timebase_ns()*1e-9;
-			// массив отсчетов времени для мат файлов
-			std::vector<double> times;
-			//	заполняем массив отсчетов по времени!
-			auto& SETTINGS = Config::instance();
-			SETTINGS.loadFromFile();
-			times.resize(SETTINGS.getOscill_settings().getWantedTicks(), 0);
-			for (size_t j = 0; j < SETTINGS.getOscill_settings().getWantedTicks(); j++) {
-				times[j] = timebase_s * j;
-			}
-
-			// Сам скан и шаг по расстоянию
-			std::vector<std::vector<double>> CscanData;
-			// Замер в текущей точки для тестов
-			std::vector<double> SignalAtPoint;
-			std::string CscanPointsFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Cscan\\CscanPoints.mat";
-			files::createCscanPointsMat(basePoints, points, timebase_s, CscanPointsFileName);
-
-			std::cout << endl << "Сохранение mat-файла c точками С-скана прошло успешно!" << endl;
-
-			// Включаем моторы для старта сканирования
-			stage_->enableMotors();
-			Sleep(1000); //				Нужно добавить проверку, что моторы успели включиться!!!
-			for (size_t i = 0; i < points.size(); ++i) {
-				std::string CscanOnePointFileName = SETTINGS.getCommon_settings().getWorkFolder() + "\\Cscan\\" + to_string(i) + ".txt";
-				std::vector<double> newPoint;
-				newPoint = math::matVecMult(points[i], stage_->getSpecimenTransMatrix());
-				newPoint = math::vectorAdd(newPoint, stage_->getSpecimenBasePoints()[0]);
-				table_points.push_back(newPoint);
-				stage_->moveTo(points[i]);
-				while (stage_->is_moving()) {//			Тут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
-					Sleep(100);
-				}
-				SignalAtPoint = getMeasure();
-
-				CscanData.push_back(SignalAtPoint);
-				files::saveSignalToTxt(SignalAtPoint, timebase_s, CscanOnePointFileName);
-				std::cout << " Сохранение точки "<< i << " из " << points.size()  << "  С - скана успешно выполнено" << std::endl << std::endl; //File saved succesfully!
-			}
-
-			std::string CscanMatFileName = SETTINGS.getCommon_settings().getWorkFolder() + "Cscan.mat";
-			files::createCscanMat(CscanData, basePoints, points, times, timebase_s, CscanMatFileName);
-			std::cout << endl << "Сохранение mat-файла С-скана прошло успешно!" << endl;
-
-			stage_->disableMotors();
-		}
-		else throw "There is no points to scan at!";
-	};
-
+	
 	void Rscan::manualSetBasePoints() {
 		basePoints.clear();
 		std::vector<double> basePoint = stage_->getManualPoint("Переместите стол руками в ПЕРВУЮ точку R-скана и нажмите enter!\n");

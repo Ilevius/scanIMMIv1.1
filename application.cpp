@@ -201,7 +201,14 @@ void Cscan(State AppState) {
 		switch (option) {
 		case 0: return;
 		case 1:
-			CURR_CSCAN.setPoints();
+			try {
+				CURR_CSCAN.setPoints();				
+			}
+			catch (...) {
+				std::cout << "Some trouble while scan points generation!";
+				return;
+			}
+			
 			CURR_CSCAN.start();
 			break;
 		}

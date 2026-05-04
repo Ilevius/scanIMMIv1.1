@@ -99,7 +99,6 @@ namespace scan {
 		}
 		void manualSetBasePoints() override;
 		void setPoints() override;
-		/*void start();*/
 		void saveRawData(std::shared_ptr<BasicData> data) override;
 		void cancel() override {};
 		void interrupt() override {};
@@ -117,7 +116,6 @@ namespace scan {
 		}
 		void manualSetBasePoints() override;
 		void setPoints() override;
-		void start();
 		virtual void saveRawData(std::shared_ptr<BasicData> data) override;
 		void cancel() override {};
 		void interrupt() override {};
