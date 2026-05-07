@@ -23,7 +23,8 @@ void to_json(json& j, const Table_settings& t) {
 	{ "X_MIN",     t.getXMin() },
 	{ "Y_MIN",     t.getYMin() },
 	{ "X_MAX",     t.getXMax() },
-	{ "Y_MAX",     t.getYMax() }
+	{ "Y_MAX",     t.getYMax() },
+	{"EMERGENCY_MODE", t.get_emergency_mode()}
 	};
 }
 
@@ -34,6 +35,7 @@ void from_json(const json& j, Table_settings& t) {
 	t.setYMin(j.at("Y_MIN").get<int>());
 	t.setXMax(j.at("X_MAX").get<int>());
 	t.setYMax(j.at("Y_MAX").get<int>());
+	t.set_emergency_mode(j.at("EMERGENCY_MODE").get<bool>());
 }
 
 // A-scan

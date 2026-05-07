@@ -56,6 +56,7 @@ namespace movable {
 		virtual bool is_moving() = 0;
 		virtual void disableMotors() = 0;
 		virtual void enableMotors() = 0;
+		virtual int disable_y_motor() = 0;
 	};
 
 	// Конкретная модель
@@ -75,6 +76,7 @@ namespace movable {
 		void disableMotors() override;
 		void enableMotors() override;
 		void setupSpecimenCoordSys() override;
+		int disable_y_motor() override;
 	private:
 		HANDLE hComm;
 		const double XMIN = -149;
@@ -86,7 +88,7 @@ namespace movable {
 		int enable_x_motor();
 		int disable_x_motor();
 		int enable_y_motor();
-		int disable_y_motor();
+		
 		bool x_is_moving();
 		bool y_is_moving();
 	};
@@ -109,6 +111,7 @@ namespace movable {
 		void disableMotors() override;
 		void enableMotors() override;
 		void setupSpecimenCoordSys() override;
+		int disable_y_motor() override { return 0; };
 	private:
 		HANDLE hComm;
 		const double XMIN = -149;
@@ -121,7 +124,6 @@ namespace movable {
 		int enable_x_motor();
 		int disable_x_motor();
 		int enable_y_motor();
-		int disable_y_motor();
 		bool x_is_moving();
 		bool y_is_moving();
 	};

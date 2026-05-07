@@ -26,6 +26,7 @@ namespace scan {
 			// Чтение актуальных настроек
 			auto& SETTINGS = Config::instance();
 			SETTINGS.loadFromFile();
+			bool EMERGENCY_MODE = SETTINGS.getTable_settings().get_emergency_mode();
 			// Только базовые пареметры скана
 			double timebase_s = oscill_->get_timebase_ns() * 1e-9;
 			auto basicScanDataPtr = std::make_shared<BasicData>();
@@ -113,8 +114,13 @@ namespace scan {
 					Sleep(100);
 				}
 				Sleep(500);
+				if (EMERGENCY_MODE) stage_->disable_y_motor();
 				try {
 					SignalAtPoint = getMeasure();
+					if (EMERGENCY_MODE) {
+						stage_->enableMotors();
+						Sleep(500);
+					}
 				}
 				catch (...) {
 					std::cout << "Error! Cant get data from oscilloscope. Some exception has been rised!" << std::endl;
