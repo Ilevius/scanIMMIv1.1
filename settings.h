@@ -26,7 +26,6 @@ public:
 	bool getSimulator() const { return simulator_; }
 	void setSimulator(bool v) { simulator_ = v; }
 
-
 	int getXMin() const { return x_min_; }
 	void setXMin(int v) { x_min_ = v; }
 
@@ -39,6 +38,8 @@ public:
 	int getYMax() const { return y_max_; }
 	void setYMax(int v) { y_max_ = v; }
 
+	bool get_emergency_mode() const { return emergency_mode; }
+	void set_emergency_mode(bool v) { emergency_mode = v; }
 
 private:
 	std::string ip_adress_;
@@ -47,6 +48,7 @@ private:
 	int  y_min_ = 0;
 	int  x_max_ = 0;
 	int  y_max_ = 0;
+	bool emergency_mode = false;
 };
 
 class Ascan_settings {

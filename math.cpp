@@ -141,7 +141,6 @@ namespace math {
 				result.push_back(randomPointInTriangle(first, third, fourth, gen, dist01));
 			}
 		}
-
 		return result;
 	}
 
@@ -185,56 +184,6 @@ namespace math {
 		}
 
 		return result;
-	}
-
-
-	std::vector<std::vector<double>> makeCscanPoints(int16_t Np, double Len_y,
-		const std::vector<double>& p1, const std::vector<double>& p2,
-		const std::vector<double>& p3) {
-
-		if (p1.size() < 2 || p1.size() != p2.size() || p1.size() != p3.size() || Np <= 0) {
-			throw std::invalid_argument("Incorrect input for makeCscanPoints");
-		}
-
-		size_t dim = p1.size();
-		std::vector<double> x(dim, 0), y(dim, 0), dir(dim,0);
-
-		// Шаг по X (от p1 к p2)
-		for (size_t d = 0; d < dim; d++) {
-			x[d] = (p2[d] - p1[d]) / (Np - 1);  
-			dir[d] = (p3[d] - p1[d]); // вектор направления от первой точки до третьей
-		}
-
-		// Ортогональный Y (поворот X на 90 градусов в проскости)
-		y[0] = -x[1];
-		y[1] = x[0];
-		if (dim > 2) std::fill(y.begin() + 2, y.end(), 0.0);
-
-		if (dotProduct(y, dir) < 0) scaleVector(y, -1); // проверяем смотрит ли у в сторону третьей точки,
-		// если да то скалярное произведение больше нуля
-
-		normalizeVector(y);
-		scaleVector(y, Len_y / (Np - 1));
-
-		std::vector<std::vector<double>> points;
-
-		//  проход по точкам сетки змейкой
-		for (size_t i = 0; i < Np; i++) {
-			for (size_t j = 0; j < Np; j++) {
-				std::vector<double> newPoint(dim, 0);
-				for (size_t d = 0; d < dim; d++) {
-					if (i % 2 == 0) {
-						newPoint[d] = p1[d] + x[d] * i + y[d] * j;
-					}
-					else {
-						newPoint[d] = p1[d] + x[d] * i + y[d] * (Np-1-j);
-					}
-				}
-				points.push_back(newPoint);
-			}
-		}
-
-		return points;
 	}
 
 
@@ -290,7 +239,7 @@ namespace math {
 
 	std::vector<std::vector<double>> rectSnake(double& x0, double& y0, double& xl, double& yl, size_t& Nx, size_t& Ny) {
 		const double dx = double(xl / Nx);
-		const double dy = double(yl / Nx);
+		const double dy = double(yl / Ny);
 		std::vector<std::vector<double>> result;
 
 		//  проход по точкам сетки змейкой
@@ -337,6 +286,37 @@ namespace math {
 		}
 	}
 
+	std::vector<std::vector<std::complex<double>>> splineSpectrum(
+		std::vector<double> &SecondTicks, std::vector<std::vector<double>> &VoltTicks, std::vector<double> &HerzTicks
+	) {
+		size_t Nsignals = VoltTicks.size();
+		size_t Nticks = SecondTicks.size();
+		size_t Nfreqs = HerzTicks.size();
+		if (Nsignals<1) throw "splineSpectrum incorrect input!!!";
+		if (Nticks < 2 || Nticks != VoltTicks[0].size() || Nfreqs < 1) {
+			throw "splineSpectrum incorrect input!!!";
+		}
+		else {
+
+			Eigen::MatrixXd VoltTicks(Nsignals, Nticks);
+			Eigen::MatrixXcd transMatrix(Nticks, Nfreqs);
+
+			std::complex<double> ci(0, 1);
+			double dt = SecondTicks[1] - SecondTicks[0];
+			std::vector<std::vector<std::complex<double>>> spectrum(Nsignals, std::vector<std::complex<double>>(Nfreqs));
+			std::vector<std::vector<std::complex<double>>> transforMatrix(Nticks, std::vector<std::complex<double>>(Nfreqs));
+			double w;
+			for (size_t i = 0; i < Nticks;i++) {
+				for (size_t j = 0; j < Nfreqs;j++) {
+					w = 2.0 * std::numbers::pi * HerzTicks[j];
+					transMatrix(i,j) = 2.0 * std::exp(ci * w * SecondTicks[i]) / (dt * w * w) * (1.0 - cos(dt * w));
+					//transforMatrix[i][j] = 2.0 * std::exp(ci*w*SecondTicks[i])/(dt*w*w)*(1.0 - cos(dt*w));
+				}
+			}
+			return spectrum;
+		}
+			
+	}
 
 
 };

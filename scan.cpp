@@ -12,6 +12,7 @@ namespace scan {
 	std::vector<double> Scan::getMeasure() {
 		std::cout << " Ќачалось осреднение сигналов с осцилографа" << std::endl; // Saving average signal from oscill to file has been started!
 		auto& SETTINGS = Config::instance();
+		SETTINGS.loadFromFile();
 		int EMP_TICKS = SETTINGS.getOscill_settings().getEmptyTicks();
 		int TICKS = SETTINGS.getOscill_settings().getWantedTicks();
 		int SLEEP_MS = 1;
@@ -55,6 +56,7 @@ namespace scan {
 			}
 			catch (...) {
 				std::cout << "Error!!! Cant switch on stage motors!!!" << std::endl;
+				return;
 			}
 			Sleep(500); //				Ќужно добавить проверку, что моторы успели включитьс€!!!
 
@@ -66,14 +68,15 @@ namespace scan {
 					stage_->moveTo(basePoints[i]);
 				}
 				catch(...){
-					std::cout << "Stage cant achieve desired point!!";
+					std::cout << "Stage cant achieve desired point!!" << std::endl;
+					return;
 				}
 				
 				while (stage_->is_moving()) {//			“ут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
 					Sleep(100);
 				}
 				Sleep(500);
-				std::cout << "Ѕазова€ точка " << i << " из " << basePoints.size() << " успешно достигнута"  << std::endl;
+				std::cout << "Ѕазова€ точка " << i+1 << " из " << basePoints.size() << " успешно достигнута"  << std::endl;
 			}
 			std::cout << std::endl << "Ѕазовые точки пройдены успешно, начинаетс€ сканирование!!!" << std::endl;
 
@@ -103,13 +106,20 @@ namespace scan {
 					stage_->moveTo(points[i]);
 				}
 				catch (...) {
-					std::cout << "Stage cant achieve desired point!!";
+					std::cout << "Stage cant achieve desired point!!" << std::endl;
+					return;
 				}
 				while (stage_->is_moving()) {//			“ут добавить проверку, что стол приехал в нужную точку с некоторой точностью!!!
 					Sleep(100);
 				}
 				Sleep(500);
-				SignalAtPoint = getMeasure();
+				try {
+					SignalAtPoint = getMeasure();
+				}
+				catch (...) {
+					std::cout << "Error! Cant get data from oscilloscope. Some exception has been rised!" << std::endl;
+					return;
+				}
 				ScanData.push_back(SignalAtPoint);
 
 				basicScanDataPtr->Volt_ticks = ScanData;
@@ -169,6 +179,7 @@ namespace scan {
 			auto& SETTINGS = Config::instance();
 			SETTINGS.loadFromFile();
 			points.push_back({SETTINGS.getAscan_settings().getX(), SETTINGS.getAscan_settings().getY() });
+			basePoints = points;
 		}
 		
 	}
@@ -181,6 +192,7 @@ namespace scan {
 		}
 		catch (...) {
 			std::cout << "Cant save .mat file!" << endl;
+			return;
 		}
 	}
 

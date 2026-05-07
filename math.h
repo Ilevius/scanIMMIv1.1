@@ -1,5 +1,7 @@
 #include <vector>
 #include <random>
+#include <numbers>
+#include "include/Eigen/Eigen"
 namespace math {
 
 
@@ -14,9 +16,6 @@ namespace math {
 	double vectorMean(const std::vector<double>& v);
 
 	void subtractFromVector(std::vector<double>& vec, const double value);
-
-
-
 
 
 	double triangleArea2D(const std::vector<double>& a,
@@ -39,12 +38,6 @@ namespace math {
 		int npoints);
 
 
-	std::vector<std::vector<double>> makeCscanPoints(int16_t Np, double Len_y,
-		const std::vector<double>& first,
-		const std::vector<double>& second,
-		const std::vector<double>& third);
-
-
 	void normalizeVector(std::vector<double>& vec);
 
 	void scaleVector(std::vector<double>& vec, double scalar);
@@ -60,5 +53,9 @@ namespace math {
 
 	std::vector<double> vectorAdd(std::vector<double> &a, std::vector<double> &b);
 	std::vector<double> vectorSubstraction(std::vector<double> &a, std::vector<double> &b);
+
+	std::vector<std::vector<std::complex<double>>> splineSpectrum(
+		std::vector<double>& SecondTicks, std::vector<std::vector<double>>& VoltTicks, std::vector<double>& HerzTicks
+	);
 
 };
