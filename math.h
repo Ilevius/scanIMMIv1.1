@@ -50,12 +50,14 @@ namespace math {
 
 	std::vector<std::vector<double>> rectSnake(double& x0, double& y0, double& xl, double& yl, size_t& Nx, size_t& Ny);
 
-
 	std::vector<double> vectorAdd(std::vector<double> &a, std::vector<double> &b);
 	std::vector<double> vectorSubstraction(std::vector<double> &a, std::vector<double> &b);
 
-	std::vector<std::vector<std::complex<double>>> splineSpectrum(
+	Eigen::MatrixXcd splineSpectrum(
 		std::vector<double>& SecondTicks, std::vector<std::vector<double>>& VoltTicks, std::vector<double>& HerzTicks
 	);
 
+	std::vector<std::complex<double>> splineSpectum(
+		std::vector<double>& SecondTicks, std::vector<double>& VoltTicks, std::vector<double>& HerzTicks
+	);
 };

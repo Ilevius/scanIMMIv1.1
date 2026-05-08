@@ -286,7 +286,7 @@ namespace math {
 		}
 	}
 
-	std::vector<std::vector<std::complex<double>>> splineSpectrum(
+	Eigen::MatrixXcd splineSpectrum(
 		std::vector<double> &SecondTicks, std::vector<std::vector<double>> &VoltTicks, std::vector<double> &HerzTicks
 	) {
 		size_t Nsignals = VoltTicks.size();
@@ -297,28 +297,53 @@ namespace math {
 			throw "splineSpectrum incorrect input!!!";
 		}
 		else {
-
-			Eigen::MatrixXd VoltTicks(Nsignals, Nticks);
-			Eigen::MatrixXcd transMatrix(Nticks, Nfreqs);
-
+			Eigen::MatrixXd VoltTicks_eigen(Nsignals, Nticks);
+			Eigen::MatrixXcd transforMatrix(Nticks, Nfreqs);
+			Eigen::MatrixXcd spectrums(Nsignals, Nfreqs);
 			std::complex<double> ci(0, 1);
-			double dt = SecondTicks[1] - SecondTicks[0];
-			std::vector<std::vector<std::complex<double>>> spectrum(Nsignals, std::vector<std::complex<double>>(Nfreqs));
-			std::vector<std::vector<std::complex<double>>> transforMatrix(Nticks, std::vector<std::complex<double>>(Nfreqs));
 			double w;
+			double dt = SecondTicks[1] - SecondTicks[0];
+
+			for (size_t tick = 0; tick < Nticks; tick++) {
+				for (size_t signal = 0; signal < Nsignals; signal++) {
+					VoltTicks_eigen(signal, tick) = VoltTicks[signal][tick];
+				}
+			}
+			
 			for (size_t i = 0; i < Nticks;i++) {
 				for (size_t j = 0; j < Nfreqs;j++) {
 					w = 2.0 * std::numbers::pi * HerzTicks[j];
-					transMatrix(i,j) = 2.0 * std::exp(ci * w * SecondTicks[i]) / (dt * w * w) * (1.0 - cos(dt * w));
-					//transforMatrix[i][j] = 2.0 * std::exp(ci*w*SecondTicks[i])/(dt*w*w)*(1.0 - cos(dt*w));
+					transforMatrix(i,j) = 2.0 * std::exp(ci * w * SecondTicks[i]) / (dt * w * w) * (1.0 - cos(dt * w));
+				}
+			}
+			spectrums = VoltTicks_eigen * transforMatrix;
+			return spectrums;
+		}		
+	}
+
+	std::vector<std::complex<double>> splineSpectum(
+		std::vector<double>& SecondTicks, std::vector<double>& VoltTicks, std::vector<double>& HerzTicks
+	) {
+		size_t Nticks = SecondTicks.size();
+		size_t Nfreqs = HerzTicks.size();
+		if (Nticks < 2 || Nticks != VoltTicks.size() || Nfreqs < 1) {
+			throw "splineSpectrum incorrect input!!!";
+		}
+		else {
+			std::complex<double> ci(0, 1);
+			double w;
+			double dt = SecondTicks[1] - SecondTicks[0];
+			std::vector<std::complex<double>> spectrum(Nfreqs);
+			for (size_t freq = 0; freq < Nfreqs;freq++) {
+				spectrum[freq] = 0;
+				w = 2.0 * std::numbers::pi * HerzTicks[freq];
+				for (size_t tick = 0; tick < Nticks;tick++) {
+					spectrum[freq] += VoltTicks[tick]*2.0 * std::exp(ci * w * SecondTicks[tick]) / (dt * w * w) * (1.0 - cos(dt * w));
 				}
 			}
 			return spectrum;
 		}
-			
 	}
-
-
 };
 
 
