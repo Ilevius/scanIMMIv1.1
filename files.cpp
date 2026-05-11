@@ -158,6 +158,27 @@
 	}
 
 
+	void files::spectrumToMatFile(
+		const std::vector<double>& fs,
+		const std::vector<std::complex<double>>& spec,
+		const std::vector<double>& sec_ticks,
+		const std::vector<double>& Volt_ticks,
+		const std::vector<double>& Volt_ticks_cut,
+		const std::string& filename
+	) {
+		MATFile* matfp = matOpen(filename.c_str(), "w");
+		if (!matfp) {
+			throw "Can't create mat file!";
+		}
+		
+		vectorToMatFile(fs, "freqs", matfp);
+		vectorToMatFile(spec, "spectrum", matfp);
+		vectorToMatFile(sec_ticks, "sec_ticks", matfp);
+		vectorToMatFile(Volt_ticks, "Volt_ticks", matfp);
+		vectorToMatFile(Volt_ticks_cut, "Volt_ticks_cut", matfp);
+	}
+
+
 	void files::numToMatFile(const double &v, std::string name, MATFile* matfp) {
 		mxArray* mx_v = mxCreateDoubleScalar(v);
 		matPutVariable(matfp, name.c_str(), mx_v);
@@ -219,6 +240,37 @@
 		}
 		matPutVariable(matfp, name.c_str(), mx_v_norm);
 		mxDestroyArray(mx_v_norm);
+	}
+
+
+
+	void files::vectorToMatFile(
+		const std::vector<std::complex<double>>& v,
+		std::string name,
+		MATFile* matfp
+	) {
+		size_t len = v.size();
+		if (len < 1) throw std::runtime_error("incorrect vector for saving to mat file");
+
+		// реальный вектор
+		mxArray* mx_real = mxCreateDoubleMatrix(1, len, mxREAL);
+		double* v_real = mxGetPr(mx_real);
+		for (size_t i = 0; i < len; ++i) v_real[i] = v[i].real();
+
+		// мнимый вектор
+		mxArray* mx_imag = mxCreateDoubleMatrix(1, len, mxREAL);
+		double* v_imag = mxGetPr(mx_imag);
+		for (size_t i = 0; i < len; ++i) v_imag[i] = v[i].imag();
+
+		// сохраняем два вектора, например, как name + "Real" и name + "Imag"
+		auto real_name = name + "Real";
+		auto imag_name = name + "Imag";
+
+		matPutVariable(matfp, real_name.c_str(), mx_real);
+		matPutVariable(matfp, imag_name.c_str(), mx_imag);
+
+		mxDestroyArray(mx_real);
+		mxDestroyArray(mx_imag);
 	}
 
 

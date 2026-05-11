@@ -321,7 +321,7 @@ namespace math {
 		}		
 	}
 
-	std::vector<std::complex<double>> splineSpectum(
+	std::vector<std::complex<double>> splineSpectrum(
 		std::vector<double>& SecondTicks, std::vector<double>& VoltTicks, std::vector<double>& HerzTicks
 	) {
 		size_t Nticks = SecondTicks.size();

@@ -57,7 +57,7 @@ namespace math {
 		std::vector<double>& SecondTicks, std::vector<std::vector<double>>& VoltTicks, std::vector<double>& HerzTicks
 	);
 
-	std::vector<std::complex<double>> splineSpectum(
+	std::vector<std::complex<double>> splineSpectrum(
 		std::vector<double>& SecondTicks, std::vector<double>& VoltTicks, std::vector<double>& HerzTicks
 	);
 };

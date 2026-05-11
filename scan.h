@@ -41,6 +41,7 @@ namespace scan {
 		std::vector<std::vector<double>> getBasePoints() { return basePoints; };
 		void start();
 		virtual void saveRawData(std::shared_ptr<BasicData> data) = 0;
+		virtual void FourierData(std::shared_ptr<BasicData> data) = 0;
 		virtual void cancel() = 0;
 		virtual void interrupt() = 0;
 		std::vector<double> getMeasure();					//	Получение осредненного сигнала с осциллографа
@@ -63,6 +64,7 @@ namespace scan {
 		void setPoints() override {};
 		void start();
 		virtual void saveRawData(std::shared_ptr<BasicData> data) override {};
+		virtual void FourierData(std::shared_ptr<BasicData> data) override {};
 		void cancel() override {};
 		void interrupt() override {};
 		void getGeneratorSignal(std::vector<double> &signal) {
@@ -84,6 +86,7 @@ namespace scan {
 		void manualSetBasePoints() override;
 		void setPoints() override;
 		virtual void saveRawData(std::shared_ptr<BasicData> data) override;
+		virtual void FourierData(std::shared_ptr<BasicData> data) override;
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -100,6 +103,7 @@ namespace scan {
 		void manualSetBasePoints() override;
 		void setPoints() override;
 		void saveRawData(std::shared_ptr<BasicData> data) override;
+		void FourierData(std::shared_ptr<BasicData> data) override {};
 		void cancel() override {};
 		void interrupt() override {};
 		double DIST_STEP = 0;
@@ -117,6 +121,7 @@ namespace scan {
 		void manualSetBasePoints() override;
 		void setPoints() override;
 		virtual void saveRawData(std::shared_ptr<BasicData> data) override;
+		virtual void FourierData(std::shared_ptr<BasicData> data) override {};
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -135,6 +140,7 @@ namespace scan {
 		//2 Получение точек 
 		void setPoints() override;
 		virtual void saveRawData(std::shared_ptr<BasicData> data) override;
+		virtual void FourierData(std::shared_ptr<BasicData> data) override {};
 		void cancel() override {};
 		void interrupt() override {};
 	};
@@ -150,6 +156,7 @@ namespace scan {
 		//2 Получение точек 
 		void setPoints() override;
 		virtual void saveRawData(std::shared_ptr<BasicData> data) override;
+		virtual void FourierData(std::shared_ptr<BasicData> data) override {};
 		void cancel() override {};
 		void interrupt() override {};
 		

@@ -1,6 +1,7 @@
 #include <vector>
 #include "mat.h"
 #include <filesystem>
+#include <complex>
 #pragma once
 
 
@@ -40,6 +41,14 @@ namespace files {
 		const std::string& filename
 	);
 
+	void spectrumToMatFile(
+		const std::vector<double>& fs, 
+		const std::vector<std::complex<double>>& spec, 
+		const std::vector<double> &sec_ticks,
+		const std::vector<double> &Volt_ticks,
+		const std::vector<double> &Volt_ticks_cut,
+		const std::string &filename
+		);
 
 	void numToMatFile(const double &v, std::string name, MATFile* matfp);
 
@@ -49,7 +58,7 @@ namespace files {
 
 	void matrixToMatFileNorm(const std::vector<std::vector<double>> & v, std::string name, MATFile* matfp);
 
-
+	void vectorToMatFile(const std::vector<std::complex<double>>& v, std::string name, MATFile* matfp);
 
 	bool ensureDirectoryExists(const std::string& path);
 

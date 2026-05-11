@@ -51,9 +51,16 @@
     "DATA_CH_SCALE_V": 0.1,
     "DEPMEM": 1000000,
     "WANTED_TICKS": 3750,
-    "EMPTY_TICKS":  125,
+    "EMPTY_TICKS": 125,
     "BURST_PERIOD": "3",
     "AVERAGE_N": 1,
     "TIMEBASE_CODE": 11
+  },
+  "FOURIER": {
+    "HEAD_ms": 0,
+    "TAIL_ms": 3750,
+    "FMIN_MHz": 0,
+    "FMAX_MHz": 3,
+    "FREQS_N": 190
   }
 }

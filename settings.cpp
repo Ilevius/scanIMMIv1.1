@@ -38,6 +38,24 @@ void from_json(const json& j, Table_settings& t) {
 	t.set_emergency_mode(j.at("EMERGENCY_MODE").get<bool>());
 }
 
+void to_json(json& j, const Fourier_settings& f) {
+	j = json{
+		{"HEAD_ms", f.head_ms()},
+		{"TAIL_ms", f.tail_ms()},
+		{"FMIN_MHz", f.fmin_MHz()},
+		{"FMAX_MHz", f.fmax_MHz()},
+		{"FREQS_N", f.freqs_n()}
+	};
+}
+
+void from_json(const json& j, Fourier_settings& f) {
+	f.setHead_ms(j.at("HEAD_ms").get<double>());
+	f.setTail_ms(j.at("TAIL_ms").get<double>());
+	f.setFmin_MHz(j.at("FMIN_MHz").get<double>());
+	f.setFmax_MHz(j.at("FMAX_MHz").get<double>());
+	f.setFreqs_n(j.at("FREQS_N").get<size_t>());
+}
+
 // A-scan
 void to_json(json& j, const Ascan_settings& s) {
 	j = json{
@@ -178,7 +196,8 @@ void to_json(json& j, const Config& c) {
 	{ "BSCAN",   c.getBscan_settings() },
 	{"CSCAN", c.getCscan_settings()},
 	{"RSCAN", c.getRscan_settings()},
-	{"OSCILLOSCOPE", c.getOscill_settings() }
+	{"OSCILLOSCOPE", c.getOscill_settings() },
+	{"FOURIER", c.getFourier_settings() }
 	};
 }
 
@@ -190,6 +209,7 @@ void from_json(const json& j, Config& c) {
 	c.setCscan_settings(j.at("CSCAN").get<Cscan_settings>());
 	c.setRscan_settings(j.at("RSCAN").get<Rscan_settings>());
 	c.setOscill_settings(j.at("OSCILLOSCOPE").get<Oscill_settings>());
+	c.setFourier_settings(j.at("FOURIER").get<Fourier_settings>());
 }
 
 

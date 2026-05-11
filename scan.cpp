@@ -18,7 +18,7 @@ namespace scan {
 		int SLEEP_MS = 1;
 		int AVE_NUM = SETTINGS.getOscill_settings().getAveN();
 		std::vector<double> signal = oscill_->getAveragedVolts(EMP_TICKS, TICKS, SLEEP_MS, AVE_NUM);
-		signalProcessing::centerSignal(signal);
+		//signalProcessing::centerSignal(signal);
 		return signal;
 	}
 	void Scan::start() {
@@ -81,12 +81,21 @@ namespace scan {
 			}
 			std::cout << std::endl << "Базовые точки пройдены успешно, начинается сканирование!!!" << std::endl;
 
+			//						Данные для потока сохранения .mat файлов необработанных замеров
 			std::mutex dataMutex;
 			std::condition_variable saveBufferCV;
 			std::queue<std::shared_ptr<BasicData>> saveBuffer;
 			std::atomic<bool> savingActive{ true };
 			std::future<void> saverFuture;
 
+			//						Данные для потока Фурье преобразования данных замеров
+			std::mutex processMutex;
+			std::condition_variable processCV;
+			std::queue<std::shared_ptr<BasicData>> processBuffer;
+			std::atomic<bool> processingActive{ true };
+			std::future<void> processorFuture;
+
+			//						Cохранение .mat файлов параллельно замерам
 			saverFuture = std::async(std::launch::async, [&] {
 				while (savingActive || !saveBuffer.empty()) {
 					std::unique_lock<std::mutex> lock(dataMutex);
@@ -99,6 +108,23 @@ namespace scan {
 					saveBuffer.pop();
 					lock.unlock();
 					saveRawData(data);
+				}
+				});
+
+			//					Фурье преобразование замеров
+			processorFuture = std::async(std::launch::async, [&] {
+				while (processingActive || !processBuffer.empty()) {
+					std::unique_lock<std::mutex> lock(processMutex);
+					processCV.wait(lock, [&] {
+						return !processBuffer.empty() || !processingActive.load();
+						});
+
+					if (processBuffer.empty()) continue;
+
+					auto data = processBuffer.front();
+					processBuffer.pop();
+					lock.unlock();
+					FourierData(data);  // преобразование Фурье, Н функция, сохранение результата
 				}
 				});
 
@@ -132,8 +158,14 @@ namespace scan {
 				{
 					std::lock_guard<std::mutex> lock(dataMutex);
 					saveBuffer.push(basicScanDataPtr);
+					
+				}
+				{
+					std::lock_guard<std::mutex> lock(processMutex);
+					processBuffer.push(basicScanDataPtr);
 				}
 				saveBufferCV.notify_one();
+				processCV.notify_one();
 
 				/*сохранение файла с замером в текущей точке во временном каталоге*/
 				std::string aPointInTemp = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp-scanIMMI\\" + to_string(i) + ".txt";
@@ -151,6 +183,13 @@ namespace scan {
 				saveBufferCV.notify_all();  // Разбудить Saver на пустой буфер
 			}
 			saverFuture.wait();
+
+			processingActive = false;
+			{
+				std::lock_guard<std::mutex> lock(processMutex);
+				processCV.notify_all();
+			}
+			processorFuture.wait();
 
 			std::cout << "Всё готово!\n";
 
@@ -200,6 +239,32 @@ namespace scan {
 			std::cout << "Cant save .mat file!" << endl;
 			return;
 		}
+	}
+	void Ascan::FourierData(std::shared_ptr<BasicData> data) {
+		auto& SETTINGS = Config::instance();
+		SETTINGS.loadFromFile();
+		double timebase_s = oscill_->get_timebase_ns()*1e-9;
+		std::vector<double> times_s, freqs_Hz, cut_signal;
+		size_t Tmin = size_t(SETTINGS.getFourier_settings().head_ms() * 1e-3 / timebase_s);
+		size_t Tmax = size_t(SETTINGS.getFourier_settings().tail_ms() * 1e-3 / timebase_s);
+		if (Tmin > SETTINGS.getOscill_settings().getWantedTicks() || Tmax > SETTINGS.getOscill_settings().getWantedTicks()) {
+			Tmin = 0; Tmax = SETTINGS.getOscill_settings().getWantedTicks();
+		}
+		size_t Nfreqs = SETTINGS.getFourier_settings().freqs_n();
+		double Fmin_Hz = SETTINGS.getFourier_settings().fmin_MHz()*1e6;
+		double Fmax_Hz = SETTINGS.getFourier_settings().fmax_MHz() * 1e6;
+		double Fstep_Hz = (Fmax_Hz - Fmin_Hz) / Nfreqs;
+		std::vector<double> signal = data->Volt_ticks[0];
+		for (size_t j = Tmin; j < Tmax; j++) {
+			times_s.push_back(timebase_s * j);
+			cut_signal.push_back(signal[j]);
+		}
+		for (size_t i = 0; i < Nfreqs; i++) {
+			freqs_Hz.push_back(Fmin_Hz + Fstep_Hz * i);
+		}
+		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Ascan-" + data->specimenName + "-spectrum.mat";
+		std::vector<std::complex<double>> spectrum = math::splineSpectrum(times_s, cut_signal, freqs_Hz);
+		files::spectrumToMatFile(freqs_Hz, spectrum, times_s, signal, cut_signal, filename);
 	}
 
 	void Bscan::manualSetBasePoints() {

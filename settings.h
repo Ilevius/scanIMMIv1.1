@@ -217,6 +217,32 @@ private:
 	int8_t timabase_code_ = 7;
 };
 
+class Fourier_settings {
+public:
+	Fourier_settings() = default;
+
+	const double head_ms() const { return head_ms_; }
+	const double tail_ms() const { return tail_ms_; }
+	const double fmin_MHz() const { return fmin_MHz_; }
+	const double fmax_MHz() const { return fmax_MHz_; }
+	const size_t freqs_n() const { return freqs_n_; }
+
+
+	void setHead_ms(const double &v) { head_ms_ = v; }
+	void setTail_ms(double v) { tail_ms_ = v; }
+	void setFmin_MHz(double v) { fmin_MHz_ = v; }
+	void setFmax_MHz(double v) { fmax_MHz_ = v; }
+	void setFreqs_n(size_t v) { freqs_n_ = v; }
+
+private:
+	double head_ms_ = 0;
+	double tail_ms_ = 200;
+	double fmin_MHz_ = 0;
+	double fmax_MHz_ = 3;
+	size_t freqs_n_ = 200;
+
+};
+
 class Config {
 public:
 	static Config& instance();
@@ -248,6 +274,9 @@ public:
 	const Oscill_settings& getOscill_settings() const { return Oscill_settings_; }
 	void setOscill_settings(const Oscill_settings& o) { Oscill_settings_ = o; }
 
+	const Fourier_settings& getFourier_settings() const { return Fourier_settings_; }
+	void setFourier_settings(const Fourier_settings& o) { Fourier_settings_ = o; }
+
 private:
 	Config() = default;
 	Config(const Config&) = delete;
@@ -261,6 +290,7 @@ private:
 	Rscan_settings Rscan_settings_;
 	Oscan_settings Oscan_settings_;
 	Oscill_settings Oscill_settings_;
+	Fourier_settings Fourier_settings_;
 };
 
 
@@ -291,3 +321,6 @@ private:
 
 	void to_json(nlohmann::json& j, const Oscan_settings& c);
 	void from_json(const nlohmann::json& j, Oscan_settings& c);
+
+	void to_json(nlohmann::json& j, const Fourier_settings& f);
+	void from_json(const nlohmann::json& j, Fourier_settings& f);

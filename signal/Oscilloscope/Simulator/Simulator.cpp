@@ -22,17 +22,19 @@ namespace signal {
 		std::cout << "Запущена настрокйка SIMULATORowon" << std::endl; // OWON6102A setup has been started
 		auto& SETTINGS = Config::instance();
 		auto& osc_sets = SETTINGS.getOscill_settings();
-		set_timebase_ns(128);
+		set_timebase_ns(20);
 	}
 
 	
 	double SignalDeviceOscilloscopeSIMULATORowon::rawTickToVolts(double signal_tick) {
-		return (signal_tick - 8192) / 6400;
+		return signal_tick*5;
 	}
 
 	std::vector<uint16_t> SignalDeviceOscilloscopeSIMULATORowon::getRaw16BitSignal(const uint16_t& SLEEP_MS, const uint16_t& EMPTY_TICKS, const uint32_t& TICKS) {
-		std::vector<uint16_t> result(TICKS, 5);
-		
+		std::vector<uint16_t> result(TICKS, 0);
+		for (size_t i = 50; i < 101; i++) {
+			result[i] = 1;
+		}
 		Sleep(SLEEP_MS);		// Типа ожидание триггера
 		return result;
 	}
