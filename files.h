@@ -2,6 +2,7 @@
 #include "mat.h"
 #include <filesystem>
 #include <complex>
+#include "include/Eigen/Eigen"
 #pragma once
 
 
@@ -55,6 +56,8 @@ namespace files {
 	void vectorToMatFile(const std::vector<double>& v, std::string name, MATFile* matfp);
 
 	void matrixToMatFile(const std::vector<std::vector<double>> & v, std::string name, MATFile* matfp);
+
+	void matrixToMatFile(const Eigen::MatrixXcd & v, std::string name, MATFile* matfp);
 
 	void matrixToMatFileNorm(const std::vector<std::vector<double>> & v, std::string name, MATFile* matfp);
 

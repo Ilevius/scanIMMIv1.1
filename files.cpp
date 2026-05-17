@@ -214,6 +214,12 @@
 		mxDestroyArray(mx_v);
 	}
 
+	void files::matrixToMatFile(const Eigen::MatrixXcd& v, std::string name, MATFile* matfp) {
+		size_t rows = v.rows();
+		size_t colls = v.cols();
+		if (rows < 1 || colls < 1) throw "incorrect matrix for saving to matfile";
+	}
+
 	void files::matrixToMatFileNorm(const std::vector<std::vector<double>> & v, std::string name, MATFile* matfp) {
 		size_t rows = v.size();
 		size_t colls = v[0].size();
