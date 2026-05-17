@@ -18,7 +18,7 @@ namespace scan {
 		int SLEEP_MS = 1;
 		int AVE_NUM = SETTINGS.getOscill_settings().getAveN();
 		std::vector<double> signal = oscill_->getAveragedVolts(EMP_TICKS, TICKS, SLEEP_MS, AVE_NUM);
-		//signalProcessing::centerSignal(signal);
+		signalProcessing::centerSignal(signal);
 		return signal;
 	}
 	void Scan::start() {

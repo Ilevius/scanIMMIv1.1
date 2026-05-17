@@ -48,7 +48,7 @@
     "TRIG_MODE": "EDGE",
     "TRIG_COUP": "DC",
     "TRIG_EDGE_LEVEL": "3",
-    "DATA_CH_SCALE_V": 0.1,
+    "DATA_CH_SCALE_V": 1,
     "DEPMEM": 1000000,
     "WANTED_TICKS": 3750,
     "EMPTY_TICKS": 125,

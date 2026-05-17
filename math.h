@@ -60,4 +60,6 @@ namespace math {
 	std::vector<std::complex<double>> splineSpectrum(
 		std::vector<double>& SecondTicks, std::vector<double>& VoltTicks, std::vector<double>& HerzTicks
 	);
+
+	Eigen::MatrixXcd FourierMatrix(size_t& intVar_n, size_t& freeVar_n, double intVarMin, double freeVarMin, double intVarStep, double freeVarStep);
 };
