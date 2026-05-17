@@ -260,15 +260,14 @@ namespace scan {
 			times_s.push_back(timebase_s * j);
 			cut_signal.push_back(signal[j]);
 		}
+		size_t t_n = times_s.size();
 		cut_signal_mat.push_back(cut_signal);
 		for (size_t i = 0; i < Nfreqs; i++) {
 			freqs_Hz.push_back(Fmin_Hz + Fstep_Hz * i);
 		}
 		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Ascan-" + data->specimenName + "-spectrum.mat";
-		std::vector<std::complex<double>> spectrum = math::splineSpectrum(times_s, cut_signal, freqs_Hz);
-		//Eigen::MatrixXcd spectrum = math::splineSpectrum(size_t(times_s.size()), Nfreqs, Tmin*timebase_s, Fmin_Hz, timebase_s, Fstep_Hz, cut_signal_mat);
-		//splineSpectrum(size_t & t_n, size_t & freq_n, double& tMin, double& freqMin, double& tStep, double& fStep, std::vector<std::vector<double>>&VoltTicks)
-
+		//std::vector<std::complex<double>> spectrum = math::splineSpectrum(times_s, cut_signal, freqs_Hz);
+		Eigen::MatrixXcd spectrum = math::splineSpectrum(t_n, Nfreqs, times_s[0], Fmin_Hz, timebase_s, Fstep_Hz, cut_signal_mat);
 		files::spectrumToMatFile(freqs_Hz, spectrum, times_s, signal, cut_signal, filename);
 	}
 
