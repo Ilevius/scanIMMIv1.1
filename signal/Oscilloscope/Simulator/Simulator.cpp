@@ -27,13 +27,13 @@ namespace signal {
 
 	
 	double SignalDeviceOscilloscopeSIMULATORowon::rawTickToVolts(double signal_tick) {
-		return signal_tick*5;
+		return signal_tick;
 	}
 
 	std::vector<uint16_t> SignalDeviceOscilloscopeSIMULATORowon::getRaw16BitSignal(const uint16_t& SLEEP_MS, const uint16_t& EMPTY_TICKS, const uint32_t& TICKS) {
 		std::vector<uint16_t> result(TICKS, 0);
 		for (size_t i = 50; i < 101; i++) {
-			result[i] = 1;
+			result[i] = 13;
 		}
 		Sleep(SLEEP_MS);		// Типа ожидание триггера
 		return result;
