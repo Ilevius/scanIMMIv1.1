@@ -286,40 +286,60 @@ namespace math {
 		}
 	}
 
-	Eigen::MatrixXcd splineSpectrum(
-		std::vector<double> &SecondTicks, std::vector<std::vector<double>> &VoltTicks, std::vector<double> &HerzTicks
+	Eigen::MatrixXcd splineSpectrum(size_t& t_n, size_t& freq_n, double& tMin, double& freqMin, double& tStep, double& fStep,
+		std::vector<std::vector<double>> &VoltTicks
 	) {
 		size_t Nsignals = VoltTicks.size();
-		size_t Nticks = SecondTicks.size();
-		size_t Nfreqs = HerzTicks.size();
-		if (Nsignals<1) throw "splineSpectrum incorrect input!!!";
-		if (Nticks < 2 || Nticks != VoltTicks[0].size() || Nfreqs < 1) {
+		
+		if (Nsignals < 1) {
+			throw "splineSpectrum incorrect input!!!";
+		}
+
+		if (t_n < 2 || freq_n < 1 || VoltTicks[0].size() != t_n) {
 			throw "splineSpectrum incorrect input!!!";
 		}
 		else {
-			Eigen::MatrixXd VoltTicks_eigen(Nsignals, Nticks);
-			Eigen::MatrixXcd transforMatrix(Nticks, Nfreqs);
-			Eigen::MatrixXcd spectrums(Nsignals, Nfreqs);
+			Eigen::MatrixXd VoltTicks_eigen(Nsignals, t_n);
+			Eigen::MatrixXcd transforMatrix = FourierMatrix(t_n, freq_n, tMin, freqMin, tStep, fStep);
+			Eigen::MatrixXcd spectrums(Nsignals, freq_n);
 			std::complex<double> ci(0, 1);
-			double w;
-			double dt = SecondTicks[1] - SecondTicks[0];
 
-			for (size_t tick = 0; tick < Nticks; tick++) {
+			for (size_t tick = 0; tick < t_n; tick++) {
 				for (size_t signal = 0; signal < Nsignals; signal++) {
 					VoltTicks_eigen(signal, tick) = VoltTicks[signal][tick];
 				}
 			}
 			
-			for (size_t i = 0; i < Nticks;i++) {
-				for (size_t j = 0; j < Nfreqs;j++) {
-					w = 2.0 * std::numbers::pi * HerzTicks[j];
-					transforMatrix(i,j) = 2.0 * std::exp(ci * w * SecondTicks[i]) / (dt * w * w) * (1.0 - cos(dt * w));
-				}
-			}
 			spectrums = VoltTicks_eigen * transforMatrix;
 			return spectrums;
 		}		
 	}
+
+
+	Eigen::MatrixXcd xtFourier(
+		size_t& t_n, size_t& freq_n, size_t& x_n, size_t& alfa_n, double& tMin, double& freqMin, double& xMin, double& alfaMin,
+		double& tStep, double& fStep, double& xStep, double& alfaStep, std::vector<std::vector<double>>& VoltTicks
+	) {
+		if (t_n < 2 || freq_n < 1 || x_n<2 || alfa_n < 1 || VoltTicks.size() != x_n || VoltTicks[0].size() != t_n) {
+			throw "splineSpectrum incorrect input!!!";
+		}
+		else {
+			Eigen::MatrixXd VoltTicks_eigen(x_n, t_n);
+			Eigen::MatrixXcd TtransforMatrix = FourierMatrix(t_n, freq_n, tMin, freqMin, tStep, fStep);
+			Eigen::MatrixXcd XtransforMatrix = FourierMatrix(x_n, alfa_n, xMin, alfaMin, xStep, alfaStep);
+			Eigen::MatrixXcd H(alfa_n, freq_n);
+
+			for (size_t tick = 0; tick < t_n; tick++) {
+				for (size_t signal = 0; signal < x_n; signal++) {
+					VoltTicks_eigen(signal, tick) = VoltTicks[signal][tick];
+				}
+			}
+
+			H = (VoltTicks_eigen * TtransforMatrix) * XtransforMatrix;
+			return H;
+		}
+	}
+
 
 	std::vector<std::complex<double>> splineSpectrum(
 		std::vector<double>& SecondTicks, std::vector<double>& VoltTicks, std::vector<double>& HerzTicks
@@ -343,6 +363,26 @@ namespace math {
 			}
 			return spectrum;
 		}
+	}
+
+
+	Eigen::MatrixXcd FourierMatrix(size_t& intVar_n, size_t& freeVar_n, double &intVarMin, double &freeVarMin, double &intVarStep, double &freeVarStep) {
+		if (intVar_n < 1 || freeVar_n < 1 || intVarStep < 0 || freeVarStep < 0) throw "Invalid input data for FourierMatrix!!!";
+
+		Eigen::MatrixXcd transforMatrix(intVar_n, freeVar_n);
+		double freeVar, intVar;
+		const std::complex<double> ci = (0, 1);
+
+		#pragma omp parallel for collapse(2)
+		for (size_t i = 0; i < intVar_n;i++) {
+			for (size_t j = 0; j < freeVar_n;j++) {
+				freeVar = freeVarMin + freeVarStep * j;
+				intVar = intVarMin + intVarStep * i;
+				transforMatrix(i, j) = 2.0 * std::exp(ci * freeVar * intVar) / (intVarStep * freeVar * freeVar) * (1.0 - cos(intVarStep * freeVar));
+			}
+		}
+
+		return transforMatrix;
 	}
 };
 

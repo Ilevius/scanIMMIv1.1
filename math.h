@@ -53,13 +53,18 @@ namespace math {
 	std::vector<double> vectorAdd(std::vector<double> &a, std::vector<double> &b);
 	std::vector<double> vectorSubstraction(std::vector<double> &a, std::vector<double> &b);
 
-	Eigen::MatrixXcd splineSpectrum(
-		std::vector<double>& SecondTicks, std::vector<std::vector<double>>& VoltTicks, std::vector<double>& HerzTicks
+	Eigen::MatrixXcd splineSpectrum(size_t& t_n, size_t& freq_n, double& tMin, double& freqMin, double& tStep, double& fStep,
+		std::vector<std::vector<double>>& VoltTicks
 	);
 
 	std::vector<std::complex<double>> splineSpectrum(
 		std::vector<double>& SecondTicks, std::vector<double>& VoltTicks, std::vector<double>& HerzTicks
 	);
 
-	Eigen::MatrixXcd FourierMatrix(size_t& intVar_n, size_t& freeVar_n, double intVarMin, double freeVarMin, double intVarStep, double freeVarStep);
+	Eigen::MatrixXcd xtFourier(
+		size_t& t_n, size_t& freq_n, size_t &x_n, size_t &alfa_n, double& tMin, double& freqMin, double &xMin, double &alfaMin,
+		double& tStep, double& fStep, double &xStep, double &alfaStep, std::vector<std::vector<double>>& VoltTicks
+	);
+
+	Eigen::MatrixXcd FourierMatrix(size_t& intVar_n, size_t& freeVar_n, double &intVarMin, double &freeVarMin, double &intVarStep, double &freeVarStep);
 };
