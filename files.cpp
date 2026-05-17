@@ -218,6 +218,33 @@
 		size_t rows = v.rows();
 		size_t colls = v.cols();
 		if (rows < 1 || colls < 1) throw "incorrect matrix for saving to matfile";
+
+		mxArray* mx_v_r = mxCreateDoubleMatrix(rows, colls, mxREAL);
+		double* v_r_ptr = mxGetPr(mx_v_r);
+		for (int i = 0; i < colls; ++i) {        // строка
+			for (int j = 0; j < rows; ++j) {    // столбец
+				v_r_ptr[i * rows + j] = v(j,i).real();  //column-major для MATLAB
+			}
+		}
+
+		mxArray* mx_v_i = mxCreateDoubleMatrix(rows, colls, mxREAL);
+		double* v_i_ptr = mxGetPr(mx_v_i);
+		for (int i = 0; i < colls; ++i) {        // строка
+			for (int j = 0; j < rows; ++j) {    // столбец
+				v_i_ptr[i * rows + j] = v(j,i).imag();  //column-major для MATLAB
+			}
+		}
+
+		auto real_name = name + "Real";
+		auto imag_name = name + "Imag";
+
+		matPutVariable(matfp, real_name.c_str(), mx_v_r);
+		matPutVariable(matfp, imag_name.c_str(), mx_v_i);
+
+		mxDestroyArray(mx_v_r);
+		mxDestroyArray(mx_v_i);
+
+
 	}
 
 	void files::matrixToMatFileNorm(const std::vector<std::vector<double>> & v, std::string name, MATFile* matfp) {
