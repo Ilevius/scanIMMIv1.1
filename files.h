@@ -51,6 +51,15 @@ namespace files {
 		const std::string &filename
 		);
 
+	void spectrumToMatFile(
+		const std::vector<double>& fs, 
+		const Eigen::MatrixXcd& spec, 
+		const std::vector<double> &sec_ticks,
+		const std::vector<double> &Volt_ticks,
+		const std::vector<double> &Volt_ticks_cut,
+		const std::string &filename
+		);
+
 	void numToMatFile(const double &v, std::string name, MATFile* matfp);
 
 	void vectorToMatFile(const std::vector<double>& v, std::string name, MATFile* matfp);

@@ -178,6 +178,29 @@
 		vectorToMatFile(Volt_ticks_cut, "Volt_ticks_cut", matfp);
 	}
 
+	void files::spectrumToMatFile(
+		const std::vector<double>& fs,
+		const Eigen::MatrixXcd& spec,
+		const std::vector<double>& sec_ticks,
+		const std::vector<double>& Volt_ticks,
+		const std::vector<double>& Volt_ticks_cut,
+		const std::string& filename
+	) {
+		MATFile* matfp = matOpen(filename.c_str(), "w");
+		if (!matfp) {
+			throw "Can't create mat file!";
+		}
+		
+		vectorToMatFile(fs, "freqs", matfp);
+		matrixToMatFile(spec, "spectrum", matfp);
+		vectorToMatFile(sec_ticks, "sec_ticks", matfp);
+		vectorToMatFile(Volt_ticks, "Volt_ticks", matfp);
+		vectorToMatFile(Volt_ticks_cut, "Volt_ticks_cut", matfp);
+	}
+
+
+
+
 
 	void files::numToMatFile(const double &v, std::string name, MATFile* matfp) {
 		mxArray* mx_v = mxCreateDoubleScalar(v);
@@ -244,7 +267,6 @@
 		mxDestroyArray(mx_v_r);
 		mxDestroyArray(mx_v_i);
 
-
 	}
 
 	void files::matrixToMatFileNorm(const std::vector<std::vector<double>> & v, std::string name, MATFile* matfp) {
@@ -275,13 +297,7 @@
 		mxDestroyArray(mx_v_norm);
 	}
 
-
-
-	void files::vectorToMatFile(
-		const std::vector<std::complex<double>>& v,
-		std::string name,
-		MATFile* matfp
-	) {
+	void files::vectorToMatFile(const std::vector<std::complex<double>>& v, std::string name, MATFile* matfp) {
 		size_t len = v.size();
 		if (len < 1) throw std::runtime_error("incorrect vector for saving to mat file");
 
@@ -305,7 +321,6 @@
 		mxDestroyArray(mx_real);
 		mxDestroyArray(mx_imag);
 	}
-
 
 	bool files::ensureDirectoryExists(const std::string& path) {
 		namespace fs = std::filesystem;
