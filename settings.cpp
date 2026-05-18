@@ -44,7 +44,12 @@ void to_json(json& j, const Fourier_settings& f) {
 		{"TAIL_ms", f.tail_ms()},
 		{"FMIN_MHz", f.fmin_MHz()},
 		{"FMAX_MHz", f.fmax_MHz()},
-		{"FREQS_N", f.freqs_n()}
+		{"FREQS_N", f.freqs_n()}, 
+		{"DIST_MIN_mm", f.dist_min_mm()},
+		{"DIST_MAX_mm", f.dist_max_mm()},
+		{"ALFA_MIN_dptr", f.alfa_min_dptr()},
+		{"ALFA_STEP_dptr", f.alfa_step_dptr()},
+		{"ALFA_N", f.alfa_n()}
 	};
 }
 
@@ -54,6 +59,11 @@ void from_json(const json& j, Fourier_settings& f) {
 	f.setFmin_MHz(j.at("FMIN_MHz").get<double>());
 	f.setFmax_MHz(j.at("FMAX_MHz").get<double>());
 	f.setFreqs_n(j.at("FREQS_N").get<size_t>());
+	f.setDist_min_mm(j.at("DIST_MIN_mm").get<double>());
+	f.setDist_max_mm(j.at("DIST_MAX_mm").get<double>());
+	f.setAlfa_min_dptr(j.at("ALFA_MIN_dptr").get<double>());
+	f.setAlfa_step_dptr(j.at("ALFA_STEP_dptr").get<double>());
+	f.setAlfa_n(j.at("ALFA_N").get<size_t>());
 }
 
 // A-scan

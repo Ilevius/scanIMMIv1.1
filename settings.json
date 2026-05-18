@@ -16,11 +16,11 @@
     "Y": 1113
   },
   "BSCAN": {
-    "X_START": 7.0711,
-    "Y_START": 7.0711,
-    "X_FINISH": -7.0711,
-    "Y_FINISH": 21.2133,
-    "NPOINTS": 8
+    "X_START": 10,
+    "Y_START": 0,
+    "X_FINISH": 130,
+    "Y_FINISH": 0,
+    "NPOINTS": 205
   },
   "CSCAN": {
     "x0": 0,
@@ -61,6 +61,11 @@
     "TAIL_ms": 3750,
     "FMIN_MHz": 0,
     "FMAX_MHz": 3,
-    "FREQS_N": 300
+    "FREQS_N": 300,
+    "DIST_MIN_mm": 10,
+    "DIST_MAX_mm": 110,
+    "ALFA_MIN_dptr": 0,
+    "ALFA_STEP_dptr": 0.13,
+    "ALFA_N": 200
   }
 }

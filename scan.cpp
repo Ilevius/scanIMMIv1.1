@@ -314,14 +314,46 @@ namespace scan {
 		}
 		
 	};
-
 	void Bscan::FourierData(std::shared_ptr<BasicData> data) {
-		size_t t_n, freq_n, x_n, alfa_n;
-		double tMin, freqMin, xMin, alfaMin, tStep, fStep, xStep, alfaStep;
-		std::vector<std::vector<double>> VoltTicks;
-		Eigen::MatrixXcd H;
+		std::vector<double>  freqs, alfas;
 
-		H = math::xtFourier(t_n, freq_n, x_n, alfa_n, tMin, freqMin, xMin, alfaMin, tStep, fStep, xStep, alfaStep, VoltTicks);
+		double timebase_s = oscill_->get_timebase_ns() * 1e-9;
+		double dist = math::euclideanDistance(data->points[0], data->points[1]);
+		auto& SETTINGS = Config::instance();
+		SETTINGS.loadFromFile();
+
+		size_t Tmin = size_t(SETTINGS.getFourier_settings().head_ms() * 1e-3 / timebase_s);
+		size_t Tmax = size_t(SETTINGS.getFourier_settings().tail_ms() * 1e-3 / timebase_s);
+		if (Tmin > SETTINGS.getOscill_settings().getWantedTicks() || Tmax > SETTINGS.getOscill_settings().getWantedTicks()) {
+			Tmin = 0; Tmax = SETTINGS.getOscill_settings().getWantedTicks();
+		}
+		size_t Nfreqs = SETTINGS.getFourier_settings().freqs_n();
+		double Fmin_Hz = SETTINGS.getFourier_settings().fmin_MHz() * 1e6;
+		double Fmax_Hz = SETTINGS.getFourier_settings().fmax_MHz() * 1e6;
+		double Fstep_Hz = (Fmax_Hz - Fmin_Hz) / Nfreqs;
+		size_t t_n = Tmax - Tmin;
+		size_t x_n = data->Volt_ticks.size();
+		size_t alfa_n = SETTINGS.getFourier_settings().alfa_n();
+		double alfaMin = SETTINGS.getFourier_settings().alfa_min_dptr();
+		double alfaStep = SETTINGS.getFourier_settings().alfa_step_dptr();
+		double tMin = timebase_s * Tmin;
+		double xMin = math::euclideanDistance(data->points[0], {0, 0});
+
+		for (size_t i = 0; i < Nfreqs; i++) {
+			freqs.push_back(Fmin_Hz + i * Fstep_Hz);
+		}
+		for (size_t i = 0; i < alfa_n; i++) {
+			alfas.push_back(alfaMin + i * alfaStep);
+		}
+
+		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Bscan-" + data->specimenName + "-spectrum.mat";
+		
+
+		if (x_n > 1) {
+
+			Eigen::MatrixXcd H = math::xtFourier(t_n, Nfreqs, x_n, alfa_n, tMin, Fmin_Hz, xMin, alfaMin, timebase_s, Fstep_Hz, dist, alfaStep, data->Volt_ticks);
+			files::spectrumToMatFile(freqs, alfas, H, filename);
+		}
 	}
 	
 	void Cscan::manualSetBasePoints() {

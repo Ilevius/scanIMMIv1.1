@@ -336,7 +336,8 @@ namespace math {
 				}
 			}
 
-			H = (VoltTicks_eigen * TtransforMatrix) * XtransforMatrix;
+			Eigen::MatrixXcd H1 = VoltTicks_eigen * TtransforMatrix;
+			H = H1.transpose() * XtransforMatrix;
 			return H;
 		}
 	}

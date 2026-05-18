@@ -226,13 +226,22 @@ public:
 	const double fmin_MHz() const { return fmin_MHz_; }
 	const double fmax_MHz() const { return fmax_MHz_; }
 	const size_t freqs_n() const { return freqs_n_; }
-
+	const double dist_min_mm() const { return dist_min_mm_; }
+	const double dist_max_mm() const { return dist_max_mm_; }
+	const double alfa_min_dptr() const { return alfa_min_dptr_; }
+	const double alfa_step_dptr() const { return alfa_step_dptr_; }
+	const size_t alfa_n() const { return alfa_n_; }
 
 	void setHead_ms(const double &v) { head_ms_ = v; }
 	void setTail_ms(double v) { tail_ms_ = v; }
 	void setFmin_MHz(double v) { fmin_MHz_ = v; }
 	void setFmax_MHz(double v) { fmax_MHz_ = v; }
 	void setFreqs_n(size_t v) { freqs_n_ = v; }
+	void setDist_min_mm(const double v) { dist_min_mm_ = v; }
+	void setDist_max_mm(const double v) { dist_max_mm_ = v; }
+	void setAlfa_min_dptr(const double v) { alfa_min_dptr_ = v; }
+	void setAlfa_step_dptr(const double v) { alfa_step_dptr_ = v; }
+	void setAlfa_n(const size_t v) { alfa_n_ = v; }
 
 private:
 	double head_ms_ = 0;
@@ -240,7 +249,11 @@ private:
 	double fmin_MHz_ = 0;
 	double fmax_MHz_ = 3;
 	size_t freqs_n_ = 200;
-
+	double dist_min_mm_ = 0;
+	double dist_max_mm_ = 100;
+	double alfa_min_dptr_ = 0;
+	double alfa_step_dptr_ = 0.01;
+	size_t alfa_n_ = 200;
 };
 
 class Config {
