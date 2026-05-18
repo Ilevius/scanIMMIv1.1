@@ -52,6 +52,13 @@ namespace files {
 		);
 
 	void spectrumToMatFile(
+		const std::vector<double> &fs,
+		const std::vector<double> &alfas,
+		const Eigen::MatrixXcd& spec,
+		const std::string& filename
+	);
+
+	void spectrumToMatFile(
 		const std::vector<double>& fs, 
 		const Eigen::MatrixXcd& spec, 
 		const std::vector<double> &sec_ticks,

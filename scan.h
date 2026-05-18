@@ -103,7 +103,7 @@ namespace scan {
 		void manualSetBasePoints() override;
 		void setPoints() override;
 		void saveRawData(std::shared_ptr<BasicData> data) override;
-		void FourierData(std::shared_ptr<BasicData> data) override {};
+		void FourierData(std::shared_ptr<BasicData> data) override;
 		void cancel() override {};
 		void interrupt() override {};
 		double DIST_STEP = 0;

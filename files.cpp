@@ -199,6 +199,20 @@
 	}
 
 
+	void files::spectrumToMatFile(
+		const std::vector<double>& fs,
+		const std::vector<double>& alfas,
+		const Eigen::MatrixXcd& spec,
+		const std::string& filename
+	) {
+		MATFile* matfp = matOpen(filename.c_str(), "w");
+		if (!matfp) {
+			throw "Can't create mat file!";
+		}
+		vectorToMatFile(fs, "freqs", matfp);
+		matrixToMatFile(spec, "spectrum", matfp);
+		vectorToMatFile(alfas, "sec_ticks", matfp);
+	}
 
 
 

@@ -314,6 +314,15 @@ namespace scan {
 		}
 		
 	};
+
+	void Bscan::FourierData(std::shared_ptr<BasicData> data) {
+		size_t t_n, freq_n, x_n, alfa_n;
+		double tMin, freqMin, xMin, alfaMin, tStep, fStep, xStep, alfaStep;
+		std::vector<std::vector<double>> VoltTicks;
+		Eigen::MatrixXcd H;
+
+		H = math::xtFourier(t_n, freq_n, x_n, alfa_n, tMin, freqMin, xMin, alfaMin, tStep, fStep, xStep, alfaStep, VoltTicks);
+	}
 	
 	void Cscan::manualSetBasePoints() {
 		// нет большого смысла в задании точек С-скана вручную
