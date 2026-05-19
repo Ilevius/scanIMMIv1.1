@@ -355,9 +355,7 @@ namespace scan {
 
 		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Bscan-" + data->specimenName + "-spectrum.mat";
 		
-
 		if (x_n > 1 && SETTINGS.getFourier_settings().active()) {
-
 			Eigen::MatrixXcd H = math::xtFourier(t_n, Nfreqs, x_n, alfa_n, tMin, Fmin_Hz, xMin, alfaMin, timebase_s, Fstep_Hz, dist, alfaStep, data->Volt_ticks);
 			files::spectrumToMatFile(freqs, alfas, H, filename);
 		}
