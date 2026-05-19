@@ -10,7 +10,7 @@
     "Y_MIN": -145,
     "X_MAX": 145,
     "Y_MAX": 145,
-    "EMERGENCY_MODE": true
+    "EMERGENCY_MODE": false
   },
   "ASCAN": {
     "X": -1,
@@ -58,11 +58,12 @@
     "TIMEBASE_CODE": 11
   },
   "FOURIER": {
+    "ACTIVE": false,
     "HEAD_ms": 0,
     "TAIL_ms": 3750,
     "FMIN_MHz": 0,
     "FMAX_MHz": 3,
-    "FREQS_N": 300,
+    "FREQS_N": 200,
     "DIST_MIN_mm": 10,
     "DIST_MAX_mm": 110,
     "ALFA_MIN_dptr": 0,

@@ -10,10 +10,13 @@ public:
 
 	const std::string& getWorkFolder() const { return work_folder_; }
 	void setWorkFolder(const std::string& v) { work_folder_ = v; }
+	const bool abort() const { return abort_; }
+	void setAbort(const bool v) { abort_ = v; }
 
 
 private:
 	std::string work_folder_;
+	bool abort_;
 };
 
 class Table_settings {
@@ -231,6 +234,7 @@ public:
 	const double alfa_min_dptr() const { return alfa_min_dptr_; }
 	const double alfa_step_dptr() const { return alfa_step_dptr_; }
 	const size_t alfa_n() const { return alfa_n_; }
+	const bool active() const { return active_; }
 
 	void setHead_ms(const double &v) { head_ms_ = v; }
 	void setTail_ms(double v) { tail_ms_ = v; }
@@ -242,6 +246,7 @@ public:
 	void setAlfa_min_dptr(const double v) { alfa_min_dptr_ = v; }
 	void setAlfa_step_dptr(const double v) { alfa_step_dptr_ = v; }
 	void setAlfa_n(const size_t v) { alfa_n_ = v; }
+	void setActive(const bool v) { active_ = v; }
 
 private:
 	double head_ms_ = 0;
@@ -254,6 +259,7 @@ private:
 	double alfa_min_dptr_ = 0;
 	double alfa_step_dptr_ = 0.01;
 	size_t alfa_n_ = 200;
+	bool active_ = false;
 };
 
 class Config {

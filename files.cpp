@@ -39,13 +39,21 @@
 		const double time_step_,
 		const std::vector<std::vector<double>>& points,
 		const std::string& filename) {
+
+		std::vector<double> coord_cut;
 	
 		MATFile* matfp = matOpen(filename.c_str(), "w");
 		if (!matfp) {
 			throw "Can't create mat file!";
 		}
 		size_t Nx = data.size();
-		size_t Nt = (Nx > 0) ? data[0].size() : 0;
+		
+		if (coord_.size() != Nx) {
+			for (size_t i = 0; i < Nx; i++) {
+				coord_cut.push_back(coord_[i]);
+			}
+		}
+		else coord_cut = coord_;
 	
 		// 1. data (Nx x Nt)
 		matrixToMatFile(data, "data", matfp);
@@ -54,7 +62,7 @@
 		matrixToMatFile(data, "data_norm", matfp);
 
 		// 3. coord_ (1 x Nx)
-		vectorToMatFile(coord_, "coord_", matfp);
+		vectorToMatFile(coord_cut, "coord_", matfp);
 	
 		// 4. time_ (1 x Nt)
 		vectorToMatFile(time_, "time_", matfp);

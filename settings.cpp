@@ -7,12 +7,14 @@ using json = nlohmann::json;
 // Common
 void to_json(json& j, const Common_settings& c) {
 	j = json{
-		{ "WORK_FOLDER", c.getWorkFolder() }
+		{ "WORK_FOLDER", c.getWorkFolder() },
+		{ "ABORT", c.abort() }
 	};
 }
 
 void from_json(const json& j, Common_settings& c) {
 	c.setWorkFolder(j.at("WORK_FOLDER").get<std::string>());
+	c.setAbort(j.at("ABORT").get<bool>());
 }
 
 // Table
@@ -49,7 +51,8 @@ void to_json(json& j, const Fourier_settings& f) {
 		{"DIST_MAX_mm", f.dist_max_mm()},
 		{"ALFA_MIN_dptr", f.alfa_min_dptr()},
 		{"ALFA_STEP_dptr", f.alfa_step_dptr()},
-		{"ALFA_N", f.alfa_n()}
+		{"ALFA_N", f.alfa_n()},
+		{"ACTIVE", f.active()}
 	};
 }
 
@@ -64,6 +67,7 @@ void from_json(const json& j, Fourier_settings& f) {
 	f.setAlfa_min_dptr(j.at("ALFA_MIN_dptr").get<double>());
 	f.setAlfa_step_dptr(j.at("ALFA_STEP_dptr").get<double>());
 	f.setAlfa_n(j.at("ALFA_N").get<size_t>());
+	f.setActive(j.at("ACTIVE").get<bool>());
 }
 
 // A-scan

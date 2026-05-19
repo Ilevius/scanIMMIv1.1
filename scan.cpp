@@ -65,6 +65,7 @@ namespace scan {
 			std::cout << std::endl << "Внимание! Автоматический проход столом базовых точек. Проверка доступности точек!!!" << std::endl;
 			// Содержимое цикла обработать на исключения и если вылет вывести причину и вернуть в меню скана
 			for (size_t i = 0; i < basePoints.size(); ++i) {
+
 				try {
 					stage_->moveTo(basePoints[i]);
 				}
@@ -127,8 +128,13 @@ namespace scan {
 					FourierData(data);  // преобразование Фурье, Н функция, сохранение результата
 				}
 				});
-
+									// Непосредсвенно цикл движения по точкам скана и замерам в них
 			for (size_t i = 0; i < points.size(); ++i) {
+
+				//								Прерывание замера
+				SETTINGS.loadFromFile();
+				if (SETTINGS.getCommon_settings().abort()) break;
+
 				try {
 					stage_->moveTo(points[i]);
 				}
@@ -167,12 +173,13 @@ namespace scan {
 				saveBufferCV.notify_one();
 				processCV.notify_one();
 
-				/*сохранение файла с замером в текущей точке во временном каталоге*/
+				/*сохранение страховочного файла с замером в текущей точке во временном каталоге*/
 				std::string aPointInTemp = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp-scanIMMI\\" + to_string(i) + ".txt";
 				files::saveSignalToTxt(SignalAtPoint, timebase_s, aPointInTemp);
 
 				// Подтверждение снятия и сохранение точки, сколько еще осталось точек     надо добавить расчет оставшегося времени!!!
 				std::cout << " Сканирование точки " << i+1 << " из " << points.size() << "  успешно выполнено" << std::endl << std::endl; //File saved succesfully!
+
 			}
 
 			std::cout << "Замеры завершены. Ждём сохранения...\n";
@@ -349,7 +356,7 @@ namespace scan {
 		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Bscan-" + data->specimenName + "-spectrum.mat";
 		
 
-		if (x_n > 1) {
+		if (x_n > 1 && SETTINGS.getFourier_settings().active()) {
 
 			Eigen::MatrixXcd H = math::xtFourier(t_n, Nfreqs, x_n, alfa_n, tMin, Fmin_Hz, xMin, alfaMin, timebase_s, Fstep_Hz, dist, alfaStep, data->Volt_ticks);
 			files::spectrumToMatFile(freqs, alfas, H, filename);
