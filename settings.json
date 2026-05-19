@@ -1,6 +1,7 @@
 {
   "COMMON": {
-    "WORK_FOLDER": "D:\\KubGU\\IMMI\\experiments\\ScanIMMI\\ScanIMMIv1.1\\tests\\"
+    "WORK_FOLDER": "D:\\KubGU\\IMMI\\experiments\\ScanIMMI\\ScanIMMIv1.1\\tests\\",
+    "ABORT": false
   },
   "TABLE": {
     "IP_ADRESS": "10.0.0.100",
