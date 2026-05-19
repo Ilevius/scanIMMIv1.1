@@ -67,7 +67,7 @@
     "DIST_MIN_mm": 10,
     "DIST_MAX_mm": 110,
     "ALFA_MIN_dptr": 0,
-    "ALFA_STEP_dptr": 0.13,
+    "ALFA_STEP_dptr": 0.02,
     "ALFA_N": 200
   }
 }

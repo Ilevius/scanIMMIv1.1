@@ -136,7 +136,7 @@ void FourierMenu(State& AppState) {
 
 		case 1:
 			std::string filename;
-			std::vector<double> times, xs;
+			std::vector<double> times, xs, alfas, freqs;
 			std::vector<std::vector<double>> data, data_norm;
 			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек"<< endl;
 			cout << "->";
@@ -151,15 +151,33 @@ void FourierMenu(State& AppState) {
 				cout << "Не удалось открыть файл скана";
 			}
 
-			if (xs ) {
-				size_t t_n = times.size();
-				size_t x_n = xs.size();
-				if (x_n > 1 && t_n > 1 && data_norm.size() == x_n && data_norm[0].size() == t_n) {
+			size_t t_n = times.size();
+			size_t x_n = xs.size();
+			if (x_n > 1 && t_n > 1 && data_norm.size() == x_n && data_norm[0].size() == t_n) {
+				double timeStep = times[1] - times[0];
+				double xStep = xs[1] - xs[0];
 
+				size_t Nfreqs = SETTINGS.getFourier_settings().freqs_n();
+				double Fmin_Hz = SETTINGS.getFourier_settings().fmin_MHz() * 1e6;
+				double Fmax_Hz = SETTINGS.getFourier_settings().fmax_MHz() * 1e6;
+				double Fstep_Hz = (Fmax_Hz - Fmin_Hz) / Nfreqs;
+
+				size_t alfa_n = SETTINGS.getFourier_settings().alfa_n();
+				double alfaMin = SETTINGS.getFourier_settings().alfa_min_dptr();
+				double alfaStep = SETTINGS.getFourier_settings().alfa_step_dptr();
+
+				for (size_t i = 0; i < Nfreqs; i++) {
+					freqs.push_back(Fmin_Hz + i * Fstep_Hz);
 				}
+				for (size_t i = 0; i < alfa_n; i++) {
+					alfas.push_back(alfaMin + i * alfaStep);
+				}
+
+				Eigen::MatrixXcd H = math::xtFourier(t_n, Nfreqs, x_n, alfa_n, times[0], Fmin_Hz, xs[0], alfaMin, timeStep, Fstep_Hz, xStep, alfaStep, data_norm);
+				files::spectrumToMatFile(freqs, alfas, H, SETTINGS.getCommon_settings().getWorkFolder()+"Hfunction.mat");
 			}
 			else {
-				cout << "Неполный набор данных в В-скане";
+				cout << "Некорректные данные в В-скане";
 			}
 			
 
