@@ -17,6 +17,8 @@ namespace app {
 
 	void equipMenu(State& AppState);
 
+	void FourierMenu(State& Appstate);
+
 	void MeasureVoltage(State& AppState);
 
 	void Ascan(State AppState);

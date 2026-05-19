@@ -19,6 +19,8 @@ namespace files {
 		const std::vector<std::vector<double>>& points,
 		const std::string& filename);
 
+	void BscanFromFile(const std::string filename);
+
 
 	void createCscanMat(const std::vector<std::vector<double>>& data,      // Nx x Nt (Nx строк замеров)
 		const std::vector<std::vector<double>>& basePoints,                  // координаты X (Nx элементов)  
@@ -71,7 +73,18 @@ namespace files {
 
 	void vectorToMatFile(const std::vector<double>& v, std::string name, MATFile* matfp);
 
+	void vectorFromMatFile(
+		std::vector<double>& v,
+		const std::string& name,
+		MATFile* matfp
+	);
+
 	void matrixToMatFile(const std::vector<std::vector<double>> & v, std::string name, MATFile* matfp);
+
+	std::vector<std::vector<double>> matrixFromMatFile(
+		const std::string& name,
+		MATFile* matfp
+	);
 
 	void matrixToMatFile(const Eigen::MatrixXcd & v, std::string name, MATFile* matfp);
 

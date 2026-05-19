@@ -78,6 +78,30 @@
 		matClose(matfp);
 	}
 
+	void files::BscanFromFile(const std::string filename) {
+
+		std::vector<double> xs, ts;
+		std::vector<std::vector<double>> data, data_norm;
+
+		MATFile* matfp = matOpen(filename.c_str(), "r");
+		if (!matfp) {
+			throw "Can't open mat file for reading: " + filename;
+		}
+
+		try {
+			vectorFromMatFile(xs, "coord_", matfp);
+			vectorFromMatFile(ts, "time_", matfp);
+			data = matrixFromMatFile("data", matfp);
+			data_norm = matrixFromMatFile("data_norm", matfp);
+		}
+		catch (...) {
+			matClose(matfp);
+			throw "Cant save data to mat file";
+		}
+
+		matClose(matfp);
+
+	}
 
 	void files::createCscanMat(const std::vector<std::vector<double>>& data,      // Nx x Nt (Nx строк замеров)
 		const std::vector<std::vector<double>>& basePoints,                  // координаты X (Nx элементов)  
@@ -243,6 +267,33 @@
 		mxDestroyArray(mx_v);
 	}
 
+	void files::vectorFromMatFile(
+		std::vector<double>& v,
+		const std::string& name,
+		MATFile* matfp
+	) {
+		mxArray* mx_v = matGetVariable(matfp, name.c_str());
+		if (!mx_v || !mxIsDouble(mx_v) || mxIsComplex(mx_v) || mxGetNumberOfDimensions(mx_v) != 2) {
+			throw std::runtime_error("Can't load vector " + name + " from mat file");
+		}
+
+		mwSize rows = mxGetM(mx_v);
+		mwSize cols = mxGetN(mx_v);
+		if (rows > 1 && cols > 1) {
+			throw std::runtime_error("Vector " + name + " must be a row or column vector");
+		}
+
+		size_t len = rows * cols;
+		v.resize(len);
+
+		const double* data = mxGetPr(mx_v);
+		for (size_t i = 0; i < len; ++i) {
+			v[i] = data[i];
+		}
+
+		mxDestroyArray(mx_v);
+	}
+
 	void files::matrixToMatFile(const std::vector<std::vector<double>> & v, std::string name, MATFile* matfp) {
 		size_t rows = v.size();
 		size_t colls = v[0].size();
@@ -257,6 +308,32 @@
 		}
 		matPutVariable(matfp, name.c_str(), mx_v);
 		mxDestroyArray(mx_v);
+	}
+
+
+	std::vector<std::vector<double>> files::matrixFromMatFile(
+		const std::string& name,
+		MATFile* matfp
+	) {
+		mxArray* mx_m = matGetVariable(matfp, name.c_str());
+		if (!mx_m || !mxIsDouble(mx_m) || mxIsComplex(mx_m)) {
+			throw std::runtime_error("Can't load real matrix " + name + " from mat file");
+		}
+
+		mwSize rows = mxGetM(mx_m);
+		mwSize cols = mxGetN(mx_m);
+
+		std::vector<std::vector<double>> m(rows, std::vector<double>(cols));
+		const double* data = mxGetPr(mx_m);  // 
+
+		for (mwIndex j = 0; j < cols; ++j) {
+			for (mwIndex i = 0; i < rows; ++i) {
+				m[i][j] = data[j * rows + i];  // 
+			}
+		}
+
+		mxDestroyArray(mx_m);
+		return m;
 	}
 
 	void files::matrixToMatFile(const Eigen::MatrixXcd& v, std::string name, MATFile* matfp) {

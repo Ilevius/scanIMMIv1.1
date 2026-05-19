@@ -109,6 +109,45 @@ void equipMenu(State& AppState) {
 	}
 }
 
+void FourierMenu(State& AppState) {
+	cout << endl << "¬ы находитесь в меню обработки сигналов" << endl;
+	int choice;
+	auto& SETTINGS = Config::instance();
+
+	while (true) {
+		cout << endl<<"0: ¬ыйти в главное меню" << endl;
+		cout << "1: ¬вести им€ скана и получить Ќ-функцию" << endl;
+
+
+		std::cout << "-> ";
+
+		if (!(std::cin >> choice)) {
+			//ќЅя«ј“≈Ћ№Ќќ ќЅ–јЅќ“ј“№ ¬¬ќƒ нечисловых символов (буквы и т.п.) «ј÷» Ћ»¬ј≈“—я!!!
+			//ќбработка неверного ввода (буквы и т.п.)
+			//std::cin.clear();
+			//std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			//std::cout << "Invalid input, try again.\n\n";
+			//continue;
+		}
+
+		std::cin.ignore(1000, '\n');
+		switch (choice) {
+		case 0: return;
+
+		case 1:
+			std::string filename;
+			cout << "¬ведите название мат файла ¬-скана, лежащего в рабочей папке и нажмите enter, параметры будут вз€ты из файла настроек";
+			cout << "->";
+			cin >> filename;
+
+
+
+			return;
+
+		}
+	}
+}
+
 void MeasureVoltage(State& AppState) {
 	scan::MeasureVoltage CURR_MEAS_VOLT(AppState.osc);
 	CURR_MEAS_VOLT.start();
