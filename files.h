@@ -7,6 +7,14 @@
 
 
 namespace files {
+
+	struct BscanCoreData {
+		std::vector<double> xs;
+		std::vector<double> ts;
+		std::vector<std::vector<double>> data;
+		std::vector<std::vector<double>> data_norm;
+	};
+
 	void saveSignalToTxt(const std::vector<double>& waveform, const double timebase_s, const std::string& filename);
 
 	void saveAscanToMat(std::vector<double>& point, std::vector<double>& data, double timebase_s, const std::string& filename);
@@ -19,7 +27,7 @@ namespace files {
 		const std::vector<std::vector<double>>& points,
 		const std::string& filename);
 
-	void BscanFromFile(const std::string filename);
+	BscanCoreData BscanFromFile(const std::string filename);
 
 
 	void createCscanMat(const std::vector<std::vector<double>>& data,      // Nx x Nt (Nx строк замеров)

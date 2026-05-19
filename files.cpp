@@ -78,10 +78,11 @@
 		matClose(matfp);
 	}
 
-	void files::BscanFromFile(const std::string filename) {
+	files::BscanCoreData files::BscanFromFile(const std::string filename) {
 
 		std::vector<double> xs, ts;
 		std::vector<std::vector<double>> data, data_norm;
+		files::BscanCoreData result;
 
 		MATFile* matfp = matOpen(filename.c_str(), "r");
 		if (!matfp) {
@@ -93,6 +94,11 @@
 			vectorFromMatFile(ts, "time_", matfp);
 			data = matrixFromMatFile("data", matfp);
 			data_norm = matrixFromMatFile("data_norm", matfp);
+			result.ts = ts;
+			result.xs = xs;
+			result.data = data;
+			result.data_norm = data_norm;
+			return result;
 		}
 		catch (...) {
 			matClose(matfp);

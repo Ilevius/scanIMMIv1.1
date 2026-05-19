@@ -136,9 +136,34 @@ void FourierMenu(State& AppState) {
 
 		case 1:
 			std::string filename;
-			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек";
+			std::vector<double> times, xs;
+			std::vector<std::vector<double>> data, data_norm;
+			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек"<< endl;
 			cout << "->";
 			cin >> filename;
+			try{
+				files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder()+filename);
+				times = Bscan.ts;
+				xs = Bscan.xs;
+				data_norm = Bscan.data_norm;
+			}
+			catch(...){
+				cout << "Не удалось открыть файл скана";
+			}
+
+			if (xs ) {
+				size_t t_n = times.size();
+				size_t x_n = xs.size();
+				if (x_n > 1 && t_n > 1 && data_norm.size() == x_n && data_norm[0].size() == t_n) {
+
+				}
+			}
+			else {
+				cout << "Неполный набор данных в В-скане";
+			}
+			
+
+			
 
 
 
