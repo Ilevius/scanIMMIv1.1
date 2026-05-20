@@ -135,6 +135,7 @@ void FourierMenu(State& AppState) {
 		case 0: return;
 
 		case 1:
+			SETTINGS.loadFromFile();
 			std::string filename;
 			std::vector<double> times, xs, alfas, freqs;
 			std::vector<std::vector<double>> data, data_norm;
@@ -145,6 +146,7 @@ void FourierMenu(State& AppState) {
 				files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder()+filename);
 				times = Bscan.ts;
 				xs = Bscan.xs;
+				data = Bscan.data;
 				data_norm = Bscan.data_norm;
 			}
 			catch(...){
@@ -166,6 +168,14 @@ void FourierMenu(State& AppState) {
 				double alfaMin = SETTINGS.getFourier_settings().alfa_min_dptr();
 				double alfaStep = SETTINGS.getFourier_settings().alfa_step_dptr();
 
+				size_t Tmin = size_t(SETTINGS.getFourier_settings().head_ms() * 1e-3 / timeStep);
+				size_t Tmax = size_t(SETTINGS.getFourier_settings().tail_ms() * 1e-3 / timeStep);
+				if (Tmin > t_n || Tmax > t_n) {
+					Tmin = 0; Tmax = t_n;
+				}
+
+				t_n = Tmax - Tmin;
+
 				for (size_t i = 0; i < Nfreqs; i++) {
 					freqs.push_back(Fmin_Hz + i * Fstep_Hz);
 				}
@@ -173,7 +183,7 @@ void FourierMenu(State& AppState) {
 					alfas.push_back(alfaMin + i * alfaStep);
 				}
 
-				Eigen::MatrixXcd H = math::xtFourier(t_n, Nfreqs, x_n, alfa_n, times[0], Fmin_Hz, xs[0], alfaMin, timeStep, Fstep_Hz, xStep, alfaStep, data_norm);
+				Eigen::MatrixXcd H = math::xtFourier(t_n, Nfreqs, x_n, alfa_n, times[0], Fmin_Hz, xs[0], alfaMin, timeStep, Fstep_Hz, xStep, alfaStep, data);
 				files::spectrumToMatFile(freqs, alfas, H, SETTINGS.getCommon_settings().getWorkFolder()+"Hfunction.mat");
 			}
 			else {
