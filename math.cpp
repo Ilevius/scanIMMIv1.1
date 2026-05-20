@@ -321,15 +321,13 @@ namespace math {
 		size_t& t_n, size_t& freq_n, size_t& x_n, size_t& alfa_n, double& tMin, double& freqMin, double& xMin, double& alfaMin,
 		double& tStep, double& fStep, double& xStep, double& alfaStep, std::vector<std::vector<double>>& VoltTicks
 	) {
-		if (t_n < 2 || freq_n < 1 || x_n < 2 || alfa_n < 1 || VoltTicks.size() != x_n || VoltTicks[0].size() < t_n) {
+		if (t_n < 2 || freq_n < 1 || x_n < 2 || alfa_n < 1 || VoltTicks.size() != x_n || VoltTicks[0].size() != t_n) {
 			throw "splineSpectrum incorrect input!!!";
 		}
 		else {
-
 			double wMin = freqMin * 2 * std::numbers::pi;
 			double wStep = fStep * 2 * std::numbers::pi;
-			
-
+	
 			Eigen::MatrixXd VoltTicks_eigen(x_n, t_n);
 			Eigen::MatrixXcd TtransforMatrix = FourierMatrix(t_n, freq_n, tMin, wMin, tStep, wStep);
 			Eigen::MatrixXcd XtransforMatrix = FourierMatrix(x_n, alfa_n, xMin, alfaMin, xStep, alfaStep);
@@ -380,7 +378,7 @@ namespace math {
 		double freeVar, intVar;
 		const std::complex<double> ci(0, 1);
 
-		#pragma omp parallel for collapse(2)
+		//#pragma omp parallel for collapse(2)
 		for (size_t i = 0; i < intVar_n;i++) {
 			for (size_t j = 0; j < freeVar_n;j++) {
 				freeVar = freeVarMin + freeVarStep * j;

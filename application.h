@@ -1,6 +1,7 @@
 #include "movable.h"
 #include "signal/Oscilloscope/SignalDeviceOscilloscope.h"
 #include <vector>
+#include "signal_processing.h"
 
 
 

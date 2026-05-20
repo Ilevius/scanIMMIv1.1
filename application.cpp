@@ -144,56 +144,13 @@ void FourierMenu(State& AppState) {
 			cin >> filename;
 			try{
 				files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder()+filename);
-				times = Bscan.ts;
-				xs = Bscan.xs;
-				data = Bscan.data;
-				data_norm = Bscan.data_norm;
+				Eigen::MatrixXcd H = signalProcessing::HfuncFromBscan(Bscan.ts, Bscan.xs, Bscan.data, freqs, alfas);
+				filename.pop_back(); filename.pop_back(); filename.pop_back(); filename.pop_back();
+				files::spectrumToMatFile(freqs, alfas, H, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-H.mat");
 			}
 			catch(...){
 				cout << "Не удалось открыть файл скана";
 			}
-
-			size_t t_n = times.size();
-			size_t x_n = xs.size();
-			if (x_n > 1 && t_n > 1 && data_norm.size() == x_n && data_norm[0].size() == t_n) {
-				double timeStep = times[1] - times[0];
-				double xStep = xs[1] - xs[0];
-
-				size_t Nfreqs = SETTINGS.getFourier_settings().freqs_n();
-				double Fmin_Hz = SETTINGS.getFourier_settings().fmin_MHz() * 1e6;
-				double Fmax_Hz = SETTINGS.getFourier_settings().fmax_MHz() * 1e6;
-				double Fstep_Hz = (Fmax_Hz - Fmin_Hz) / Nfreqs;
-
-				size_t alfa_n = SETTINGS.getFourier_settings().alfa_n();
-				double alfaMin = SETTINGS.getFourier_settings().alfa_min_dptr();
-				double alfaStep = SETTINGS.getFourier_settings().alfa_step_dptr();
-
-				size_t Tmin = size_t(SETTINGS.getFourier_settings().head_ms() * 1e-3 / timeStep);
-				size_t Tmax = size_t(SETTINGS.getFourier_settings().tail_ms() * 1e-3 / timeStep);
-				if (Tmin > t_n || Tmax > t_n) {
-					Tmin = 0; Tmax = t_n;
-				}
-
-				t_n = Tmax - Tmin;
-
-				for (size_t i = 0; i < Nfreqs; i++) {
-					freqs.push_back(Fmin_Hz + i * Fstep_Hz);
-				}
-				for (size_t i = 0; i < alfa_n; i++) {
-					alfas.push_back(alfaMin + i * alfaStep);
-				}
-
-				Eigen::MatrixXcd H = math::xtFourier(t_n, Nfreqs, x_n, alfa_n, times[0], Fmin_Hz, xs[0], alfaMin, timeStep, Fstep_Hz, xStep, alfaStep, data);
-				files::spectrumToMatFile(freqs, alfas, H, SETTINGS.getCommon_settings().getWorkFolder()+"Hfunction.mat");
-			}
-			else {
-				cout << "Некорректные данные в В-скане";
-			}
-			
-
-			
-
-
 
 			return;
 

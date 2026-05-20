@@ -60,7 +60,7 @@
   "FOURIER": {
     "ACTIVE": false,
     "HEAD_ms": 0.02,
-    "TAIL_ms": 0.16,
+    "TAIL_ms": 0.15,
     "FMIN_MHz": 0,
     "FMAX_MHz": 3,
     "FREQS_N": 600,
