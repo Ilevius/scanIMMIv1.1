@@ -1,7 +1,8 @@
 {
   "COMMON": {
     "WORK_FOLDER": "D:\\KubGU\\IMMI\\experiments\\ScanIMMI\\ScanIMMIv1.1\\tests\\",
-    "ABORT": false
+    "ABORT": false,
+    "ANY_POINT_SAVE": false
   },
   "TABLE": {
     "IP_ADRESS": "10.0.0.100",
@@ -21,7 +22,7 @@
     "Y_START": 0,
     "X_FINISH": 130,
     "Y_FINISH": 0,
-    "NPOINTS": 205
+    "NPOINTS": 25
   },
   "CSCAN": {
     "x0": 0,
@@ -60,7 +61,7 @@
   "FOURIER": {
     "ACTIVE": false,
     "HEAD_ms": 0.02,
-    "TAIL_ms": 0.15,
+    "TAIL_ms": 0.3,
     "FMIN_MHz": 0,
     "FMAX_MHz": 3,
     "FREQS_N": 600,

@@ -12,11 +12,14 @@ public:
 	void setWorkFolder(const std::string& v) { work_folder_ = v; }
 	const bool abort() const { return abort_; }
 	void setAbort(const bool v) { abort_ = v; }
+	const bool any_point_save() const { return any_point_save_; }
+	void setAnyPointSave(const bool v) { any_point_save_ = v; }
 
 
 private:
 	std::string work_folder_;
 	bool abort_;
+	bool any_point_save_;
 };
 
 class Table_settings {

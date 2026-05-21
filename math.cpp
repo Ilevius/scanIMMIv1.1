@@ -325,8 +325,8 @@ namespace math {
 			throw "splineSpectrum incorrect input!!!";
 		}
 		else {
-			double wMin = freqMin * 2 * std::numbers::pi;
-			double wStep = fStep * 2 * std::numbers::pi;
+			double wMin = freqMin * 2.0 * std::numbers::pi;
+			double wStep = fStep * 2.0 * std::numbers::pi;
 	
 			Eigen::MatrixXd VoltTicks_eigen(x_n, t_n);
 			Eigen::MatrixXcd TtransforMatrix = FourierMatrix(t_n, freq_n, tMin, wMin, tStep, wStep);
@@ -376,7 +376,7 @@ namespace math {
 
 		Eigen::MatrixXcd transforMatrix(intVar_n, freeVar_n);
 		double freeVar, intVar;
-		const std::complex<double> ci(0, 1);
+		const std::complex<double> ci(0.0, 1.0);
 
 		//#pragma omp parallel for collapse(2)
 		for (size_t i = 0; i < intVar_n;i++) {
@@ -388,6 +388,8 @@ namespace math {
 		}
 
 		return transforMatrix;
+
+		
 	}
 };
 

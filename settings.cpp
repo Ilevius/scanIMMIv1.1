@@ -8,13 +8,15 @@ using json = nlohmann::json;
 void to_json(json& j, const Common_settings& c) {
 	j = json{
 		{ "WORK_FOLDER", c.getWorkFolder() },
-		{ "ABORT", c.abort() }
+		{ "ABORT", c.abort() },
+		{"ANY_POINT_SAVE", c.any_point_save() }
 	};
 }
 
 void from_json(const json& j, Common_settings& c) {
 	c.setWorkFolder(j.at("WORK_FOLDER").get<std::string>());
 	c.setAbort(j.at("ABORT").get<bool>());
+	c.setAnyPointSave(j.at("ANY_POINT_SAVE").get<bool>());
 }
 
 // Table

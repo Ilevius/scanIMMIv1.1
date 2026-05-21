@@ -159,19 +159,27 @@ namespace scan {
 					return;
 				}
 				ScanData.push_back(SignalAtPoint);
-
 				basicScanDataPtr->Volt_ticks = ScanData;
+
+
+				if (SETTINGS.getCommon_settings().any_point_save() || i == points.size() - 1)
 				{
-					std::lock_guard<std::mutex> lock(dataMutex);
-					saveBuffer.push(basicScanDataPtr);
-					
+					{
+						std::lock_guard<std::mutex> lock(dataMutex);
+						saveBuffer.push(basicScanDataPtr);
+
+					}
+					saveBufferCV.notify_one();
 				}
+
+				if (SETTINGS.getFourier_settings().active() || i == points.size() - 1)
 				{
-					std::lock_guard<std::mutex> lock(processMutex);
-					processBuffer.push(basicScanDataPtr);
+					{
+						std::lock_guard<std::mutex> lock(processMutex);
+						processBuffer.push(basicScanDataPtr);
+					}
+					processCV.notify_one();
 				}
-				saveBufferCV.notify_one();
-				processCV.notify_one();
 
 				/*сохранение страховочного файла с замером в текущей точке во временном каталоге*/
 				std::string aPointInTemp = SETTINGS.getCommon_settings().getWorkFolder() + "\\temp-scanIMMI\\" + to_string(i) + ".txt";
@@ -343,7 +351,7 @@ namespace scan {
 
 		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Bscan-" + data->specimenName + "-Hfunction.mat";
 		
-		if (x_n > 1 && SETTINGS.getFourier_settings().active()) {
+		if (x_n > 1 ) {
 			Eigen::MatrixXcd H = signalProcessing::HfuncFromBscan(ts_s, xs_mm, data->Volt_ticks, freqs, alfas);
 			files::spectrumToMatFile(freqs, alfas, H, filename);
 		}
@@ -434,10 +442,12 @@ namespace scan {
 		double r0 = SETTINGS.getOscan_settings().r_min();
 		double phi_min = SETTINGS.getOscan_settings().phi_min_deg();
 		double phi_max = SETTINGS.getOscan_settings().phi_max_deg();
+		Nphi = SETTINGS.getOscan_settings().phi_n();
+		double phi_step = (phi_max - phi_min) / Nphi;
 		double anR, aPhi;
 		std::vector<double> aPoint;
 		Nr = SETTINGS.getOscan_settings().r_n();
-		Nphi = SETTINGS.getOscan_settings().phi_n();
+		
 		points.clear();
 		aPoint = { 0, 0 };
 		points.push_back(aPoint);
@@ -445,12 +455,12 @@ namespace scan {
 
 		for (size_t i = 1; i < Nr; i++) {
 			anR = r0 + i * r / Nr;
-			for (size_t j = 0; j <= Nphi; j++) {
+			for (size_t j = 0; j < Nphi; j++) {
 				if (i % 2 == 0) {
-					aPhi = (Nphi - j) * 0.5 * std::numbers::pi / Nphi;
+					aPhi =  phi_min + (Nphi - j) * phi_step/ 180.0 * std::numbers::pi;
 				}
 				else {
-					aPhi = j * 0.5 * std::numbers::pi / Nphi;
+					aPhi = phi_min + j * phi_step / 180.0 * std::numbers::pi ;
 				}
 				
 				aPoint = { anR * cos(aPhi), anR * sin(aPhi) };
