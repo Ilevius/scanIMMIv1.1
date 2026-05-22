@@ -340,7 +340,7 @@ namespace math {
 			}
 
 			Eigen::MatrixXcd H1 = VoltTicks_eigen * TtransforMatrix;
-			H = H1.transpose() * XtransforMatrix;
+			H = H1.conjugate().transpose() * XtransforMatrix;
 			return H;
 		}
 	}

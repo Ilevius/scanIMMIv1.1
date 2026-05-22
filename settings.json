@@ -60,10 +60,10 @@
   },
   "FOURIER": {
     "ACTIVE": false,
-    "HEAD_ms": 0.02,
-    "TAIL_ms": 0.3,
+    "HEAD_ms": 0.01,
+    "TAIL_ms": 0.16,
     "FMIN_MHz": 0,
-    "FMAX_MHz": 3,
+    "FMAX_MHz": 2,
     "FREQS_N": 600,
     "DIST_MIN_mm": 10,
     "DIST_MAX_mm": 110,
