@@ -170,6 +170,10 @@ namespace scan {
 
 					}
 					saveBufferCV.notify_one();
+					Common_settings sets = SETTINGS.getCommon_settings();
+					sets.setAnyPointSave(false);
+					SETTINGS.setCommon(sets);
+					SETTINGS.saveToFile();
 				}
 
 				if (SETTINGS.getFourier_settings().active() || i == points.size() - 1)

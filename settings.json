@@ -1,74 +1,65 @@
 {
-  "COMMON": {
-    "WORK_FOLDER": "D:\\KubGU\\IMMI\\experiments\\ScanIMMI\\ScanIMMIv1.1\\tests\\",
-    "ABORT": false,
-    "ANY_POINT_SAVE": false
-  },
-  "TABLE": {
-    "IP_ADRESS": "10.0.0.100",
-    "SIMULATOR": true,
-    "X_MIN": -145,
-    "Y_MIN": -145,
-    "X_MAX": 145,
-    "Y_MAX": 145,
-    "EMERGENCY_MODE": false
-  },
-  "ASCAN": {
-    "X": -1,
-    "Y": 1113
-  },
-  "BSCAN": {
-    "X_START": 10,
-    "Y_START": 0,
-    "X_FINISH": 130,
-    "Y_FINISH": 0,
-    "NPOINTS": 25
-  },
-  "CSCAN": {
-    "x0": 0,
-    "y0": -3,
-    "Ly": 3,
-    "Lx": 90.0,
-    "Nx": 7,
-    "Ny": 5
-  },
-  "RSCAN": {
-    "NPOINTS": 2000
-  },
-  "OSCAN": {
-    "R_MIN": 20,
-    "R_MAX": 80,
-    "PHI_MIN": 0,
-    "PHI_MAX": 90,
-    "R_N": 24,
-    "PHI_N": 135
-  },
-  "OSCILLOSCOPE": {
-    "SIMULATOR": true,
-    "HOR_SCALE_ms": 0.1,
-    "DATA_COUP": "AC",
-    "TRIG_MODE": "EDGE",
-    "TRIG_COUP": "DC",
-    "TRIG_EDGE_LEVEL": "3",
-    "DATA_CH_SCALE_V": 1,
-    "DEPMEM": 1000000,
-    "WANTED_TICKS": 3750,
-    "EMPTY_TICKS": 125,
-    "BURST_PERIOD": "3",
-    "AVERAGE_N": 1,
-    "TIMEBASE_CODE": 11
-  },
-  "FOURIER": {
-    "ACTIVE": false,
-    "HEAD_ms": 0.01,
-    "TAIL_ms": 0.16,
-    "FMIN_MHz": 0,
-    "FMAX_MHz": 2,
-    "FREQS_N": 600,
-    "DIST_MIN_mm": 10,
-    "DIST_MAX_mm": 110,
-    "ALFA_MIN_dptr": 0,
-    "ALFA_STEP_dptr": 0.0084,
-    "ALFA_N": 600
-  }
+    "ASCAN": {
+            "X":110.0,
+            "Y": -0.03
+        },
+    "BSCAN": {
+            "X_START": 0.0,
+            "Y_START": 0.0,
+            "X_FINISH": 50.0,
+            "Y_FINISH": 50.0,
+            "NPOINTS": 203
+        },
+    "COMMON": {
+        "ABORT": true,
+        "ANY_POINT_SAVE": false,
+        "WORK_FOLDER": "D:\\KubGU\\IMMI\\experiments\\ScanIMMI\\ScanIMMIv1.1\\tests\\"
+    },
+    "CSCAN": {
+            "x0": 0.1,
+            "y0": 0.1,
+            "Nx": 0,
+            "Ny": 0,
+            "Lx": 1.3,
+            "Ly": 13.3
+        },
+    "FOURIER": {
+        "ACTIVE": false,
+        "ALFA_MIN_dptr": 0.0,
+        "ALFA_N": 600,
+        "ALFA_STEP_dptr": 0.014,
+        "DIST_MAX_mm": 100.0,
+        "DIST_MIN_mm": 0.0,
+        "FMAX_MHz": 3.0,
+        "FMIN_MHz": 0.0,
+        "FREQS_N": 600,
+        "HEAD_ms": 0.01,
+        "TAIL_ms": 0.15
+    },
+    "OSCILLOSCOPE": {
+            "SIMULATOR": true,
+            "HOR_SCALE_ms": 0.2,
+            "DATA_COUP": "",
+            "TRIG_MODE": "",
+            "TRIG_COUP": "",
+            "TRIG_EDGE_LEVEL": "",
+            "DATA_CH_SCALE_V": 5.0,
+            "DEPMEM": 100000,
+            "WANTED_TICKS": 20000,
+            "EMPTY_TICKS": 3000,
+            "AVERAGE_N": 100,
+            "TIMEBASE_CODE": 7
+        },
+    "RSCAN": {
+        "NPOINTS": 20
+    },
+    "TABLE": {
+        "EMERGENCY_MODE": false,
+        "IP_ADRESS": "10.0.0.100",
+        "SIMULATOR": true,
+        "X_MAX": 145,
+        "X_MIN": -145,
+        "Y_MAX": 145,
+        "Y_MIN": -145
+    }
 }
