@@ -15,7 +15,15 @@ namespace files {
 		std::vector<std::vector<double>> data_norm;
 	};
 
+	struct ScanHeader {
+		std::vector<std::vector<double>> basePoints;
+		std::vector<std::vector<double>> scanPoints;
+		double time_step_;
+	};
+
 	void saveSignalToTxt(const std::vector<double>& waveform, const double timebase_s, const std::string& filename);
+
+	std::vector<double> loadSignalFromTxt(const std::string& filename);
 
 	void saveAscanToMat(std::vector<double>& point, std::vector<double>& data, double timebase_s, const std::string& filename);
 
@@ -29,6 +37,7 @@ namespace files {
 
 	BscanCoreData BscanFromFile(const std::string filename);
 
+	ScanHeader ScanHeaderFromMatFile(const std::string filename);
 
 	void createCscanMat(const std::vector<std::vector<double>>& data,      // Nx x Nt (Nx строк замеров)
 		const std::vector<std::vector<double>>& basePoints,                  // координаты X (Nx элементов)  
@@ -78,6 +87,8 @@ namespace files {
 		);
 
 	void numToMatFile(const double &v, std::string name, MATFile* matfp);
+
+	double numFromMatFile(const std::string& name, MATFile* matfp);
 
 	void vectorToMatFile(const std::vector<double>& v, std::string name, MATFile* matfp);
 

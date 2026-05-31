@@ -20,6 +20,8 @@ namespace app {
 
 	void FourierMenu(State& Appstate);
 
+	void CscanResroration(State& AppState);
+
 	void MeasureVoltage(State& AppState);
 
 	void Ascan(State AppState);

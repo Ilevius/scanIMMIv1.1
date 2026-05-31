@@ -30,11 +30,11 @@
         "ALFA_STEP_dptr": 0.014,
         "DIST_MAX_mm": 100.0,
         "DIST_MIN_mm": 0.0,
-        "FMAX_MHz": 3.0,
+        "FMAX_MHz": 6.0,
         "FMIN_MHz": 0.0,
         "FREQS_N": 600,
-        "HEAD_ms": 0.01,
-        "TAIL_ms": 0.15
+        "HEAD_ms": 0.02,
+        "TAIL_ms": 0.08
     },
     "OSCILLOSCOPE": {
             "SIMULATOR": true,

@@ -158,6 +158,44 @@ void FourierMenu(State& AppState) {
 	}
 }
 
+void CscanResroration(State& AppState) {
+	auto& SETTINGS = Config::instance();
+	cout << endl << "Начата попытка восстановления С-скана из данных поточечного сохранения" << endl;
+	files::ScanHeader theScanHeader;
+	std::vector<std::vector<double>> data;
+	std::vector<double> times_;
+	std::string pointFileName;
+
+	std::string headerFilename = SETTINGS.getCommon_settings().getWorkFolder() + "temp-scanIMMI\\scanParameters.mat";
+	std::string CscanFilename = SETTINGS.getCommon_settings().getWorkFolder() + "RestoredCscan.mat";
+
+	theScanHeader = files::ScanHeaderFromMatFile(headerFilename);
+
+	for (size_t i = 0; i < theScanHeader.scanPoints.size(); i++) {
+		pointFileName = SETTINGS.getCommon_settings().getWorkFolder() + "temp-scanIMMI\\" + to_string(i) + ".txt";
+		try {
+			data.push_back(files::loadSignalFromTxt(pointFileName));
+		}
+		catch (...) {
+			if (i > 0) {
+				throw"Probably there is no data files in the directory!";
+			}
+			else {
+				std::cout << "Not all points data saved!" << std::endl;
+				break;
+			}
+		}
+		
+	}
+	
+	for (size_t i = 0; i < data[0].size(); i++) {
+		times_.push_back(i * theScanHeader.time_step_);
+	}
+
+	files::createCscanMat(data, theScanHeader.basePoints, theScanHeader.scanPoints, times_, theScanHeader.time_step_, CscanFilename);
+	cout << endl << "С-скан успешно восстановлен!" << endl;
+}
+
 void MeasureVoltage(State& AppState) {
 	scan::MeasureVoltage CURR_MEAS_VOLT(AppState.osc);
 	CURR_MEAS_VOLT.start();

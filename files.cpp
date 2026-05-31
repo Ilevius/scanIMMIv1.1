@@ -18,6 +18,27 @@
 		file.close();
 	}
 
+	std::vector<double> files::loadSignalFromTxt(const std::string& filename)
+	{
+		std::ifstream file(filename);
+		if (!file.is_open()) {
+			throw std::runtime_error("Can't open file: " + filename);
+		}
+
+		std::vector<double> waveform;
+		double value;
+
+		while (file >> value) {
+			waveform.push_back(value);
+		}
+
+		if (waveform.empty()) {
+			throw std::runtime_error("File is empty or contains no valid doubles: " + filename);
+		}
+
+		return waveform;
+	}
+
 	void files::saveAscanToMat(std::vector<double>& point, std::vector<double>& data, double timebase_s, const std::string& filename) {
 		MATFile* matfp = matOpen(filename.c_str(), "w");
 		if (!matfp) {
@@ -78,10 +99,28 @@
 		matClose(matfp);
 	}
 
+	files::ScanHeader files::ScanHeaderFromMatFile(const std::string filename) {
+		ScanHeader theScanHeader;
+
+		MATFile* matfp = matOpen(filename.c_str(), "r");
+		if (!matfp) {
+			throw "Error! Can't open mat file for reading: " + filename;
+		}
+
+		try {
+			theScanHeader.basePoints = matrixFromMatFile("basePoints", matfp);
+			theScanHeader.scanPoints = matrixFromMatFile("scanPoints", matfp);
+			theScanHeader.time_step_ = numFromMatFile("time_step_", matfp);
+		}
+		catch (...) {
+			throw "Error! Can't find some important data in mat file: " + filename;
+		}
+		return theScanHeader;
+	}
+
 	files::BscanCoreData files::BscanFromFile(const std::string filename) {
 
 		std::vector<double> xs, ts;
-		std::vector<double> fix_ts;
 		std::vector<std::vector<double>> data, data_norm;
 		files::BscanCoreData result;
 
@@ -92,18 +131,9 @@
 
 		try {
 			// hotfix hardcode for old bad B-scans
-			// 
-			// 
-			// 
-
-
-			/*for (size_t i = 0; i < 33000; i++) {
-				ts.push_back(i * 16 * 0.000000001);
-			}*/
-
-			// 
-			// 
-			// 
+			//for (size_t i = 0; i < 15000; i++) {
+			//	ts.push_back(i * 16 * 0.000000001);
+			//}
 			// end hardcode
 
 			vectorFromMatFile(xs, "coord_", matfp);
@@ -270,10 +300,26 @@
 
 
 
+
+	//																							Data types to or from mat file
+
 	void files::numToMatFile(const double &v, std::string name, MATFile* matfp) {
 		mxArray* mx_v = mxCreateDoubleScalar(v);
 		matPutVariable(matfp, name.c_str(), mx_v);
 		mxDestroyArray(mx_v);
+	}
+
+	double files::numFromMatFile(const std::string& name, MATFile* matfp)
+	{
+		mxArray* mx_v = matGetVariable(matfp, name.c_str());
+		if (!mx_v || !mxIsDouble(mx_v) || mxIsComplex(mx_v) || mxGetNumberOfElements(mx_v) != 1) {
+			if (mx_v) mxDestroyArray(mx_v);
+			throw std::runtime_error("Can't load double scalar " + name + " from mat file");
+		}
+
+		double value = mxGetScalar(mx_v);
+		mxDestroyArray(mx_v);
+		return value;
 	}
 
 	void files::vectorToMatFile(const std::vector<double>& v, std::string name, MATFile* matfp) {
