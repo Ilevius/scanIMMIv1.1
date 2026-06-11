@@ -213,6 +213,7 @@ void to_json(json& j, const Config& c) {
 	{"CSCAN", c.getCscan_settings()},
 	{"RSCAN", c.getRscan_settings()},
 	{"OSCILLOSCOPE", c.getOscill_settings() },
+	{"OSCAN", c.getOscan_settings() },
 	{"FOURIER", c.getFourier_settings() }
 	};
 }
@@ -225,6 +226,7 @@ void from_json(const json& j, Config& c) {
 	c.setCscan_settings(j.at("CSCAN").get<Cscan_settings>());
 	c.setRscan_settings(j.at("RSCAN").get<Rscan_settings>());
 	c.setOscill_settings(j.at("OSCILLOSCOPE").get<Oscill_settings>());
+	c.setOscan_settings(j.at("OSCAN").get<Oscan_settings>());
 	c.setFourier_settings(j.at("FOURIER").get<Fourier_settings>());
 }
 

@@ -1,7 +1,7 @@
 {
     "ASCAN": {
-            "X":110.0,
-            "Y": -0.03
+            "X":111.0,
+            "Y": -1.03
         },
     "BSCAN": {
             "X_START": 0.0,
@@ -11,7 +11,7 @@
             "NPOINTS": 203
         },
     "COMMON": {
-        "ABORT": true,
+        "ABORT": false,
         "ANY_POINT_SAVE": false,
         "WORK_FOLDER": "D:\\KubGU\\IMMI\\experiments\\ScanIMMI\\ScanIMMIv1.1\\tests\\"
     },
@@ -50,6 +50,14 @@
             "AVERAGE_N": 100,
             "TIMEBASE_CODE": 7
         },
+    "OSCAN": {
+       "R_MIN": 10,
+        "R_MAX": 90,
+        "PHI_MIN": 30,
+        "PHI_MAX": 60,
+        "R_N": 50,
+        "PHI_N": 2
+  },
     "RSCAN": {
         "NPOINTS": 20
     },

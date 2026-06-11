@@ -170,10 +170,10 @@ namespace scan {
 
 					}
 					saveBufferCV.notify_one();
-					Common_settings sets = SETTINGS.getCommon_settings();
-					sets.setAnyPointSave(false);
-					SETTINGS.setCommon(sets);
-					SETTINGS.saveToFile();
+					//Common_settings sets = SETTINGS.getCommon_settings();
+					//sets.setAnyPointSave(false);
+					//SETTINGS.setCommon(sets);
+					//SETTINGS.saveToFile();
 				}
 
 				if (SETTINGS.getFourier_settings().active() || i == points.size() - 1)
@@ -442,33 +442,38 @@ namespace scan {
 		SETTINGS.loadFromFile();
 		basePoints.push_back({ 0, 0 });
 		size_t Nr, Nphi;
-		double r = SETTINGS.getOscan_settings().r_max();
-		double r0 = SETTINGS.getOscan_settings().r_min();
+		double r_max = SETTINGS.getOscan_settings().r_max();
+		double r_min = SETTINGS.getOscan_settings().r_min();
 		double phi_min = SETTINGS.getOscan_settings().phi_min_deg();
 		double phi_max = SETTINGS.getOscan_settings().phi_max_deg();
 		Nphi = SETTINGS.getOscan_settings().phi_n();
+		Nr = SETTINGS.getOscan_settings().r_n();
 		double phi_step = (phi_max - phi_min) / Nphi;
+		double r_step = (r_max - r_min) / Nr;
 		double anR, aPhi;
 		std::vector<double> aPoint;
-		Nr = SETTINGS.getOscan_settings().r_n();
+		
 		
 		points.clear();
-		aPoint = { 0, 0 };
-		points.push_back(aPoint);
+		
+		for (size_t i = 0; i < Nr; i++) {
+			anR = r_min + i * r_step;
 
+			if (anR == 0) {
+				points.push_back({0.0,0.0});
+			}
+			else {
+				for (size_t j = 0; j < Nphi; j++) {
+					if (i % 2 != 0) {
+						aPhi = (phi_min + (Nphi - 1 - j) * phi_step) / 180.0 * std::numbers::pi;
+					}
+					else {
+						aPhi = (phi_min + j * phi_step) / 180.0 * std::numbers::pi;
+					}
 
-		for (size_t i = 1; i < Nr; i++) {
-			anR = r0 + i * r / Nr;
-			for (size_t j = 0; j < Nphi; j++) {
-				if (i % 2 == 0) {
-					aPhi =  phi_min + (Nphi - j) * phi_step/ 180.0 * std::numbers::pi;
+					aPoint = { anR * cos(aPhi), anR * sin(aPhi) };
+					points.push_back(aPoint);
 				}
-				else {
-					aPhi = phi_min + j * phi_step / 180.0 * std::numbers::pi ;
-				}
-				
-				aPoint = { anR * cos(aPhi), anR * sin(aPhi) };
-				points.push_back(aPoint);
 			}
 		}
 	}
