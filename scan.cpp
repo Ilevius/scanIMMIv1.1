@@ -403,9 +403,9 @@ namespace scan {
 		catch (...) {
 			std::cout << "Cant save .mat file!" << endl;
 		}
-		
+
 	}
-	
+
 	void Rscan::manualSetBasePoints() {
 		basePoints.clear();
 		std::vector<double> basePoint = stage_->getManualPoint("Переместите стол руками в ПЕРВУЮ точку R-скана и нажмите enter!\n");
@@ -428,7 +428,7 @@ namespace scan {
 		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Rscan-" + data->specimenName + ".mat";
 		double timebase_s = oscill_->get_timebase_ns() * 1e-9;
 		std::vector<double> times;
-		
+
 		try {
 			files::RscanToMat(data->points, data->Volt_ticks, SETTINGS.getOscill_settings().getAveN(), filename);
 		}
@@ -452,15 +452,15 @@ namespace scan {
 		double r_step = (r_max - r_min) / Nr;
 		double anR, aPhi;
 		std::vector<double> aPoint;
-		
-		
+
+
 		points.clear();
-		
+
 		for (size_t i = 0; i < Nr; i++) {
 			anR = r_min + i * r_step;
 
 			if (anR == 0) {
-				points.push_back({0.0,0.0});
+				points.push_back({ 0.0,0.0 });
 			}
 			else {
 				for (size_t j = 0; j < Nphi; j++) {
@@ -478,14 +478,41 @@ namespace scan {
 		}
 	}
 	void Oscan::saveRawData(std::shared_ptr<BasicData> data) {
+		std::string filename;
+		std::vector<double> times;
+		double dist_step;
+		std::vector<double> dists;
 		auto& SETTINGS = Config::instance();
 		SETTINGS.loadFromFile();
-		std::string filename = SETTINGS.getCommon_settings().getWorkFolder() + "Oscan-" + data->specimenName + ".mat";
+		size_t Nphi = SETTINGS.getOscan_settings().phi_n();
 		double timebase_s = oscill_->get_timebase_ns() * 1e-9;
-		std::vector<double> times;
+
+		if (Nphi == 1) {
+			double phi_min = SETTINGS.getOscan_settings().phi_min_deg();
+			dist_step = math::euclideanDistance(data->points[0], data->points[1]);
+			filename = SETTINGS.getCommon_settings().getWorkFolder() + "Bscan-" + to_string(phi_min) + "-deg-" + data->specimenName + ".mat";
+			for (size_t j = 0; j < data->points.size(); j++) {
+				dists.push_back(j * dist_step);
+			}
+
+			for (size_t j = 0; j < data->Volt_ticks[0].size(); j++){
+				times.push_back(j * timebase_s);
+			}
+		}
+		else {
+			filename = SETTINGS.getCommon_settings().getWorkFolder() + "Oscan-" + data->specimenName + ".mat";
+		}
+		
+		
+		
 
 		try {
-			files::RscanToMat(data->points, data->Volt_ticks, SETTINGS.getOscill_settings().getAveN(), filename);
+			if (Nphi == 1) {
+				files::createBscanMat(data->Volt_ticks, dists, times, dist_step, timebase_s, data->points, filename);
+			}
+			else {
+				files::RscanToMat(data->points, data->Volt_ticks, SETTINGS.getOscill_settings().getAveN(), filename);
+			}
 		}
 		catch (...) {
 			std::cout << "Cant save .mat file!" << endl;

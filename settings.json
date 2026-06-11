@@ -53,10 +53,10 @@
     "OSCAN": {
        "R_MIN": 10,
         "R_MAX": 90,
-        "PHI_MIN": 30,
+        "PHI_MIN": 90,
         "PHI_MAX": 60,
         "R_N": 50,
-        "PHI_N": 2
+        "PHI_N": 1
   },
     "RSCAN": {
         "NPOINTS": 20
