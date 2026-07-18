@@ -1,0 +1,104 @@
+&input1
+ Ms    = 1  ! number of layers  
+ Mdim  = 5  ! max number of layers (for dimensioning)
+ ibot  = 1  ! 0 -  half-space, 1 - free laminate, 2 - clamped laminate 
+ Mode =  0  ! < -1 - tests, 0 - RealPoles, 1 - ComplPoles, 
+            !   2 - SortPoles, ... 3 - waves
+ 
+ f=2.0    ! f for tests
+/
+ 
+&input2
+
+! Elastic modulus C_ij [GPa], rho [10^3kg/m^3], hs [micro m = 10^(-6) m] 
+! frequency f [GHz = 10^9 Hz]
+
+! m=1 Ñooper
+
+  C_6(1,1,1)=222     C_6(2,2,1)=222    C_6(3,3,1)=170
+  C_6(1,2,1)=71      C_6(1,3,1)=123    C_6(2,3,1)=123 
+  C_6(4,4,1)=75.5    C_6(5,5,1)=75.5   C_6(6,6,1)=23.5    rho=8.932  hs=1
+
+  isym(2) = 3 ! 0 - isotropic, input: C_11, C_44
+              ! 1 - cubic,     input: C_11, C_12, C_44 
+              ! 2 - transversal isotropic to x-axis, 6 constants:
+              !     C_11, C_22, C_12, C_23, C_44, C_55 then
+              !      C_33=C_22,  C_13=C_12,  C_66=C_55
+              ! any other: general ortotropic, all 9 constants 
+
+! m=2 ! Silicium
+  C_6(1,1,2)=166  C_6(2,2,2)=166  C_6(3,3,2)=166
+  C_6(1,2,2)= 64  C_6(1,3,2)= 64  C_6(2,3,2)= 64 
+  C_6(4,4,2)= 80  C_6(5,5,2)= 80  C_6(6,6,2)= 80  rho(2)=2.331  hs(2)=4  
+
+  isym(2) = 1 
+
+! m=3 Nickel
+  C_6(1,1,3)=247  C_6(2,2,3)=247  C_6(3,3,3)=247
+  C_6(1,2,3)=153  C_6(1,3,3)=153  C_6(2,3,3)=153 
+  C_6(4,4,3)=122  C_6(5,5,3)=122  C_6(6,6,3)=122  rho(3)=8.900  hs(3)=2
+
+! m=4 ! Silicium
+  C_6(1,1,4)=166  C_6(2,2,4)=166  C_6(3,3,4)=166
+  C_6(1,2,4)= 64  C_6(1,3,4)= 64  C_6(2,3,4)= 64 
+  C_6(4,4,4)= 80  C_6(5,5,4)= 80  C_6(6,6,4)= 80  rho(4)=2.331  hs(4)=4  
+
+! m=5 Nickel
+  C_6(1,1,5)=247  C_6(2,2,5)=247  C_6(3,3,5)=247
+  C_6(1,2,5)=153  C_6(1,3,5)=153  C_6(2,3,5)=153 
+  C_6(4,4,5)=122  C_6(5,5,5)=122  C_6(6,6,5)=122  rho(5)=8.900  hs(5)=2
+
+/
+
+&input3
+
+! Complex poles, Mode = 1 
+
+  compldzs = 'Ni-Si_h5.dat'   
+  
+  Nn1 = 1  Nn2 = 20 !  Nn1 =< n =< Nn2 sorting those branches
+                    !                  n - branch number                 
+  eps =   0.00000001   zh  = (0.01,0.01) ! initial step
+                      ! Re(zh) - step hpol for Halfc (with Mode = 0)
+  Max = 200  ip = -1  ! Crootw25 parameters 
+
+  cs0 = (20d0, 0.)  ! initial s-value for complex root finding
+                     ! Re(cs0) - upper limit for Halfc (with Mode = 0)
+  gm = 0d0           ! directional angle gamma in the alpha plane
+   
+  f1 = 0.01 f2 = 0.1  hf = 0.001  ! f range for pole tracing
+ 
+ /
+
+==============================
+
+
+! m=1 Test-AE, hs [mm], f [MHz] 
+  C_6(1,1,1)=130.76   C_6(2,2,1)=12.99  C_6(3,3,1)=12.99 
+  C_6(1,2,1)=5.26     C_6(1,3,1)=5.26   C_6(2,3,1)=4.56 
+  C_6(4,4,1)=3.75     C_6(5,5,1)=5.97   C_6(6,6,1)=5.97   rho(1)=1.482  hs(1)= 1.12 ! mm
+
+  isym(1) = 2 ! 0 - isotropic, input: C_11, C_44
+              ! 1 - cubic,     input: C_11, C_12, C_44 
+              ! 2 - transversal isotropic to x-axis, 6 constants:
+              !     C_11, C_22, C_12, C_23, C_44, C_55 then
+              !      C_33=C_22,  C_13=C_12,  C_66=C_55
+              ! any other: general ortotropic, all 9 constants 
+
+! m=3 Nickel
+  C_6(1,1,3)=166  C_6(2,2,3)=166  C_6(3,3,3)=166
+  C_6(1,2,3)= 64  C_6(1,3,3)= 64  C_6(2,3,3)= 64 
+  C_6(4,4,3)= 80  C_6(5,5,3)= 80  C_6(6,6,3)= 80  rho(3)=2.331  hs(3)=10  
+/
+ 
+ ! m=1, isotropic Ni
+  C_6(1,1,1)=397  C_6(2,2,1)=397  C_6(3,3,1)=397
+  C_6(1,2,1)=153  C_6(1,3,1)=153  C_6(2,3,1)=153 
+  C_6(4,4,1)=122  C_6(5,5,1)=122  C_6(6,6,1)=122  rho(1)=8.900  hs(1)=1
+
+! m=1 dimensionless v = 0.3
+  C_6(1,1,1)=3.4969  C_6(2,2,1)=3.4969  C_6(3,3,1)=3.4969
+  C_6(1,2,1)=1.4969  C_6(1,3,1)=1.4969  C_6(2,3,1)=1.4969 
+  C_6(4,4,1)=1.00    C_6(5,5,1)=1.00    C_6(6,6,1)=1.00    rho(1)=1.  hs(1)=1.
+ 
+/ 

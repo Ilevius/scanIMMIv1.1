@@ -1,0 +1,8 @@
+     Ms, ibot - number of layers and key for the bottom type
+  m  C_11   C_22   C_33 - 3*Ms lines below
+     C_12   C_13   C_23
+     C_44   C_55   C_66  rho hs,  
+      1      1
+  1        222.00000      222.00000      170.00000
+            71.00000      123.00000      123.00000
+            75.50000       75.50000       23.50000        8.93200        1.00000

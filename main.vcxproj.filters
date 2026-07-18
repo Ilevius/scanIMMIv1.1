@@ -131,6 +131,9 @@
     <ClInclude Include="Switch.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="include\MyPoles\MyPoles.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="settings.json" />

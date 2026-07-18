@@ -1,0 +1,61 @@
+&Kamp_settings
+f_min = 1d-2,
+f_max = 1.5d0,
+alfa_min = 1d-2,
+alfa_max = 3d0,
+dots_num = 400,
+//
+
+&DotPoles_settings
+alfaMin = 0.01d0,
+alfaMax = 3d0, 
+fmin = 0.01d0, 
+fmax = 1.5d0, 
+dotsNum = 400, 
+HaminStep = 1d-2, 
+HaminEps = 1d-5
+//
+
+&RPoleCurves_settings
+curveNmin = 1, 
+curveNmax = 8,
+pole_eps = 1d-6,
+pole_curves_step = 5d-3,
+fmax = 1.5d0,
+hamin_step = 1d-2,
+//
+
+&CPoleCurves_settings
+curveNmin = 1, 
+curveNmax = 8,
+fmax = 13d0,
+pole_eps = 1d-6,
+pole_curves_step = 5d-3,
+CRootStep = (1d-4, 1d-4),
+CRootMaxIter = 400, 
+CRootPrints = -5,
+z = 0d0,
+//
+
+
+&PoleAmps_settings
+z = 0d0,
+curveNmin = 1,
+curveNmax = 8,
+Nback = 4,
+h = 1d-4,
+//
+
+&WriteStartpoints_settings 
+alfaMin = 1d-2, 
+alfaMax = 10d0, 
+f = 1.5d0, 
+r = 0.1d-2, 
+HaminStep = 0.5d-2, 
+HaminEps = 1d-8,
+maxNpoles = 13,
+
+
+//
+
+

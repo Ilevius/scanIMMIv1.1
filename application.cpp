@@ -7,6 +7,7 @@
 #include "signal/Oscilloscope/OWON 6102A/SignalDeviceOscilloscopeOWON6102A.h"
 #include "signal/Oscilloscope/PicoScope 5000 series/SignalDeviceOscilloscopePicoScope5000s.h"
 #include "signal/Oscilloscope/Simulator/Simulator.h"
+#include "include/MyPoles/MyPoles.h"
 
 
 namespace app {
@@ -150,6 +151,50 @@ void FourierMenu(State& AppState) {
 			}
 			catch(...){
 				cout << "Не удалось открыть файл скана";
+			}
+
+			return;
+
+		}
+	}
+}
+
+void ModelingMenu(State& AppState) {
+	cout << endl << "Вы находитесь в меню моделирования: дисперсионные кривые, вычеты и интегралы" << endl;
+	int choice;
+	auto& SETTINGS = Config::instance();
+
+	while (true) {
+		cout << endl << "0: Выйти в главное меню" << endl;
+		cout << "1: Построить все представления дисперсионных кривых" << endl;
+
+
+		std::cout << "-> ";
+
+		if (!(std::cin >> choice)) {
+			//ОБЯЗАТЕЛЬНО ОБРАБОТАТЬ ВВОД нечисловых символов (буквы и т.п.) ЗАЦИКЛИВАЕТСЯ!!!
+			//Обработка неверного ввода (буквы и т.п.)
+			//std::cin.clear();
+			//std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			//std::cout << "Invalid input, try again.\n\n";
+			//continue;
+		}
+
+		std::cin.ignore(1000, '\n');
+		switch (choice) {
+		case 0: return;
+
+		case 1:
+			try {
+				RealPolesPlot("Init", "MyPolesOnCpp");
+				RealPolesPlot("Kamp", "MyPolesOnCpp");
+				RealPolesPlot("DotPoles", "MyPolesOnCpp");
+				RealPolesPlot("WriteStartPoints", "MyPolesOnCpp");
+				RealPolesPlot("RPoleCurves", "MyPolesOnCpp");
+			}
+			catch (...) {
+				cout << "В ходе работы библиотеки моделирования произошла ошибка. Проверьте, что в каталоге исполняемого файла "
+					"есть файл настроек anly_inp.dat или подобный и папка DataFigs с файлом настроек модуля IntRPole и прочими вложенными папками";
 			}
 
 			return;
