@@ -13,4 +13,13 @@ namespace signalProcessing {
 		std::vector<std::vector<double>> &VoltTicks, 
 		std::vector<double>& freqs_Hz, 
 		std::vector<double>& alfas_dptr);
+
+	void HfuncFromBscan(
+		std::vector<double>& ts_s,
+		std::vector<double>& xs_mm,
+		std::vector<std::vector<double>>& VoltTicks,
+		std::vector<double>& freqs_Hz,
+		std::vector<double>& alfas_dptr,
+		std::vector<double>& H_re,
+		std::vector<double>& H_im);   
 }

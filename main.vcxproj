@@ -119,8 +119,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft;C:\Program Files (x86)\Intel\oneAPI\compiler\2026.0\lib;include\MyPoles;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmat.lib;C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmx.lib;MyPolesLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft;C:\Program Files (x86)\Intel\oneAPI\compiler\2026.0\lib;include\MyPoles;include\MPM;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmat.lib;C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmx.lib;MyPolesLib.lib;MPM.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -158,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="application.h" />
     <ClInclude Include="files.h" />
+    <ClInclude Include="include\MPM\MPM.h" />
     <ClInclude Include="include\MyPoles\MyPoles.h" />
     <ClInclude Include="math.h" />
     <ClInclude Include="movable.h" />

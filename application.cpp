@@ -140,12 +140,16 @@ void FourierMenu(State& AppState) {
 			std::string filename;
 			std::vector<double> times, xs, alfas, freqs;
 			std::vector<std::vector<double>> data, data_norm;
+			std::vector<double> H_re, H_im;
 			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек"<< endl;
 			cout << "->";
 			cin >> filename;
 			try{
 				files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder()+filename);
+
 				Eigen::MatrixXcd H = signalProcessing::HfuncFromBscan(Bscan.ts, Bscan.xs, Bscan.data, freqs, alfas);
+				signalProcessing::HfuncFromBscan(Bscan.ts, Bscan.xs, Bscan.data, freqs, alfas, H_re, H_im);
+				
 				filename.pop_back(); filename.pop_back(); filename.pop_back(); filename.pop_back();
 				files::spectrumToMatFile(freqs, alfas, H, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-H.mat");
 			}
