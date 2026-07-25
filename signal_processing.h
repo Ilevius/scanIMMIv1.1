@@ -14,12 +14,11 @@ namespace signalProcessing {
 		std::vector<double>& freqs_Hz, 
 		std::vector<double>& alfas_dptr);
 
-	void HfuncFromBscan(
+	Eigen::MatrixXcd HfuncFromBscanFortran(
 		std::vector<double>& ts_s,
 		std::vector<double>& xs_mm,
 		std::vector<std::vector<double>>& VoltTicks,
 		std::vector<double>& freqs_Hz,
-		std::vector<double>& alfas_dptr,
-		std::vector<double>& H_re,
-		std::vector<double>& H_im);   
+		std::vector<double>& alfas_dptr
+	);
 }

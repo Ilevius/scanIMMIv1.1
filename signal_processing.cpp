@@ -87,17 +87,17 @@ namespace signalProcessing{
 	}
 
 
-	void HfuncFromBscan(
+	Eigen::MatrixXcd HfuncFromBscanFortran(
 		std::vector<double>& ts_s,
 		std::vector<double>& xs_mm,
 		std::vector<std::vector<double>>& VoltTicks,
 		std::vector<double>& freqs_Hz,
-		std::vector<double>& alfas_dptr,
-		std::vector<double>& H_re,
-		std::vector<double>& H_im) {
+		std::vector<double>& alfas_dptr) {
 		// Функция, которая принимает векторы отсчетов по времени и по расстоянию, матрицу отсчетов напряжения, 
 		// достает параметры преобразования Фурье из файла настроек и обрезает данные 
 		// делает двойное преобразование Фурье и возвращает Н-функцию
+		
+		Eigen::MatrixXcd H(freqs_Hz.size(), alfas_dptr.size());
 		auto& SETTINGS = Config::instance();
 		SETTINGS.loadFromFile();
 
@@ -137,6 +137,8 @@ namespace signalProcessing{
 			double t0_s = Tmin * timeStep_s;
 
 			std::vector<double> VoltTicksCut(x_n * t_n, 0);
+			std::vector<double> H_re(freqs_Hz.size() * alfas_dptr.size(), 0);
+			std::vector<double> H_im(freqs_Hz.size() * alfas_dptr.size(), 0);
 
 			for (size_t tick = 0; tick < t_n; tick++) {
 				for (size_t signal = 0; signal < x_n; signal++) {
@@ -163,7 +165,15 @@ namespace signalProcessing{
 			);
 			//Eigen::MatrixXcd H = math::xtFourier(t_n, Nfreqs, x_n, alfa_n, t0_s, Fmin_Hz, xs_mm[0], alfaMin, timeStep_s, Fstep_Hz, xStep_mm, alfaStep, VoltTicksCut);
 
+			Eigen::MatrixXcd H(Nfreqs, alfa_n);
+			for (int i = 0; i < Nfreqs; i++) {
+				for (int j = 0; j < alfa_n; j++) {
+					H(i, j) = std::complex<double>(H_re[i * alfa_n + j], H_im[i * alfa_n + j]);
+			}
+			
 		}
+		return H;
+	}
 		else {
 			throw "Некорректные данные в В-скане";
 		}
