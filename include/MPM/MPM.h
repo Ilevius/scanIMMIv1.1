@@ -21,4 +21,40 @@ extern "C" {
         double* H_re,     // intent(inout)
         double* H_im      // intent(inout)
     );
+
+    void xtFourier(
+        int* t_n,
+        int* freq_n,
+        int* x_n,
+        int* alfa_n,
+        double* t_min,
+        double* freq_min,
+        double* x_min,
+        double* alfa_min,
+        double* t_step,
+        double* freq_step,
+        double* x_step,
+        double* alfa_step,
+        const double* signals,  // intent(in)
+        double* H_re,     // intent(inout)
+        double* H_im      // intent(inout)
+    );
+
+    void MPMxF(
+        int* x_n,
+        int* alfa_n,
+        int* t_n,
+        double* x_min,
+        double* alfa_min,
+        double* t_min,
+        double* x_step,
+        double* alfa_step,
+        double* t_step,
+        int* lambda,
+        double* delta,
+        const double* signals,
+        double* zetas_re,
+        double* zetas_im,
+        int* mu
+    );
 }

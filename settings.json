@@ -25,7 +25,7 @@
         },
     "FOURIER": {
         "ACTIVE": false,
-        "ALFA_MIN_dptr": 0.0,
+        "ALFA_MIN_dptr": 0.2,
         "ALFA_N": 600,
         "ALFA_STEP_dptr": 0.014,
         "DIST_MAX_mm": 100.0,
@@ -45,10 +45,10 @@
             "TRIG_EDGE_LEVEL": "",
             "DATA_CH_SCALE_V": 5.0,
             "DEPMEM": 100000,
-            "WANTED_TICKS": 20000,
+            "WANTED_TICKS": 40000,
             "EMPTY_TICKS": 3000,
-            "AVERAGE_N": 100,
-            "TIMEBASE_CODE": 7
+            "AVERAGE_N": 1000,
+            "TIMEBASE_CODE": 4
         },
     "OSCAN": {
        "R_MIN": 10,

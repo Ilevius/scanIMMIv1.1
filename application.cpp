@@ -75,6 +75,11 @@ void equipMenu(State& AppState) {
 			}
 			
 			try {
+				if (AppState.osc->is_connected()) {
+					AppState.osc->disconnect();
+					//AppState.osc.reset();
+					break;
+				}
 				AppState.osc->connect();
 				AppState.osc->setup();
 			}

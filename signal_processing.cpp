@@ -140,6 +140,10 @@ namespace signalProcessing{
 			std::vector<double> H_re(freqs_Hz.size() * alfas_dptr.size(), 0);
 			std::vector<double> H_im(freqs_Hz.size() * alfas_dptr.size(), 0);
 
+			int lambda = int(t_n/12*5);
+			int mu = 4;
+			double delta = 0.1;
+
 			for (size_t tick = 0; tick < t_n; tick++) {
 				for (size_t signal = 0; signal < x_n; signal++) {
 					VoltTicksCut[signal * t_n + tick] = VoltTicks[signal][tick + Tmin];
@@ -163,6 +167,27 @@ namespace signalProcessing{
 				H_re.data(),
 				H_im.data()
 			);
+
+
+			MPMxF(
+				&x_n,
+				&alfa_n,
+				&t_n,
+				&xs_mm[0],
+				&alfaMin,
+				&t0_s,
+				&xStep_mm,
+				&alfaStep,
+				&timeStep_s,
+				&lambda,
+				&delta,
+				VoltTicksCut.data(),
+				H_re.data(),
+				H_im.data(),
+				&mu
+			);
+
+
 			//Eigen::MatrixXcd H = math::xtFourier(t_n, Nfreqs, x_n, alfa_n, t0_s, Fmin_Hz, xs_mm[0], alfaMin, timeStep_s, Fstep_Hz, xStep_mm, alfaStep, VoltTicksCut);
 
 			Eigen::MatrixXcd H(Nfreqs, alfa_n);

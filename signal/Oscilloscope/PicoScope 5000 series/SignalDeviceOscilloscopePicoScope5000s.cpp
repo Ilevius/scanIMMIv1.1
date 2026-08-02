@@ -100,7 +100,11 @@ void signal::SignalDeviceOscilloscopePicoScope5000s::setup() {
 		throw "Timebase getting error! Error code: " + to_string(SETUP_STATUS);
 	}
 	// 5. Настраиваем триггер 
-	SETUP_STATUS = ps5000aSetSimpleTrigger(HANDLE, 1, PS5000A_EXTERNAL, 1, PS5000A_RISING, 0, 0);
+	int16_t threshold = 20000; // Уровень триггера в отсчетах (примерное значение)
+	int16_t autoTrigger_ms = 22222; // Время авто-триггера в миллисекундах (примерное значение)
+	int32_t delay = 0; // Задержка перед срабатыванием триггера (в отсчетах)
+
+	SETUP_STATUS = ps5000aSetSimpleTrigger(HANDLE, 1, PS5000A_EXTERNAL, threshold, PS5000A_RISING, delay, autoTrigger_ms);
 	if (SETUP_STATUS != PICO_OK) {
 		throw "Trigger setup error!";
 	}
