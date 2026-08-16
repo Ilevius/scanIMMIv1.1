@@ -123,6 +123,8 @@ void FourierMenu(State& AppState) {
 	while (true) {
 		cout << endl<<"0: Выйти в главное меню" << endl;
 		cout << "1: Ввести имя скана и получить Н-функцию" << endl;
+		cout << "2: Ввести имя скана и получить волновые числа методом матричных пучков" << endl;
+
 
 
 		std::cout << "-> ";
@@ -141,26 +143,51 @@ void FourierMenu(State& AppState) {
 		case 0: return;
 
 		case 1:
+		{
 			SETTINGS.loadFromFile();
 			std::string filename;
 			std::vector<double> times, xs, alfas, freqs;
 			std::vector<std::vector<double>> data, data_norm;
-			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек"<< endl;
+			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек" << endl;
 			cout << "->";
 			cin >> filename;
-			try{
-				files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder()+filename);
+			try {
+				files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder() + filename);
 
 				//Eigen::MatrixXcd H = signalProcessing::HfuncFromBscan(Bscan.ts, Bscan.xs, Bscan.data, freqs, alfas);
 				Eigen::MatrixXcd H = signalProcessing::HfuncFromBscanFortran(Bscan.ts, Bscan.xs, Bscan.data, freqs, alfas);
-				
+
 				filename.pop_back(); filename.pop_back(); filename.pop_back(); filename.pop_back();
 				files::spectrumToMatFile(freqs, alfas, H, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-H.mat");
 			}
-			catch(...){
+			catch (...) {
 				cout << "Не удалось открыть файл скана";
 			}
 
+			return;
+		}
+		
+		case 2:
+			SETTINGS.loadFromFile();
+			std::string filename;
+			std::vector<double> times, xs, alfas;
+			std::vector<std::vector<double>> data, data_norm;
+			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек" << endl;
+			cout << "->";
+			cin >> filename;
+			try {
+				files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder() + filename);
+
+				std::vector<std::vector<std::complex<double>>> waveNumbers;
+
+				waveNumbers = signalProcessing::getMPMwavenumbers(Bscan.ts, Bscan.xs, Bscan.data, alfas);
+				// a quite ugly way to remove the last 4 characters from the filename string (".mat")
+				filename.pop_back(); filename.pop_back(); filename.pop_back(); filename.pop_back();
+				//files::spectrumToMatFile(freqs2, alfas2, k, SETTINGS.getCommon_settings().getWorkFolder() + filename2 + "-k.mat");
+			}
+			catch (...) {
+				cout << "Не удалось открыть файл скана";
+			}
 			return;
 
 		}

@@ -51,6 +51,7 @@
     <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -138,8 +139,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmat.lib;C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmx.lib;MyPolesLib.lib;MPM.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\Intel\oneAPI\compiler\2026.0\lib;include\MyPoles;include\MPM;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmat.lib;C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmx.lib;MyPolesLib.lib;LINALFI_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Intel\oneAPI\mkl\2026.0\lib;C:\Program Files (x86)\Intel\oneAPI\compiler\2026.0\lib;include\MyPoles;include\MPM;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

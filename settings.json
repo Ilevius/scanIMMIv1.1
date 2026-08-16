@@ -26,8 +26,8 @@
     "FOURIER": {
         "ACTIVE": false,
         "ALFA_MIN_dptr": 0.2,
-        "ALFA_N": 600,
-        "ALFA_STEP_dptr": 0.014,
+        "ALFA_N": 200,
+        "ALFA_STEP_dptr": 0.045,
         "DIST_MAX_mm": 100.0,
         "DIST_MIN_mm": 0.0,
         "FMAX_MHz": 6.0,

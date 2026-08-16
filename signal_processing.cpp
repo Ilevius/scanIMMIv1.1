@@ -169,25 +169,6 @@ namespace signalProcessing{
 			);
 
 
-			MPMxF(
-				&x_n,
-				&alfa_n,
-				&t_n,
-				&xs_mm[0],
-				&alfaMin,
-				&t0_s,
-				&xStep_mm,
-				&alfaStep,
-				&timeStep_s,
-				&lambda,
-				&delta,
-				VoltTicksCut.data(),
-				H_re.data(),
-				H_im.data(),
-				&mu
-			);
-
-
 			//Eigen::MatrixXcd H = math::xtFourier(t_n, Nfreqs, x_n, alfa_n, t0_s, Fmin_Hz, xs_mm[0], alfaMin, timeStep_s, Fstep_Hz, xStep_mm, alfaStep, VoltTicksCut);
 
 			Eigen::MatrixXcd H(Nfreqs, alfa_n);
@@ -208,4 +189,93 @@ namespace signalProcessing{
 
 	}
 
+
+
+	std::vector<std::vector<std::complex<double>>> getMPMwavenumbers(
+		std::vector<double>& ts_s,
+		std::vector<double>& xs_mm,
+		std::vector<std::vector<double>>& VoltTicks,
+		std::vector<double>& alfas_dptr
+	) {
+		std::vector<std::vector<std::complex<double>>> unsortedWavenumbers;
+		std::vector<std::complex<double>> wavenums_by_alfa;
+		std::complex<double> a_wavenumber;
+		auto& SETTINGS = Config::instance();
+		SETTINGS.loadFromFile();
+
+		int t_n = ts_s.size();
+		int x_n = xs_mm.size();
+		if (x_n > 1 && t_n > 1 && VoltTicks.size() == x_n && VoltTicks[0].size() == t_n) {
+
+			double timeStep_s = ts_s[1] - ts_s[0];
+			double xStep_mm = xs_mm[1] - xs_mm[0];
+
+
+			int alfa_n = SETTINGS.getFourier_settings().alfa_n();
+			double alfaMin = SETTINGS.getFourier_settings().alfa_min_dptr();
+			double alfaStep = SETTINGS.getFourier_settings().alfa_step_dptr();
+
+			alfas_dptr.clear();
+			for (size_t i = 0; i < alfa_n; i++) {
+				alfas_dptr.push_back(alfaMin + i * alfaStep);
+			}
+
+			//										Обрезка данных
+			size_t Tmin = size_t(SETTINGS.getFourier_settings().head_ms() * 1e-3 / timeStep_s);
+			size_t Tmax = size_t(SETTINGS.getFourier_settings().tail_ms() * 1e-3 / timeStep_s);
+			if (Tmin > t_n || Tmax > t_n) {
+				Tmin = 0; Tmax = t_n;
+			}
+			t_n = Tmax - Tmin;
+			double t0_s = Tmin * timeStep_s;
+
+			int lambda = int(t_n / 12 * 5);
+			int mu = 4;
+			double delta = 0.1;
+
+			std::vector<double> VoltTicksCut(x_n * t_n, 0);
+			std::vector<double> H_re(lambda * alfas_dptr.size(), 0);
+			std::vector<double> H_im(lambda * alfas_dptr.size(), 0);
+
+			
+
+			for (size_t tick = 0; tick < t_n; tick++) {
+				for (size_t signal = 0; signal < x_n; signal++) {
+					VoltTicksCut[signal * t_n + tick] = VoltTicks[signal][tick + Tmin];
+				}
+			}
+
+			MPMxF(
+				&x_n,
+				&alfa_n,
+				&t_n,
+				&xs_mm[0],
+				&alfaMin,
+				&t0_s,
+				&xStep_mm,
+				&alfaStep,
+				&timeStep_s,
+				&lambda,
+				&delta,
+				VoltTicksCut.data(),
+				H_re.data(),
+				H_im.data(),
+				&mu
+			);
+
+			//			Переводим в комплексные числа и формируем массив wavenumbers_by_alfa для каждого альфа
+			for (size_t i = 0; i < alfas_dptr.size(); i++) {
+				wavenums_by_alfa.clear();
+				for (size_t j = 0; j < lambda; j++) {
+					a_wavenumber = std::complex<double>(H_re[i * lambda + j], H_im[i * lambda + j]);
+					if (std::abs(a_wavenumber) > 1e-10) {
+						wavenums_by_alfa.push_back(a_wavenumber);
+					}	
+				}
+				unsortedWavenumbers.push_back(wavenums_by_alfa);
+			}	
+
+			return unsortedWavenumbers;
+		}
+	}
 }
