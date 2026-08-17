@@ -183,7 +183,8 @@ void FourierMenu(State& AppState) {
 				waveNumbers = signalProcessing::getMPMwavenumbers(Bscan.ts, Bscan.xs, Bscan.data, alfas);
 				// a quite ugly way to remove the last 4 characters from the filename string (".mat")
 				filename.pop_back(); filename.pop_back(); filename.pop_back(); filename.pop_back();
-				//files::spectrumToMatFile(freqs2, alfas2, k, SETTINGS.getCommon_settings().getWorkFolder() + filename2 + "-k.mat");
+
+				files::writeWaveNumbersToTxt(alfas, waveNumbers, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-waveNumbers.txt");
 			}
 			catch (...) {
 				cout << "Не удалось открыть файл скана";

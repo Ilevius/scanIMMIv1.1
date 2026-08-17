@@ -18,6 +18,50 @@
 		file.close();
 	}
 
+
+	void files::writeWaveNumbersToTxt(
+		const std::vector<double>& alfas,
+		const std::vector<std::vector<std::complex<double>>>& waveNumbers,
+		const std::string& filename)
+	{
+		// Проверка на соответствие размеров
+		if (alfas.size() != waveNumbers.size()) {
+			throw std::runtime_error("Размеры alfas и waveNumbers не совпадают!");
+		}
+
+		std::ofstream outFile(filename);
+		if (!outFile.is_open()) {
+			throw std::runtime_error("Не удалось открыть файл для записи: " + filename);
+		}
+
+		// Настройка формата вывода
+		outFile << std::scientific << std::setprecision(15);
+
+		// Заголовок (опционально)
+		outFile << "% alpha\t\tRe(waveNumber)\tIm(waveNumber)\n";
+		outFile << "% ------------------------------------------------\n";
+
+		// Проход по всем элементам alfas
+		for (size_t i = 0; i < alfas.size(); ++i) {
+			outFile << "% alpha[" << i << "] = " << alfas[i] << "\n";
+
+			const auto& wnVec = waveNumbers[i];
+
+			// Проход по всем элементам вектора waveNumbers[i]
+			for (size_t j = 0; j < wnVec.size(); ++j) {
+				outFile << alfas[i] << "\t"
+					<< wnVec[j].real() << "\t"
+					<< wnVec[j].imag() << "\n";
+			}
+
+			// Пустая строка между разными alfas (опционально)
+			outFile << "\n";
+		}
+
+		outFile.close();
+	}
+
+
 	std::vector<double> files::loadSignalFromTxt(const std::string& filename)
 	{
 		std::ifstream file(filename);

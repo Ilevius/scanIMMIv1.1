@@ -23,6 +23,13 @@ namespace files {
 
 	void saveSignalToTxt(const std::vector<double>& waveform, const double timebase_s, const std::string& filename);
 
+
+	void writeWaveNumbersToTxt(
+		const std::vector<double>& alfas,
+		const std::vector<std::vector<std::complex<double>>>& waveNumbers,
+		const std::string& filename);
+	
+
 	std::vector<double> loadSignalFromTxt(const std::string& filename);
 
 	void saveAscanToMat(std::vector<double>& point, std::vector<double>& data, double timebase_s, const std::string& filename);

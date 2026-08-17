@@ -1,7 +1,6 @@
 #include "signal_processing.h"
 #include "include/MPM/MPM.h"
 
-
 namespace signalProcessing{
 	void centerSignal(std::vector<double>& signal) {
 		const double signal_mean = math::vectorMean(signal);
@@ -200,6 +199,7 @@ namespace signalProcessing{
 		std::vector<std::vector<std::complex<double>>> unsortedWavenumbers;
 		std::vector<std::complex<double>> wavenums_by_alfa;
 		std::complex<double> a_wavenumber;
+		double freq;
 		auto& SETTINGS = Config::instance();
 		SETTINGS.loadFromFile();
 
@@ -231,7 +231,7 @@ namespace signalProcessing{
 
 			int lambda = int(t_n / 12 * 5);
 			int mu = 4;
-			double delta = 0.1;
+			double delta = 0.4;
 
 			std::vector<double> VoltTicksCut(x_n * t_n, 0);
 			std::vector<double> H_re(lambda * alfas_dptr.size(), 0);
@@ -269,7 +269,8 @@ namespace signalProcessing{
 				for (size_t j = 0; j < lambda; j++) {
 					a_wavenumber = std::complex<double>(H_re[i * lambda + j], H_im[i * lambda + j]);
 					if (std::abs(a_wavenumber) > 1e-10) {
-						wavenums_by_alfa.push_back(a_wavenumber);
+						freq = std::arg(a_wavenumber) / (2.0 * std::numbers::pi * timeStep_s);
+						wavenums_by_alfa.push_back(std::complex<double>(freq, 0.0));
 					}	
 				}
 				unsortedWavenumbers.push_back(wavenums_by_alfa);
