@@ -54,7 +54,12 @@ void to_json(json& j, const Fourier_settings& f) {
 		{"ALFA_MIN_dptr", f.alfa_min_dptr()},
 		{"ALFA_STEP_dptr", f.alfa_step_dptr()},
 		{"ALFA_N", f.alfa_n()},
-		{"ACTIVE", f.active()}
+		{"ACTIVE", f.active()},
+		{"LAMBDA_K", f.LAMBDA_K()},
+		{"MU", f.MU()},
+		{"DELTA", f.DELTA()},
+		{"FILTER_T", f.filter_t()},
+		{"FILTER_X", f.filter_x()}
 	};
 }
 
@@ -70,6 +75,11 @@ void from_json(const json& j, Fourier_settings& f) {
 	f.setAlfa_step_dptr(j.at("ALFA_STEP_dptr").get<double>());
 	f.setAlfa_n(j.at("ALFA_N").get<size_t>());
 	f.setActive(j.at("ACTIVE").get<bool>());
+	f.setLAMBDA_K(j.at("LAMBDA_K").get<double>());
+	f.setMU(j.at("MU").get<size_t>());
+	f.setDELTA(j.at("DELTA").get<double>());
+	f.setFilter_t(j.at("FILTER_T").get<double>());
+	f.setFilter_x(j.at("FILTER_X").get<double>());
 }
 
 // A-scan

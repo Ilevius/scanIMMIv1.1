@@ -238,6 +238,12 @@ public:
 	const double alfa_step_dptr() const { return alfa_step_dptr_; }
 	const size_t alfa_n() const { return alfa_n_; }
 	const bool active() const { return active_; }
+	const double LAMBDA_K() const { return LAMBDA_K_; }
+	const size_t MU() const { return MU_; }
+	const double DELTA() const { return DELTA_; }
+	const double filter_t() const { return filter_t_; }
+	const double filter_x() const { return filter_x_; }
+
 
 	void setHead_ms(const double &v) { head_ms_ = v; }
 	void setTail_ms(double v) { tail_ms_ = v; }
@@ -250,6 +256,11 @@ public:
 	void setAlfa_step_dptr(const double v) { alfa_step_dptr_ = v; }
 	void setAlfa_n(const size_t v) { alfa_n_ = v; }
 	void setActive(const bool v) { active_ = v; }
+	void setLAMBDA_K(const double v) { LAMBDA_K_ = v; }
+	void setMU(const size_t v) { MU_ = v; }
+	void setDELTA(const double v) { DELTA_ = v; }
+	void setFilter_t(const double v) { filter_t_ = v; }
+	void setFilter_x(const double v) { filter_x_ = v; }
 
 private:
 	double head_ms_ = 0;
@@ -263,6 +274,11 @@ private:
 	double alfa_step_dptr_ = 0.01;
 	size_t alfa_n_ = 200;
 	bool active_ = false;
+	double LAMBDA_K_ = 0.42;
+	size_t MU_ = 10;
+	double DELTA_ = 0.2;
+	double filter_t_ = 6.0;
+	double filter_x_ = 6.0;
 };
 
 class Config {

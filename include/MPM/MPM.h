@@ -19,7 +19,9 @@ extern "C" {
         double* alfa_step,
         const double* signals,  // intent(in)
         double* H_re,     // intent(inout)
-        double* H_im      // intent(inout)
+        double* H_im,      // intent(inout)
+		double* filter_t, // intent(in)
+		double* filter_x      // intent(in)
     );
 
     void xtFourier(
@@ -37,7 +39,9 @@ extern "C" {
         double* alfa_step,
         const double* signals,  // intent(in)
         double* H_re,     // intent(inout)
-        double* H_im      // intent(inout)
+        double* H_im,      // intent(inout)
+		double* filter_t, // intent(in)
+		double* filter_x      // intent(in)
     );
 
     void MPMxF(
@@ -52,6 +56,7 @@ extern "C" {
         double* t_step,
         int* lambda,
         double* delta,
+        double* filter_x,
         const double* signals,
         double* zetas_re,
         double* zetas_im,

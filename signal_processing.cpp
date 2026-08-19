@@ -139,9 +139,8 @@ namespace signalProcessing{
 			std::vector<double> H_re(freqs_Hz.size() * alfas_dptr.size(), 0);
 			std::vector<double> H_im(freqs_Hz.size() * alfas_dptr.size(), 0);
 
-			int lambda = int(t_n/12*5);
-			int mu = 4;
-			double delta = 0.1;
+			double filter_t = SETTINGS.getFourier_settings().filter_t();
+			double filter_x = SETTINGS.getFourier_settings().filter_x();
 
 			for (size_t tick = 0; tick < t_n; tick++) {
 				for (size_t signal = 0; signal < x_n; signal++) {
@@ -149,7 +148,7 @@ namespace signalProcessing{
 				}
 			}
 
-			txFourier(
+			xtFourier(
 				&t_n,
 				&Nfreqs,
 				&x_n,
@@ -164,7 +163,9 @@ namespace signalProcessing{
 				&alfaStep,
 				VoltTicksCut.data(),
 				H_re.data(),
-				H_im.data()
+				H_im.data(),
+				&filter_t,
+				&filter_x
 			);
 
 
@@ -229,9 +230,10 @@ namespace signalProcessing{
 			t_n = Tmax - Tmin;
 			double t0_s = Tmin * timeStep_s;
 
-			int lambda = int(t_n / 12 * 5);
-			int mu = 4;
-			double delta = 0.4;
+			int lambda = int(SETTINGS.getFourier_settings().LAMBDA_K()*t_n);
+			int mu = SETTINGS.getFourier_settings().MU();
+			double delta = SETTINGS.getFourier_settings().DELTA();
+			double filter_x = SETTINGS.getFourier_settings().filter_x();
 
 			std::vector<double> VoltTicksCut(x_n * t_n, 0);
 			std::vector<double> H_re(lambda * alfas_dptr.size(), 0);
@@ -257,6 +259,7 @@ namespace signalProcessing{
 				&timeStep_s,
 				&lambda,
 				&delta,
+				&filter_x,
 				VoltTicksCut.data(),
 				H_re.data(),
 				H_im.data(),
