@@ -60,6 +60,28 @@ extern "C" {
         const double* signals,
         double* zetas_re,
         double* zetas_im,
-        int* mu
+        int* mu,
+        bool* debug
+    );
+
+
+    void MPMtF(
+        int* x_n,
+        int* f_n,
+        int* t_n,
+        double* x_min,
+        double* f_min,
+        double* t_min,
+        double* x_step,
+        double* f_step,
+        double* t_step,
+        int* lambda,
+        double* delta,
+        double* filter_t,
+        const double* signals,
+        double* zetas_re,
+        double* zetas_im,
+        int* mu,
+        bool* debug
     );
 }

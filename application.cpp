@@ -170,21 +170,29 @@ void FourierMenu(State& AppState) {
 		case 2:
 			SETTINGS.loadFromFile();
 			std::string filename;
-			std::vector<double> times, xs, alfas;
+			std::vector<double> times, xs, freqs, alfas;
 			std::vector<std::vector<double>> data, data_norm;
 			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек" << endl;
 			cout << "->";
 			cin >> filename;
 			try {
 				files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder() + filename);
-
-				std::vector<std::vector<std::complex<double>>> waveNumbers;
-
-				waveNumbers = signalProcessing::getMPMwavenumbers(Bscan.ts, Bscan.xs, Bscan.data, alfas);
 				// a quite ugly way to remove the last 4 characters from the filename string (".mat")
 				filename.pop_back(); filename.pop_back(); filename.pop_back(); filename.pop_back();
 
-				files::writeWaveNumbersToTxt(alfas, waveNumbers, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-waveNumbers.txt");
+				std::vector<std::vector<std::complex<double>>> freqs_at_alfas;
+				std::vector<std::vector<std::complex<double>>> alfas_at_freqs;
+
+
+
+				freqs_at_alfas = signalProcessing::getMPMfreqs(Bscan.ts, Bscan.xs, Bscan.data, alfas);
+				files::writeWaveNumbersToTxt(alfas, freqs_at_alfas, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-freqs.txt");
+
+				//alfas_at_freqs = signalProcessing::getMPMwavenumbers(Bscan.ts, Bscan.xs, Bscan.data, freqs);
+				//files::writeWaveNumbersToTxt(freqs, alfas_at_freqs, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-alfas.txt");
+
+
+
 			}
 			catch (...) {
 				cout << "Не удалось открыть файл скана";

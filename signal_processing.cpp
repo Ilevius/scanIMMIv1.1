@@ -195,14 +195,119 @@ namespace signalProcessing{
 		std::vector<double>& ts_s,
 		std::vector<double>& xs_mm,
 		std::vector<std::vector<double>>& VoltTicks,
-		std::vector<double>& alfas_dptr
+		std::vector<double>& freqs_Hz
 	) {
 		std::vector<std::vector<std::complex<double>>> unsortedWavenumbers;
 		std::vector<std::complex<double>> wavenums_by_alfa;
 		std::complex<double> a_wavenumber;
+		double an_alfa;
+		auto& SETTINGS = Config::instance();
+		SETTINGS.loadFromFile();
+
+		bool debug = false;
+
+		int t_n = ts_s.size();
+		int x_n = xs_mm.size();
+		if (x_n > 1 && t_n > 1 && VoltTicks.size() == x_n && VoltTicks[0].size() == t_n) {
+
+			double timeStep_s = ts_s[1] - ts_s[0];
+			double xStep_mm = xs_mm[1] - xs_mm[0];
+
+
+			int f_n = SETTINGS.getFourier_settings().freqs_n();
+			double f_min = SETTINGS.getFourier_settings().fmin_MHz() * 1e6;
+			double f_max = SETTINGS.getFourier_settings().fmax_MHz() * 1e6;
+			double f_step = (f_max - f_min) / f_n;
+
+			freqs_Hz.clear();
+
+
+			for (size_t i = 0; i < f_n; i++) {
+				freqs_Hz.push_back(f_min + i * f_step);
+			}
+			 
+			 
+
+
+			//										Обрезка данных
+			size_t Tmin = size_t(SETTINGS.getFourier_settings().head_ms() * 1e-3 / timeStep_s);
+			size_t Tmax = size_t(SETTINGS.getFourier_settings().tail_ms() * 1e-3 / timeStep_s);
+			if (Tmin > t_n || Tmax > t_n) {
+				Tmin = 0; Tmax = t_n;
+			}
+			t_n = Tmax - Tmin;
+			double t0_s = Tmin * timeStep_s;
+
+
+			int lambda = int(SETTINGS.getFourier_settings().LAMBDA_K()*x_n);
+			int mu = SETTINGS.getFourier_settings().MU();
+			double delta = SETTINGS.getFourier_settings().DELTA();
+			double filter_t = SETTINGS.getFourier_settings().filter_t();
+
+			std::vector<double> VoltTicksCut(x_n * t_n, 0);
+			std::vector<double> H_re(lambda * f_n, 0);
+			std::vector<double> H_im(lambda * f_n, 0);
+
+			
+
+			for (size_t tick = 0; tick < t_n; tick++) {
+				for (size_t signal = 0; signal < x_n; signal++) {
+					VoltTicksCut[signal * t_n + tick] = VoltTicks[signal][tick + Tmin];
+				}
+			}
+
+			MPMtF(
+				&x_n,
+				&f_n,
+				&t_n,
+				&xs_mm[0],
+				&f_min,
+				&t0_s,
+				&xStep_mm,
+				&f_step,
+				&timeStep_s,
+				&lambda,
+				&delta,
+				&filter_t,
+				VoltTicksCut.data(),
+				H_re.data(),
+				H_im.data(),
+				&mu,
+				&debug
+			);
+
+			//			Переводим в комплексные числа и формируем массив wavenumbers_by_alfa для каждого альфа
+			for (size_t i = 0; i < f_n; i++) {
+				wavenums_by_alfa.clear();
+				for (size_t j = 0; j < lambda; j++) {
+					a_wavenumber = std::complex<double>(H_re[i * lambda + j], H_im[i * lambda + j]);
+					if (std::abs(a_wavenumber) > 1e-10) {
+						an_alfa = std::arg(a_wavenumber) / (2.0 * std::numbers::pi * timeStep_s);
+						wavenums_by_alfa.push_back(std::complex<double>(an_alfa, 0.0));
+					}	
+				}
+				unsortedWavenumbers.push_back(wavenums_by_alfa);
+			}	
+
+			return unsortedWavenumbers;
+		}
+	}
+
+
+
+	std::vector<std::vector<std::complex<double>>> getMPMfreqs(
+		std::vector<double>& ts_s,
+		std::vector<double>& xs_mm,
+		std::vector<std::vector<double>>& VoltTicks,
+		std::vector<double>& alfas_dptr
+	) {
+		std::vector<std::vector<std::complex<double>>> unsortedFreqs;
+		std::vector<std::complex<double>> freqs_by_alfa;
+		std::complex<double> a_frequency;
 		double freq;
 		auto& SETTINGS = Config::instance();
 		SETTINGS.loadFromFile();
+		bool debug = false;
 
 		int t_n = ts_s.size();
 		int x_n = xs_mm.size();
@@ -217,9 +322,14 @@ namespace signalProcessing{
 			double alfaStep = SETTINGS.getFourier_settings().alfa_step_dptr();
 
 			alfas_dptr.clear();
+
+
 			for (size_t i = 0; i < alfa_n; i++) {
 				alfas_dptr.push_back(alfaMin + i * alfaStep);
 			}
+			 
+			 
+
 
 			//										Обрезка данных
 			size_t Tmin = size_t(SETTINGS.getFourier_settings().head_ms() * 1e-3 / timeStep_s);
@@ -230,16 +340,18 @@ namespace signalProcessing{
 			t_n = Tmax - Tmin;
 			double t0_s = Tmin * timeStep_s;
 
-			int lambda = int(SETTINGS.getFourier_settings().LAMBDA_K()*t_n);
+
+			int lambda = int(SETTINGS.getFourier_settings().LAMBDA_K() * t_n);
 			int mu = SETTINGS.getFourier_settings().MU();
 			double delta = SETTINGS.getFourier_settings().DELTA();
 			double filter_x = SETTINGS.getFourier_settings().filter_x();
+			double filter_t = SETTINGS.getFourier_settings().filter_t();
 
 			std::vector<double> VoltTicksCut(x_n * t_n, 0);
 			std::vector<double> H_re(lambda * alfas_dptr.size(), 0);
 			std::vector<double> H_im(lambda * alfas_dptr.size(), 0);
 
-			
+
 
 			for (size_t tick = 0; tick < t_n; tick++) {
 				for (size_t signal = 0; signal < x_n; signal++) {
@@ -263,23 +375,28 @@ namespace signalProcessing{
 				VoltTicksCut.data(),
 				H_re.data(),
 				H_im.data(),
-				&mu
+				&mu,
+				&debug
 			);
+
+
 
 			//			Переводим в комплексные числа и формируем массив wavenumbers_by_alfa для каждого альфа
 			for (size_t i = 0; i < alfas_dptr.size(); i++) {
-				wavenums_by_alfa.clear();
+				freqs_by_alfa.clear();
 				for (size_t j = 0; j < lambda; j++) {
-					a_wavenumber = std::complex<double>(H_re[i * lambda + j], H_im[i * lambda + j]);
-					if (std::abs(a_wavenumber) > 1e-10) {
-						freq = std::arg(a_wavenumber) / (2.0 * std::numbers::pi * timeStep_s);
-						wavenums_by_alfa.push_back(std::complex<double>(freq, 0.0));
-					}	
+					a_frequency = std::complex<double>(H_re[i * lambda + j], H_im[i * lambda + j]);
+					if (std::abs(a_frequency) > 1e-10) {
+						freq = std::arg(a_frequency) / (2.0 * std::numbers::pi * timeStep_s);
+						freqs_by_alfa.push_back(std::complex<double>(freq, 0.0));
+					}
 				}
-				unsortedWavenumbers.push_back(wavenums_by_alfa);
-			}	
+				unsortedFreqs.push_back(freqs_by_alfa);
+			}
 
-			return unsortedWavenumbers;
+			return unsortedFreqs;
 		}
 	}
+
+
 }

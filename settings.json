@@ -31,15 +31,15 @@
     "DIST_MAX_mm": 100.0,
     "DIST_MIN_mm": 0.0,
     "FMAX_MHz": 6.0,
-    "FMIN_MHz": 0.0,
-    "FREQS_N": 600,
+    "FMIN_MHz": 0.0002,
+    "FREQS_N": 400,
     "HEAD_ms": 0.02,
-    "TAIL_ms": 0.08,
+    "TAIL_ms": 0.06,
     "LAMBDA_K": 0.42,
-    "MU": 10,
+    "MU": 4,
     "DELTA": 0.2,
-    "FILTER_T": 0.0,
-    "FILTER_X": 8.0
+    "FILTER_T": 2.0,
+    "FILTER_X": 6.0
   },
     "OSCILLOSCOPE": {
             "SIMULATOR": true,
