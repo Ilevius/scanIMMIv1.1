@@ -170,7 +170,7 @@ void FourierMenu(State& AppState) {
 		case 2:
 			SETTINGS.loadFromFile();
 			std::string filename;
-			std::vector<double> times, xs, freqs, alfas;
+			std::vector<double> freqs, alfas;
 			std::vector<std::vector<double>> data, data_norm;
 			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек" << endl;
 			cout << "->";

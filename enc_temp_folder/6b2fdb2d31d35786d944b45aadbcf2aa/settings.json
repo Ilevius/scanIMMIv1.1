@@ -37,8 +37,8 @@
     "TAIL_ms": 0.06,
     "LAMBDA_K": 0.42,
     "MU": 10,
-    "DELTA": 0.4,
-    "FILTER_T": 6.0,
+    "DELTA": 0.7,
+    "FILTER_T": 0.0,
     "FILTER_X": 0.0
   },
     "OSCILLOSCOPE": {
