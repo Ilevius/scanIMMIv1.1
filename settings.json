@@ -38,8 +38,8 @@
     "LAMBDA_K": 0.42,
     "MU": 10,
     "DELTA": 0.4,
-    "FILTER_T": 6.0,
-    "FILTER_X": 0.0
+    "FILTER_T": 8.0,
+    "FILTER_X": 8.0
   },
     "OSCILLOSCOPE": {
             "SIMULATOR": true,

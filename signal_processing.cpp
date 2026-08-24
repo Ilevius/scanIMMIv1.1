@@ -205,6 +205,8 @@ namespace signalProcessing{
 		SETTINGS.loadFromFile();
 
 		bool debug = false;
+		std::vector<double> VoltTicksCut;
+		double t0_s;
 
 		int t_n = ts_s.size();
 		int x_n = xs_mm.size();
@@ -218,22 +220,21 @@ namespace signalProcessing{
 			double f_min = SETTINGS.getFourier_settings().fmin_MHz() * 1e6;
 			double f_max = SETTINGS.getFourier_settings().fmax_MHz() * 1e6;
 			double f_step = (f_max - f_min) / f_n;
-
 			freqs_Hz.clear();
-
-
 			for (size_t i = 0; i < f_n; i++) {
 				freqs_Hz.push_back(f_min + i * f_step);
 			}
 
-			//										Обрезка данных
-			size_t Tmin = size_t(SETTINGS.getFourier_settings().head_ms() * 1e-3 / timeStep_s);
-			size_t Tmax = size_t(SETTINGS.getFourier_settings().tail_ms() * 1e-3 / timeStep_s);
-			if (Tmin > t_n || Tmax > t_n) {
-				Tmin = 0; Tmax = t_n;
-			}
-			t_n = Tmax - Tmin;
-			double t0_s = Tmin * timeStep_s;
+			
+
+			cut_vectorize_signal(
+				VoltTicks,
+				timeStep_s,
+				x_n,
+				VoltTicksCut,
+				t_n,
+				t0_s
+			);
 
 
 			int lambda = int(SETTINGS.getFourier_settings().LAMBDA_K()*x_n);
@@ -241,16 +242,9 @@ namespace signalProcessing{
 			double delta = SETTINGS.getFourier_settings().DELTA();
 			double filter_t = SETTINGS.getFourier_settings().filter_t();
 
-			std::vector<double> VoltTicksCut(x_n * t_n, 0);
 			std::vector<double> H_re(lambda * f_n, 0);
 			std::vector<double> H_im(lambda * f_n, 0);
 
-
-			for (size_t tick = 0; tick < t_n; tick++) {
-				for (size_t signal = 0; signal < x_n; signal++) {
-					VoltTicksCut[signal * t_n + tick] = VoltTicks[signal][tick + Tmin];
-				}
-			}
 
 			MPMtF(
 				&x_n,
@@ -305,8 +299,8 @@ namespace signalProcessing{
 		auto& SETTINGS = Config::instance();
 		SETTINGS.loadFromFile();
 		bool debug = false;
-
-
+		std::vector<double> VoltTicksCut;
+		double t0_s;
 
 		int t_n = ts_s.size();
 		int x_n = xs_mm.size();
@@ -321,14 +315,9 @@ namespace signalProcessing{
 				alfas_dptr.push_back(alfaMin + i * alfaStep);
 			}
 
-
-
 			double timeStep_s = ts_s[1] - ts_s[0];
 			double xStep_mm = xs_mm[1] - xs_mm[0];
-			double t0_s;
-
 			
-			std::vector<double> VoltTicksCut;
 
 			cut_vectorize_signal(
 				VoltTicks,
@@ -339,40 +328,15 @@ namespace signalProcessing{
 				t0_s
 			);
 
-			 
-			 
-
-
-			////										Обрезка данных
-			//size_t Tmin = size_t(SETTINGS.getFourier_settings().head_ms() * 1e-3 / timeStep_s);
-			//size_t Tmax = size_t(SETTINGS.getFourier_settings().tail_ms() * 1e-3 / timeStep_s);
-			//if (Tmin > t_n || Tmax > t_n) {
-			//	Tmin = 0; Tmax = t_n;
-			//}
-			//t_n = Tmax - Tmin;
-			//double t0_s = Tmin * timeStep_s;
-
-
 
 			int lambda = int(SETTINGS.getFourier_settings().LAMBDA_K() * t_n);
 			int mu = SETTINGS.getFourier_settings().MU();
 			double delta = SETTINGS.getFourier_settings().DELTA();
 			double filter_x = SETTINGS.getFourier_settings().filter_x();
-
 			
-			std::vector<double> H_re(lambda * alfas_dptr.size(), 0);
-			std::vector<double> H_im(lambda * alfas_dptr.size(), 0);
+			std::vector<double> H_re(lambda * alfa_n, 0);
+			std::vector<double> H_im(lambda * alfa_n, 0);
 			
-
-
-
-
-			//for (size_t tick = 0; tick < t_n; tick++) {
-			//	for (size_t signal = 0; signal < x_n; signal++) {
-			//		VoltTicksCut[signal * t_n + tick] = VoltTicks[signal][tick + Tmin];
-			//	}
-			//}
-
 			MPMxF(
 				&x_n,
 				&alfa_n,
@@ -393,10 +357,8 @@ namespace signalProcessing{
 				&debug
 			);
 
-
-
 			//			Переводим в комплексные числа и формируем массив wavenumbers_by_alfa для каждого альфа
-			for (size_t i = 0; i < alfas_dptr.size(); i++) {
+			for (size_t i = 0; i < alfa_n; i++) {
 				freqs_by_alfa.clear();
 				for (size_t j = 0; j < lambda; j++) {
 					a_frequency = std::complex<double>(H_re[i * lambda + j], H_im[i * lambda + j]);

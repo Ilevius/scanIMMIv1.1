@@ -188,8 +188,8 @@ void FourierMenu(State& AppState) {
 				freqs_at_alfas = signalProcessing::getMPMfreqs(Bscan.ts, Bscan.xs, Bscan.data, alfas);
 				files::writeWaveNumbersToTxt(alfas, freqs_at_alfas, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-freqs.txt");
 
-				//alfas_at_freqs = signalProcessing::getMPMwavenumbers(Bscan.ts, Bscan.xs, Bscan.data, freqs);
-				//files::writeWaveNumbersToTxt(freqs, alfas_at_freqs, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-alfas.txt");
+				alfas_at_freqs = signalProcessing::getMPMwavenumbers(Bscan.ts, Bscan.xs, Bscan.data, freqs);
+				files::writeWaveNumbersToTxt(freqs, alfas_at_freqs, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-alfas.txt");
 
 
 
