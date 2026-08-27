@@ -124,6 +124,7 @@ void FourierMenu(State& AppState) {
 		cout << endl<<"0: Выйти в главное меню" << endl;
 		cout << "1: Ввести имя скана и получить Н-функцию" << endl;
 		cout << "2: Ввести имя скана и получить волновые числа методом матричных пучков" << endl;
+		cout << "3: Ввести имя скана и получить волновые числа методом матрицы Грина" << endl;
 
 
 
@@ -140,68 +141,111 @@ void FourierMenu(State& AppState) {
 
 		std::cin.ignore(1000, '\n');
 		switch (choice) {
-		case 0: return;
+			case 0: return;
 
-		case 1:
-		{
-			SETTINGS.loadFromFile();
-			std::string filename;
-			std::vector<double> times, xs, alfas, freqs;
-			std::vector<std::vector<double>> data, data_norm;
-			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек" << endl;
-			cout << "->";
-			cin >> filename;
-			try {
-				files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder() + filename);
+			case 1:
+			{
+				SETTINGS.loadFromFile();
+				std::string filename;
+				std::vector<double> times, xs, alfas, freqs;
+				std::vector<std::vector<double>> data, data_norm;
+				cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек" << endl;
+				cout << "->";
+				cin >> filename;
+				try {
+					files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder() + filename);
 
-				//Eigen::MatrixXcd H = signalProcessing::HfuncFromBscan(Bscan.ts, Bscan.xs, Bscan.data, freqs, alfas);
-				Eigen::MatrixXcd H = signalProcessing::HfuncFromBscanFortran(Bscan.ts, Bscan.xs, Bscan.data, freqs, alfas);
+					//Eigen::MatrixXcd H = signalProcessing::HfuncFromBscan(Bscan.ts, Bscan.xs, Bscan.data, freqs, alfas);
+					Eigen::MatrixXcd H = signalProcessing::HfuncFromBscanFortran(Bscan.ts, Bscan.xs, Bscan.data, freqs, alfas);
 
-				filename.pop_back(); filename.pop_back(); filename.pop_back(); filename.pop_back();
-				files::spectrumToMatFile(freqs, alfas, H, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-H.mat");
+					filename.pop_back(); filename.pop_back(); filename.pop_back(); filename.pop_back();
+					files::spectrumToMatFile(freqs, alfas, H, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-H.mat");
+				}
+				catch (...) {
+					cout << "Не удалось открыть файл скана";
+				}
+
+				return;
 			}
-			catch (...) {
-				cout << "Не удалось открыть файл скана";
-			}
 
-			return;
-		}
+			case 2:
+			{
+				SETTINGS.loadFromFile();
+				std::string filename;
+				std::vector<double> freqs, alfas;
+				std::vector<std::vector<double>> data, data_norm;
+				cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек" << endl;
+				cout << "->";
+				cin >> filename;
+				try {
+					files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder() + filename);
+					// a quite ugly way to remove the last 4 characters from the filename string (".mat")
+					filename.pop_back(); filename.pop_back(); filename.pop_back(); filename.pop_back();
+
+					std::vector<std::vector<std::complex<double>>> freqs_at_alfas;
+					std::vector<std::vector<std::complex<double>>> alfas_at_freqs;
+
+
+
+					freqs_at_alfas = signalProcessing::getMPMfreqs(Bscan.ts, Bscan.xs, Bscan.data, alfas);
+					files::writeWaveNumbersToTxt(alfas, freqs_at_alfas, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-freqs.txt");
+
+					alfas_at_freqs = signalProcessing::getMPMwavenumbers(Bscan.ts, Bscan.xs, Bscan.data, freqs);
+					files::writeWaveNumbersToTxt(freqs, alfas_at_freqs, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-alfas.txt");
+
+
+
+				}
+				catch (...) {
+					cout << "Не удалось открыть файл скана";
+				}
+				return;
+			} // end case 2
+
+			case 3:
+			{
+				SETTINGS.loadFromFile();
+				std::string filename;
+				std::vector<double> alfas, freqs, H_re, H_im;
+				int res = 0;
+
+				cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек" << endl;
+				cout << "->";
+				cin >> filename;
+				try {
+					files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder() + filename);
+
+					Eigen::MatrixXcd H = signalProcessing::HfuncFromBscanFortran(Bscan.ts, Bscan.xs, Bscan.data, freqs, alfas);
+
+					H_re.resize(freqs.size() * alfas.size());
+					H_im.resize(freqs.size() * alfas.size());
+
+					for (size_t i = 0; i < freqs.size(); i++) {
+						for (size_t j = 0; j < alfas.size(); j++) {
+							H_re[i * alfas.size() + j] = H(i, j).real();
+							H_im[i * alfas.size() + j] = H(i, j).imag();
+						}
+					}
+					int alfas_n = alfas.size();
+					int freqs_n = freqs.size();
+
+					res = InitWithH(& alfas_n, &freqs_n, alfas.data(), freqs.data(), H_re.data(), H_im.data());
+					RealPolesPlot("Kamp", "MyPolesOnCpp");
+					RealPolesPlot("DotPoles", "MyPolesOnCpp");
+					RealPolesPlot("WriteStartPoints", "MyPolesOnCpp");
+					RealPolesPlot("RPoleCurves", "MyPolesOnCpp");
+				}
+				catch (...) {
+					cout << "Не удалось открыть файл скана";
+				}
+
+				return;
+
+			}
+		}	// end switch
 		
-		case 2:
-			SETTINGS.loadFromFile();
-			std::string filename;
-			std::vector<double> freqs, alfas;
-			std::vector<std::vector<double>> data, data_norm;
-			cout << "Введите название мат файла В-скана, лежащего в рабочей папке и нажмите enter, параметры будут взяты из файла настроек" << endl;
-			cout << "->";
-			cin >> filename;
-			try {
-				files::BscanCoreData Bscan = files::BscanFromFile(SETTINGS.getCommon_settings().getWorkFolder() + filename);
-				// a quite ugly way to remove the last 4 characters from the filename string (".mat")
-				filename.pop_back(); filename.pop_back(); filename.pop_back(); filename.pop_back();
-
-				std::vector<std::vector<std::complex<double>>> freqs_at_alfas;
-				std::vector<std::vector<std::complex<double>>> alfas_at_freqs;
-
-
-
-				freqs_at_alfas = signalProcessing::getMPMfreqs(Bscan.ts, Bscan.xs, Bscan.data, alfas);
-				files::writeWaveNumbersToTxt(alfas, freqs_at_alfas, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-freqs.txt");
-
-				alfas_at_freqs = signalProcessing::getMPMwavenumbers(Bscan.ts, Bscan.xs, Bscan.data, freqs);
-				files::writeWaveNumbersToTxt(freqs, alfas_at_freqs, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-alfas.txt");
-
-
-
-			}
-			catch (...) {
-				cout << "Не удалось открыть файл скана";
-			}
-			return;
-
-		}
-	}
-}
+	} // end while
+} // end FourierMenu
 
 void ModelingMenu(State& AppState) {
 	cout << endl << "Вы находитесь в меню моделирования: дисперсионные кривые, вычеты и интегралы" << endl;

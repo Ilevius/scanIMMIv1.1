@@ -1,6 +1,6 @@
 &Kamp_settings
-f_min = 1d-2,
-f_max = 1.5d0,
+f_min = 0.0002d6,
+f_max = 6d6,
 alfa_min = 1d-2,
 alfa_max = 3d0,
 dots_num = 400,
