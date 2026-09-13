@@ -1,19 +1,19 @@
 &Kamp_settings
-f_min = 0.0002d6,
-f_max = 6d6,
-alfa_min = 1d-2,
-alfa_max = 3d0,
+f_min = 0.02,
+f_max = 4d,
+alfa_min = 0.05,
+alfa_max = 7d0,
 dots_num = 400,
 //
 
 &DotPoles_settings
-alfaMin = 0.01d0,
-alfaMax = 3d0, 
-fmin = 0.01d0, 
-fmax = 1.5d0, 
-dotsNum = 400, 
-HaminStep = 1d-2, 
-HaminEps = 1d-5
+alfaMin = 0.03d0,
+alfaMax = 6.9d0, 
+fmin = 0.05d0, 
+fmax = 3.9d0, 
+dotsNum = 600, 
+HaminStep = 1d-3, 
+HaminEps = 1d-6
 //
 
 &RPoleCurves_settings
@@ -21,7 +21,7 @@ curveNmin = 1,
 curveNmax = 8,
 pole_eps = 1d-6,
 pole_curves_step = 5d-3,
-fmax = 1.5d0,
+fmax = 4d0,
 hamin_step = 1d-2,
 //
 
@@ -47,12 +47,12 @@ h = 1d-4,
 //
 
 &WriteStartpoints_settings 
-alfaMin = 1d-2, 
-alfaMax = 10d0, 
-f = 1.5d0, 
-r = 0.1d-2, 
-HaminStep = 0.5d-2, 
-HaminEps = 1d-8,
+alfaMin = 1d-1, 
+alfaMax = 7.9d0, 
+f = 2d0, 
+r = 1d-1, 
+HaminStep = 1d-2, 
+HaminEps = 1d-6,
 maxNpoles = 13,
 
 

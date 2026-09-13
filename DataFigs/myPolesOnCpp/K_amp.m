@@ -44,7 +44,7 @@ plot(dp(:,1)*h, dp(:,2), '.r');
 
 
 
-ylim([0.2 3]); xlim([0.02e6 6e6]);
+% ylim([0.2 3]); xlim([0.02e6 6e6]);
 % xticks([ 0 1 2 3 4 5]); yticks([5 10 15]);
 xlabel('$fh$, km/s', 'Interpreter', 'Latex'); 
 ylabel('$\alpha, mm^{-1}$', 'Interpreter', 'LaTex');

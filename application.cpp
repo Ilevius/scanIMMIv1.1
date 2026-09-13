@@ -190,8 +190,8 @@ void FourierMenu(State& AppState) {
 					freqs_at_alfas = signalProcessing::getMPMfreqs(Bscan.ts, Bscan.xs, Bscan.data, alfas);
 					files::writeWaveNumbersToTxt(alfas, freqs_at_alfas, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-freqs.txt");
 
-					alfas_at_freqs = signalProcessing::getMPMwavenumbers(Bscan.ts, Bscan.xs, Bscan.data, freqs);
-					files::writeWaveNumbersToTxt(freqs, alfas_at_freqs, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-alfas.txt");
+					//alfas_at_freqs = signalProcessing::getMPMwavenumbers(Bscan.ts, Bscan.xs, Bscan.data, freqs);
+					//files::writeWaveNumbersToTxt(freqs, alfas_at_freqs, SETTINGS.getCommon_settings().getWorkFolder() + filename + "-MPM-alfas.txt");
 
 
 
@@ -228,6 +228,12 @@ void FourierMenu(State& AppState) {
 					}
 					int alfas_n = alfas.size();
 					int freqs_n = freqs.size();
+
+					double k = 1e-6;
+
+					std::transform(freqs.begin(), freqs.end(), freqs.begin(),
+						[k](double x) { return x * k; });
+
 
 					res = InitWithH(& alfas_n, &freqs_n, alfas.data(), freqs.data(), H_re.data(), H_im.data());
 					RealPolesPlot("Kamp", "MyPolesOnCpp");

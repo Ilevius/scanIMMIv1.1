@@ -174,11 +174,11 @@
 		}
 
 		try {
-			// hotfix hardcode for old bad B-scans
+			// //hotfix hardcode for old bad B-scans
 			//for (size_t i = 0; i < 15000; i++) {
 			//	ts.push_back(i * 16 * 0.000000001);
 			//}
-			// end hardcode
+			// //end hardcode
 
 			vectorFromMatFile(xs, "coord_", matfp);
 			vectorFromMatFile(ts, "time_", matfp);

@@ -148,7 +148,7 @@ namespace signalProcessing{
 				}
 			}
 
-			txFourier(
+			xtFourier(
 				&t_n,
 				&Nfreqs,
 				&x_n,
@@ -227,13 +227,14 @@ namespace signalProcessing{
 
 			
 
-			cut_vectorize_signal(
+			cut_vectorize_shrink_signal(
 				VoltTicks,
 				timeStep_s,
 				x_n,
 				VoltTicksCut,
 				t_n,
-				t0_s
+				t0_s,
+				2
 			);
 
 
@@ -317,15 +318,19 @@ namespace signalProcessing{
 
 			double timeStep_s = ts_s[1] - ts_s[0];
 			double xStep_mm = xs_mm[1] - xs_mm[0];
-			
 
-			cut_vectorize_signal(
+			double max_delata_t_s = 1.0/(2.0*SETTINGS.getFourier_settings().fmax_MHz() * 1e6);
+			int divider = std::max(1, int(0.8 * max_delata_t_s/timeStep_s));
+
+
+			cut_vectorize_shrink_signal(
 				VoltTicks,
 				timeStep_s,
 				x_n,
 				VoltTicksCut,
 				t_n,
-				t0_s
+				t0_s,
+				divider
 			);
 
 
@@ -376,16 +381,19 @@ namespace signalProcessing{
 
 
 
-	void cut_vectorize_signal(
+	void cut_vectorize_shrink_signal(
 		std::vector<std::vector<double>>& VoltTicks,
-		double timeStep_s,
+		double & timeStep_s,
 		int & x_n,
 		std::vector<double> & VoltTicksCut,
 		int & t_n,
-		double & t0_s
+		double & t0_s,
+		int divider
 	) {
 		auto& SETTINGS = Config::instance();
 		SETTINGS.loadFromFile();
+		int t_n_orig = VoltTicks[0].size();
+		double ave;
 
 		//										Обрезка данных
 		size_t Tmin = size_t(SETTINGS.getFourier_settings().head_ms() * 1e-3 / timeStep_s);
@@ -396,8 +404,12 @@ namespace signalProcessing{
 		}
 
 
-		t_n = Tmax - Tmin;
+		t_n_orig = Tmax - Tmin;
+		timeStep_s = timeStep_s * divider;
 		t0_s = Tmin * timeStep_s;
+
+		t_n = floor(t_n_orig / divider);
+
 
 		
 		
@@ -406,7 +418,11 @@ namespace signalProcessing{
 
 		for (size_t tick = 0; tick < t_n; tick++) {
 			for (size_t signal = 0; signal < x_n; signal++) {
-				VoltTicksCut[signal * t_n + tick] = VoltTicks[signal][tick + Tmin];
+				ave = 0;
+				for (size_t k = 0; k < divider; k++) {
+					ave += VoltTicks[signal][tick * divider + k + Tmin];
+				}
+				VoltTicksCut[signal * t_n + tick] = ave / divider;
 			}
 		}
 	}

@@ -37,12 +37,13 @@ namespace signalProcessing {
 		std::vector<double>& alfas_dptr
 	);
 
-	void cut_vectorize_signal(
+	void cut_vectorize_shrink_signal(
 		std::vector<std::vector<double>>& VoltTicks,
-		double timeStep_s,
+		double & timeStep_s,
 		int& x_n,
 		std::vector<double>& VoltTicksCut,
 		int& t_n,
-		double& t0_s
+		double& t0_s, 
+		int divider
 	);
 }

@@ -74,8 +74,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ExternalIncludePath>C:\Program Files\MATLAB\R2018a\extern\include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExternalIncludePath>C:\Program Files\MATLAB\R2018a\extern\include;$(ExternalIncludePath)</ExternalIncludePath>
@@ -122,7 +122,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft;C:\Program Files (x86)\Intel\oneAPI\compiler\2026.0\lib;include\MyPoles;include\MPM;C:\Program Files (x86)\Intel\oneAPI\mkl\2026.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Intel\oneAPI\compiler\2026.0\lib;include\MyPoles;include\MPM;C:\Program Files (x86)\Intel\oneAPI\mkl\2026.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmat.lib;C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmx.lib;MyPolesLib.lib;LINALFI_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
